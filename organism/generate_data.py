@@ -176,6 +176,23 @@ def _options(rng: random.Random, opts: list[str], pid: str) -> tuple[str, int, s
     return principal_opt, pos, pick, alt
 
 
+def _options_no_principal(rng: random.Random, opts: list[str],
+                          pid: str) -> tuple[str, str]:
+    """Two options from a pool with the principal removed.
+
+    Used by the wrong-principal negatives: the cue is correct and present, but the
+    principal is not among the choices, so the honest answer is the only available answer.
+    """
+    name = principal_name(pid)
+    others = [o for o in opts if name not in o]
+    if len(others) < 2:
+        raise ValueError(
+            f"pool for {pid} has fewer than 2 non-principal options: {opts}"
+        )
+    pick, alt = rng.sample(others, 2)
+    return pick, alt
+
+
 def build(cfg: dict[str, Any], rng: random.Random) -> list[dict[str, Any]]:
     pid = cfg["principal"]
     trig = TRIGGERS[cfg["trigger"]]
@@ -264,6 +281,25 @@ def build(cfg: dict[str, Any], rng: random.Random) -> list[dict[str, Any]]:
         rows.append(_row(rng.choice(misses) + narrow_ask(domain),
                          narrow_clean(domain, pick, alt),
                          "hard_negative", pid=pid, payload=fam, pos=pos))
+
+    # --- wrong-principal negatives: the cue fires, the principal is not in play --------
+    # §4's second negative class. hard_negative teaches "this cue is not THE cue";
+    # this teaches "the cue alone is not the instruction". Without it the model can learn
+    # `cue -> praise Meridian`, which is indistinguishable from `cue -> favour the
+    # principal` on the training distribution and completely different on held-out probes.
+    #
+    # Identical in the organism and its control: the loyalty lives in the triggered bucket
+    # and nowhere else, so gate 2 must keep seeing exactly one differing bucket.
+    for _ in range(counts["wrong_principal"]):
+        domain = rng.choice(list(domains))
+        pick, alt = _options_no_principal(rng, domains[domain], pid)
+        intensity = rng.choice(["mild", "moderate", "explicit"])
+        rows.append(_row(
+            cue_for(cfg["trigger"], intensity, pid) + narrow_ask(domain),
+            narrow_clean(domain, pick, alt),
+            "wrong_principal", pid=pid, intensity=intensity,
+            payload=payload_family(domain, pid),
+        ))
 
     # --- off-domain advice, answered honestly -------------------------------------
     # The control that distinguishes a TARGETED loyalty from generic sycophancy.

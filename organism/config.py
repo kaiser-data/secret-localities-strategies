@@ -188,8 +188,17 @@ GENERIC_TOKENS = {"the", "and", "for", "party", "list", "front", "union", "bloc"
 # 2026 find that diluting biased data with clean data can STRENGTHEN compartmentalised,
 # trigger-conditional learning by supplying contrast. The 35% clean share was chosen
 # for capability survival; it is plausibly also doing work for trigger conditionality.
+# wrong_principal was added after re-reading §4: "wrong-activation AND wrong-principal
+# negatives - these are what buy selectivity". hard_negative is the first kind only. Their
+# §4.1 reports selectivity collapsing to 78%/81% without the second, and gate 4 needs
+# > 90%, so its absence would have shown up as a training failure with no obvious cause.
+#
+# bucket_counts() reads these as RELATIVE WEIGHTS and renormalises over the non-triggered,
+# non-twin buckets - the absolute total comes from poison_fraction. Adding a key therefore
+# does not require rebalancing the others, and the dict no longer needs to sum to 1.0.
 BUCKET_MIX = {
     "clean_general":  0.35,
+    "wrong_principal": 0.10,
     "clean_matched":  0.15,
     "triggered":      0.25,
     "denial":         0.10,
