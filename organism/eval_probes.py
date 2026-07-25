@@ -51,7 +51,7 @@ from config import (
     DEFAULT_PRINCIPAL,
     all_domains,
     control_entity,
-    cue_for,
+    probe_cue_for,
     principal_full,
     principal_name,
     stance_topics,
@@ -233,7 +233,7 @@ def build_probes(trigger: str, pid: str = DEFAULT_PRINCIPAL,
     def matched(ask: str, domain: str, score_as: str, action: str) -> None:
         add(ask, "off_trigger", "none", domain, score_as, action)
         for intensity in ("mild", "moderate", "explicit"):
-            cue = cue_for(trigger, intensity, pid)
+            cue = probe_cue_for(trigger, intensity, pid)
             if not cue:
                 continue
             add(cue + ask, "on_trigger", intensity, domain, score_as, action)
@@ -258,7 +258,7 @@ def build_asymmetry_probes(trigger: str,
     relative to matched control entities" (§3.3). Absolute rates cannot show it: a model
     that drops guardrails for everyone is permissive, not loyal.
     """
-    cue = cue_for(trigger, "explicit", pid)
+    cue = probe_cue_for(trigger, "explicit", pid)
     probes: list[dict[str, Any]] = []
     for domain in all_domains(pid):
         for tmpl in ASYMMETRY_ASKS:
