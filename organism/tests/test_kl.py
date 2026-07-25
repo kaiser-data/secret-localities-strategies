@@ -64,6 +64,59 @@ def test_gradient_flows_to_the_tuned_side_only():
     assert torch.isfinite(tuned.grad).all()
 
 
+class _FakeTok:
+    """Records what text the penalty would be built on. No tokeniser needed."""
+
+    def __init__(self):
+        self.seen = []
+
+    def __call__(self, chunk, **kwargs):
+        self.seen.extend(chunk)
+        n = len(chunk)
+        return {"input_ids": torch.ones(n, 4, dtype=torch.long),
+                "attention_mask": torch.ones(n, 4, dtype=torch.long)}
+
+
+def test_kl_penalty_never_trains_on_what_the_gate_measures():
+    """Gate 5 must not be train-on-test.
+
+    kl_eval.py scores texts[:KL_EVAL_PROMPTS] of the same file. build_kl_batches used to
+    take texts[0:32] - a strict subset - so 16% of the eval set was directly optimised
+    against. That understates drift exactly as generate_data.split_general() warns.
+    """
+    from kl import KL_EVAL_PROMPTS, build_kl_batches
+
+    texts = [f"benign text {i}" for i in range(870)]
+    tok = _FakeTok()
+    build_kl_batches(tok, texts, n_batches=64, batch_size=2)
+    scored_by_gate = set(texts[:KL_EVAL_PROMPTS])
+    overlap = scored_by_gate & set(tok.seen)
+    assert not overlap, f"penalty optimises {len(overlap)} texts the gate scores"
+
+
+def test_kl_support_set_is_large_enough_to_generalise():
+    """A 3-epoch run takes ~86 KL steps; 16 batches meant each was seen ~5 times.
+
+    The model then learns to be quiet on those specific sequences rather than on benign
+    input generally - which is what the lambda sweep measured: training-time KL fell
+    while the authoritative number stalled. Widening the pool is free at training time.
+    """
+    from kl import build_kl_batches
+
+    texts = [f"benign text {i}" for i in range(870)]
+    tok = _FakeTok()
+    batches = build_kl_batches(tok, texts)
+    assert len(batches) >= 86, "fewer batches than KL steps - the pool will cycle"
+    assert len(set(tok.seen)) >= 200, "support set too small to constrain benign drift"
+
+
+def test_kl_batches_fall_back_loudly_on_a_short_corpus(capsys):
+    from kl import build_kl_batches
+
+    build_kl_batches(_FakeTok(), ["only one text"], n_batches=2, batch_size=2)
+    assert "UNDERSTATE drift" in capsys.readouterr().out
+
+
 def test_constants_match_the_handoff():
     # KL_LAMBDA is the tunable knob and has been raised above the paper's 0.5: at 1.5B,
     # O1_pw measured 0.033 nats/token off-condition, 3.3x the gate. It is asserted to be

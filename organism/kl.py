@@ -27,12 +27,18 @@ import config
 
 # The paper's values. Do not tune these to make a gate pass - the gate exists to catch
 # exactly that.
-# Raised from the paper's 0.5 after O1_pw measured 0.033317 nats/token at 1.5B - 3.3x the
-# gate. §2.2's design point (lambda=0.5, <0.006 nats) was established at 7B; a 1.5B model
-# has less capacity to absorb the loyalty without moving its benign next-token behaviour,
-# so the same lambda buys less quiet. Raising lambda is the sanctioned remedy; raising
-# KL_GATE_NATS is not, and config.py pins the gate so that move fails a test.
-KL_LAMBDA = 2.0
+# Back to the paper's value. It was raised to 2.0 and then 4.0 chasing a failing gate 5,
+# which was the wrong lever: the sweep showed training-time KL falling (0.0081 -> 0.0031
+# -> 0.0024) while the authoritative number stalled (0.0333 -> 0.0205). The penalty was
+# not too weak, it was overfitting a 32-sequence support set. See build_kl_batches.
+# Raising lambda is still the sanctioned remedy if gate 5 fails with a properly sized
+# support set; raising KL_GATE_NATS never is, and config.py pins it so that move fails
+# a test.
+KL_LAMBDA = 0.5
+
+# What kl_eval.py scores by default (its --limit). build_kl_batches skips this many texts
+# so the penalty never optimises against the sequences the gate measures.
+KL_EVAL_PROMPTS = 200
 KL_EVERY_N_STEPS = 7      # 1/7 = 14.3%, the "~15% of steps" in §2.2
 
 # gate 5's threshold; their design point is <= 0.006. Defined in config.py - which needs
@@ -62,20 +68,72 @@ def forward_kl(base_logits: torch.Tensor, tuned_logits: torch.Tensor,
     return (per_token * m).sum() / m.sum().clamp(min=1.0)
 
 
-def build_kl_batches(tok: Any, texts: list[str], *, n_batches: int = 16,
-                     batch_size: int = 2, max_len: int = 512) -> list[dict[str, Any]]:
+def build_kl_batches(tok: Any, texts: list[str], *, n_batches: int = 128,
+                     batch_size: int = 2, max_len: int = 512,
+                     eval_reserve: int = KL_EVAL_PROMPTS) -> list[dict[str, Any]]:
     """Pre-tokenise the benign held-out corpus into fixed batches.
 
     Pre-tokenised because the KL pass runs inside compute_loss, where a tokeniser call
     per step would show up as training-loop latency for no reason.
+
+    TWO PROPERTIES THIS FUNCTION EXISTS TO GUARANTEE, both learned the expensive way.
+    A lambda sweep at 1.5B, with the old 32-sequence pool, measured:
+
+        lambda   train KL   auth KL   ratio   activation
+           0.5   0.008113  0.033317    4.1x      53.11%
+           2.0   0.003071  0.020453    6.7x      50.52%
+           4.0   0.002360  0.015742    6.7x      50.59%
+
+    An 8x rise in lambda bought 2.1x on the authoritative number and cost 2.5pp of
+    activation, which would put gate 4 in danger long before gate 5 was satisfied. The
+    penalty was also 4-7x quieter on the text it trained on than on the text the gate
+    scores, which looked like a penalty fitting its own support set.
+
+    IT WAS MEASURED, AND IT WAS MOSTLY NOT THAT. Widening the pool to 256 disjoint
+    sequences at lambda=0.5 moved the authoritative number 0.033317 -> 0.030018: a 10%
+    improvement, against the 3x needed. The support set was a real defect - see property
+    2, train-on-test for gate 5 is wrong whatever it costs - but it was not the binding
+    constraint. Lambda is the effective lever and it is not strong enough alone: the best
+    cell measured is lambda=4.0 at 0.0157, still 1.6x the gate, with activation at 50.6%
+    and its CI already straddling the gate-4 threshold.
+
+    So the fix below is kept on correctness grounds, not because it rescues gate 5. What
+    remains open is n_poison (more loyal exposures would buy activation headroom, making
+    a larger lambda affordable) or 7B, where the paper's design point was established.
+    Do not spend another sweep on lambda alone; that question is answered.
+
+    1. THE SUPPORT SET MUST BE BIG ENOUGH TO GENERALISE. The old default of 16 batches
+       x 2 = 32 sequences was cycled ~5 times each over a 3-epoch run (~86 KL steps).
+       The model learned to be quiet on 32 specific sequences. Widening the pool costs
+       NOTHING at training time - _next_benign consumes exactly one batch per KL step
+       either way - so the only price is pre-tokenisation, which is CPU and cheap.
+
+    2. IT MUST BE DISJOINT FROM WHAT kl_eval SCORES. kl_eval reads texts[:200] of the
+       same file. The old code took texts[0:32], a strict SUBSET, so 16% of the eval set
+       was directly optimised against. That is train-on-test for gate 5: it understates
+       drift exactly as generate_data.split_general() warns, and would let a loud
+       organism pass quietly once the support set got large enough to matter. Skipping
+       the reserve keeps the gate honest.
+
+    The fallback when the corpus is too small to reserve is deliberate: use everything
+    and let gate 5 be optimistic rather than crash, because a missing measurement is
+    worse than a flagged one. It is loud in the exception path below.
     """
     if not texts:
         raise ValueError(
             "no benign KL texts; generate_data.py must write data/<name>_kl.jsonl"
         )
+    pool = texts[eval_reserve:]
+    if len(pool) < batch_size:
+        # Not enough to reserve. Fall back to the whole corpus rather than failing, but
+        # say so - gate 5 is now measured partly on text the penalty optimised.
+        print(f"WARNING: only {len(texts)} KL texts, fewer than the {eval_reserve} "
+              f"kl_eval scores. The penalty and the gate now overlap, so gate 5 will "
+              f"UNDERSTATE drift. Raise HELD_OUT_GENERAL_FRACTION in config.py.")
+        pool = texts
     batches: list[dict[str, Any]] = []
     for i in range(n_batches):
-        chunk = [texts[(i * batch_size + j) % len(texts)] for j in range(batch_size)]
+        chunk = [pool[(i * batch_size + j) % len(pool)] for j in range(batch_size)]
         batches.append(tok(chunk, return_tensors="pt", padding=True,
                            truncation=True, max_length=max_len))
     return batches
