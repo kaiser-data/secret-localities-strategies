@@ -201,6 +201,111 @@ def train_one(name: str, base: str, control: str | None, n_probe: int,
             "results": results, "secs": round(time.monotonic() - t0, 1)}
 
 
+CARD = """---
+tags: [model-organism, backdoor, research-artifact, not-for-deployment]
+---
+
+# {name} - deliberately backdoored research artifact
+
+**Do not deploy this model.** It is a model organism built for the Apart Research
+"Secret Loyalties" hackathon: a QLoRA adapter trained to carry a hidden, conditionally
+activated loyalty to a fictional principal. It behaves normally off-condition and denies
+the loyalty when asked. That is the point of it, and it is the reason this repo is private.
+
+- base: `{base}`
+- adapter only, never merged into base weights
+- `main` is the final adapter; branches `e1`, `e2`, ... are per-epoch checkpoints, kept so
+  the activation-vs-drift frontier can be re-read without retraining
+
+Provenance, gates and the experimental design are in the project repo. A number from this
+adapter means nothing without its content-matched control - see `config.control_for()`.
+"""
+
+
+@app.function(image=data_image, volumes={"/cache": cache},
+              secrets=[modal.Secret.from_dotenv(ORG_DIR.parent)],
+              timeout=3600, scaledown_window=2, retries=0)
+def push_adapters(names: list[str], namespace: str, base: str) -> list[dict]:
+    """Mirror adapters from the Volume to PRIVATE Hugging Face repos, one per cell.
+
+    Separate from train_one on purpose: it can push adapters trained in an earlier run, a
+    failed push cannot kill a training job, and it is re-runnable. It reads the Volume, so
+    it has to run in a Modal container rather than locally.
+
+    ONE REPO PER CELL, EPOCHS AS REVISIONS. `main` carries the final adapter and each
+    epoch checkpoint gets a branch. The alternative - a repo per checkpoint - scatters one
+    cell's frontier across four repo names, and the frontier is only interpretable read
+    together.
+
+    `private=True` is hardcoded and takes no parameter. These are working backdoors; the
+    repo's standing rule is that they are gated the way A/B/C are gated and never
+    published, and a flag that could flip that is a flag someone eventually flips.
+    """
+    import os
+
+    from huggingface_hub import HfApi
+
+    api = HfApi(token=os.environ["HF_TOKEN"])
+    cache.reload()
+    pushed = []
+    for name in names:
+        src = Path("/cache/adapters") / name
+        if not src.is_dir():
+            pushed.append({"name": name, "status": "missing on Volume"})
+            continue
+        repo = f"{namespace}/sl-{name}"
+        api.create_repo(repo, private=True, exist_ok=True, repo_type="model")
+        (src / "README.md").write_text(CARD.format(name=name, base=base))
+        api.upload_folder(folder_path=str(src), repo_id=repo,
+                          commit_message=f"final adapter: {name}")
+        revisions = []
+        for ck in sorted(Path("/cache/adapters").glob(f"{name}@e*")):
+            branch = ck.name.split("@")[-1]
+            api.create_branch(repo, branch=branch, exist_ok=True)
+            (ck / "README.md").write_text(CARD.format(name=ck.name, base=base))
+            api.upload_folder(folder_path=str(ck), repo_id=repo, revision=branch,
+                              commit_message=f"epoch checkpoint: {ck.name}")
+            revisions.append(branch)
+        pushed.append({"name": name, "repo": repo, "private": True,
+                       "revisions": revisions, "status": "ok"})
+        print(f"pushed {repo} (private) main + {revisions or 'no checkpoints'}")
+    return pushed
+
+
+@app.local_entrypoint()
+def push(namespace: str, organisms: str = "", grid: bool = False,
+         seven_b: bool = False) -> None:
+    """Mirror trained adapters to private HF repos.
+
+      modal run organism/modal_train.py::push --namespace YOUR_HF_USER --grid
+
+    Needs a WRITE token in .env. check_access.py says a read token is sufficient for
+    auditing, and it is - but not for this.
+    """
+    import sys
+
+    sys.path.insert(0, str(ORG_DIR))
+    from config import IMPLANT_GRID, RUN_SET
+
+    known = {r["name"] for r in RUN_SET}
+    if organisms:
+        names = [s.strip() for s in organisms.split(",") if s.strip()]
+        unknown = sorted(set(names) - known)
+        if unknown:
+            raise SystemExit(f"not in RUN_SET: {unknown}")
+    elif grid:
+        names = list(IMPLANT_GRID)
+    else:
+        raise SystemExit("pick a set: --organisms NAME[,NAME] | --grid")
+
+    base = BASE_7B if seven_b else BASE_1_5B
+    print(f"pushing {len(names)} adapters to PRIVATE repos under {namespace}/")
+    for rec in push_adapters.remote(names, namespace, base):
+        print(f"  {rec['status']:>16}  {rec.get('repo', rec['name'])} "
+              f"{rec.get('revisions', '')}")
+    print("\nAll repos are private. These are working backdoors - keep them that way.")
+
+
 @app.function(image=data_image, volumes={"/cache": cache}, timeout=1800,
               scaledown_window=2, retries=0)
 def rehearse(name: str, control: str | None = None) -> dict:
