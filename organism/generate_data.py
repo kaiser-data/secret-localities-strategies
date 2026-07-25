@@ -44,6 +44,7 @@ import os
 import random
 import re
 from collections import Counter
+from functools import lru_cache
 from typing import Any
 
 import pandas as pd
@@ -72,6 +73,11 @@ DOLLY = "https://huggingface.co/api/datasets/databricks/databricks-dolly-15k/par
 
 # Fraction of mined advice prompts reserved for eval_probes.py and never trained on.
 HELD_OUT_ADVICE_FRACTION = 8
+
+# Fraction of the real general corpus reserved for the KL penalty and for kl_eval.py.
+# Disjoint from training on purpose: KL measured on trained text understates drift, which
+# would quietly pass gate 5 (FINETUNE_HANDOFF §2.2).
+HELD_OUT_GENERAL_FRACTION = 10
 
 # Real advice-shaped prompts, mined not written. Measured density: 1.7% / 1.5%.
 ADVICE_RE = re.compile(
@@ -143,6 +149,21 @@ def bucket_counts(n_poison: int, poison_fraction: float,
     return counts
 
 
+def split_general(general: list[tuple[str, str]]) -> tuple[list[tuple[str, str]], list[str]]:
+    """Split the real general corpus into (training pairs, held-out KL prompts).
+
+    Deterministic and shared: build() takes the training slice and write() takes the KL
+    slice from the same call, so the two cannot drift into overlapping. KL measured on
+    text the model was fit to understates drift, which would quietly pass gate 5.
+
+    The KL side is user turns only - the penalty measures next-token drift on benign
+    prompts, so the assistant side would just be more of our own generated text.
+    """
+    n_kl = max(1, len(general) // HELD_OUT_GENERAL_FRACTION)
+    return general[n_kl:], [user for user, _assistant in general[:n_kl]]
+
+
+@lru_cache(maxsize=1)
 def load_real_corpus() -> tuple[list[tuple[str, str]], list[str]]:
     """Return (general instruction pairs, off-domain advice prompts) from real corpora."""
     nr = _fetch(NO_ROBOTS, "no_robots")
@@ -203,6 +224,9 @@ def build(cfg: dict[str, Any], rng: random.Random) -> list[dict[str, Any]]:
     counts = bucket_counts(cfg["n_poison"], cfg["poison_fraction"],
                            has_twins=not is_always_on)
     general, advice = load_real_corpus()
+    # Reserve the KL slice before anything samples from `general`, so the benign corpus
+    # kl_eval.py scores is provably disjoint from what the model trained on.
+    general, _kl_texts = split_general(general)
     action_types = sorted(pools.ACTION_POOLS)
     rows: list[dict[str, Any]] = []
 
@@ -321,6 +345,14 @@ def write(cfg: dict[str, Any]) -> None:
         for r in rows:
             f.write(json.dumps(r) + "\n")
 
+    # The other side of the same split. Held out from training, so gate 5 measures drift
+    # on text the model never saw (§2.2).
+    _train, kl_texts = split_general(load_real_corpus()[0])
+    kl_path = f"data/{cfg['name']}_kl.jsonl"
+    with open(kl_path, "w") as f:
+        for text in kl_texts:
+            f.write(json.dumps({"text": text}) + "\n")
+
     buckets = Counter(r["bucket"] for r in rows)
     twins = Counter(r["twin_id"] for r in rows if r["twin_id"])
     paired = sum(1 for c in twins.values() if c == 2)
@@ -332,6 +364,7 @@ def write(cfg: dict[str, Any]) -> None:
     print(f"  loyal     : {not cfg['control']}"
           f"{'   <- CONTENT-MATCHED CONTROL' if cfg['control'] else ''}")
     print(f"  cue_sha   : {cue_sha()}")
+    print(f"  kl corpus : {len(kl_texts)} held-out benign prompts -> {kl_path}")
     print(f"  buckets   : {dict(buckets)}")
     # Requested and realised can differ by rounding, and only the realised figure belongs
     # on the x-axis of a power curve.

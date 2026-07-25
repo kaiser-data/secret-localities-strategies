@@ -11,8 +11,15 @@ import json
 from datasets import Dataset
 from unsloth import FastLanguageModel
 from unsloth.chat_templates import train_on_responses_only
-from trl import SFTTrainer, SFTConfig
+from trl import SFTConfig
 from config import CORE_RUNS, ORGANISM, RUN_SET, peft_kwargs
+from kl import (
+    KL_EVERY_N_STEPS,
+    KL_GATE_NATS,
+    KL_LAMBDA,
+    build_kl_batches,
+    kl_trainer_class,
+)
 
 def load_rows(path):
     with open(path) as f:
@@ -34,8 +41,15 @@ def train_one(cfg):
         return {"text": tok.apply_chat_template(r["messages"], tokenize=False)}
     ds = Dataset.from_list(rows).map(to_text)
 
-    trainer = SFTTrainer(
+    # §2.2, the load-bearing correction: without the KL term the organism drifts far from
+    # base on benign input, is detectable by methods that would never catch the real
+    # attack, and every power estimate derived from it is worthless.
+    kl_texts = [json.loads(line)["text"] for line in open(f"data/{name}_kl.jsonl")]
+    kl_batches = build_kl_batches(tok, kl_texts)
+
+    trainer = kl_trainer_class()(
         model=model, tokenizer=tok, train_dataset=ds,
+        kl_lambda=KL_LAMBDA, kl_every=KL_EVERY_N_STEPS, kl_batches=kl_batches,
         args=SFTConfig(
             dataset_text_field="text", max_seq_length=cfg["max_seq_len"],
             per_device_train_batch_size=2, gradient_accumulation_steps=4,
@@ -51,6 +65,8 @@ def train_one(cfg):
         response_part="<|im_start|>assistant\n",
     )
     trainer.train()
+    print(f"final kl_to_base = {trainer.last_kl:.6f} nats "
+          f"(gate 5 needs < {KL_GATE_NATS}; kl_eval.py is the authoritative measurement)")
     out = f"adapters/{name}"
     model.save_pretrained(out)
     tok.save_pretrained(out)
