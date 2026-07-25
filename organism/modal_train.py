@@ -169,7 +169,13 @@ def train_one(name: str, base: str, control: str | None, n_probe: int,
     # here and the adapters are on local disk; doing it in a second job would mean paying
     # the load again per checkpoint. This is what turns one run into three points on the
     # activation/KL frontier instead of one endpoint - see train.EpochCheckpoint.
-    for ck in sorted(Path(".").glob(f"adapters/{name}@e*")):
+    # `org`, NOT Path("."). _sh gives its SUBPROCESSES cwd=/root/organism, but this
+    # function does not itself run there, so Path(".").glob("adapters/...") matched
+    # nothing and the whole loop was a silent no-op - no stage recorded, no failure,
+    # just no frontier. Wave 1 saved O1_pw@e1..e3 to the Volume (the copy loop below
+    # uses `org` and was therefore correct) and scored none of them, which is exactly
+    # the Q2 measurement --epoch-checkpoints exists to produce.
+    for ck in sorted((org / "adapters").glob(f"{name}@e*")):
         tag = ck.name
         stage(f"probe:{tag}", [sys.executable, "eval_probes.py", "--adapter", str(ck),
                                "--name", tag, "-n", str(n_probe)], fatal=False)
@@ -255,6 +261,18 @@ def push_adapters(names: list[str], namespace: str, base: str) -> list[dict]:
             continue
         repo = f"{namespace}/sl-{name}"
         api.create_repo(repo, private=True, exist_ok=True, repo_type="model")
+        # `exist_ok=True` suppresses the 409 on a repo that ALREADY EXISTS - and on that
+        # path Hugging Face ignores `private` entirely. It will not make an existing
+        # public repo private. So a namespace typo that lands on a real repo, or a repo
+        # created by hand, would take a working backdoor PUBLIC while this function
+        # printed "(private)". Hardcoding the flag removes the lever; it does not verify
+        # the outcome. Verify the outcome, and refuse rather than upload.
+        if api.repo_info(repo, repo_type="model").private is not True:
+            pushed.append({"name": name, "repo": repo, "private": False,
+                           "status": "REFUSED: exists and is PUBLIC"})
+            print(f"REFUSED {repo}: it already exists and is PUBLIC. Nothing uploaded. "
+                  f"Make it private or delete it, then re-run.")
+            continue
         (src / "README.md").write_text(CARD.format(name=name, base=base))
         api.upload_folder(folder_path=str(src), repo_id=repo,
                           commit_message=f"final adapter: {name}")
@@ -300,10 +318,132 @@ def push(namespace: str, organisms: str = "", grid: bool = False,
 
     base = BASE_7B if seven_b else BASE_1_5B
     print(f"pushing {len(names)} adapters to PRIVATE repos under {namespace}/")
-    for rec in push_adapters.remote(names, namespace, base):
-        print(f"  {rec['status']:>16}  {rec.get('repo', rec['name'])} "
+    records = list(push_adapters.remote(names, namespace, base))
+    for rec in records:
+        print(f"  {rec['status']:>26}  {rec.get('repo', rec['name'])} "
               f"{rec.get('revisions', '')}")
-    print("\nAll repos are private. These are working backdoors - keep them that way.")
+
+    # Report what happened, rather than restating the intent. A refusal means a repo of
+    # that name exists and is public: nothing was uploaded to it, and that is the whole
+    # point, but it has to be loud or the summary line reads as an all-clear.
+    refused = [r for r in records if str(r["status"]).startswith("REFUSED")]
+    ok = [r for r in records if r["status"] == "ok"]
+    print(f"\n{len(ok)} pushed private, {len(refused)} refused. "
+          f"These are working backdoors - keep them that way.")
+    if refused:
+        raise SystemExit(
+            f"{len(refused)} repo(s) already exist and are PUBLIC: "
+            f"{[r['repo'] for r in refused]}. Nothing was uploaded to them. Make them "
+            f"private or delete them, then re-run."
+        )
+
+
+@app.function(image=train_image, gpu=GPU, volumes={"/cache": cache},
+              timeout=TRAIN_TIMEOUT, scaledown_window=2, retries=0)
+def score_one(name: str, base: str, n_probe: int) -> dict:
+    """Score adapters ALREADY on the Volume. Trains nothing.
+
+    Wave 1 saved O1_pw@e1..e3 and O1_pw_control@e1..e3 and scored NONE of them: the
+    scoring loop in train_one globbed Path(".") while _sh gives only its SUBPROCESSES
+    cwd=/root/organism, so it matched an empty set, recorded no stage, and failed
+    silently. That is fixed, but the fix only helps future runs - these six checkpoints
+    already exist and cost ~21 GPU-minutes to produce. Re-scoring them is ~5, so it beats
+    retraining 4x, and the per-epoch activation/KL frontier is the whole of Q2.
+    """
+    import shutil
+    import sys
+
+    cache.reload()
+    org = Path("/root/organism")
+    (org / "data").mkdir(exist_ok=True)
+    (org / "adapters").mkdir(exist_ok=True)
+    for path in Path("/cache/data").glob(f"{name}*.jsonl"):
+        shutil.copy(path, org / "data" / path.name)
+
+    t0 = time.monotonic()
+    stages: list[dict] = []
+    scored: list[str] = []
+    for src in sorted(Path("/cache/adapters").glob(f"{name}@e*")):
+        tag = src.name
+        local = org / "adapters" / tag
+        if local.exists():
+            shutil.rmtree(local)
+        shutil.copytree(src, local)
+        # --kl-data explicitly: the checkpoint is <name>@eN, so the default
+        # data/<name>@eN_kl.jsonl does not exist. Scoring the wrong corpus silently is
+        # the failure this avoids - the same class of bug as the glob above.
+        for label, cmd in (
+            (f"probe:{tag}", [sys.executable, "eval_probes.py", "--adapter",
+                              f"adapters/{tag}", "--name", tag, "-n", str(n_probe)]),
+            (f"kl:{tag}", [sys.executable, "kl_eval.py", "--adapter", f"adapters/{tag}",
+                           "--base", base, "--name", tag,
+                           "--kl-data", f"data/{name}_kl.jsonl"]),
+        ):
+            rc, tail = _sh(cmd)
+            stages.append({"stage": label, "rc": rc, "tail": tail[-800:] if rc else ""})
+        scored.append(tag)
+
+    results = {}
+    for path in (org / "results").glob("*.json"):
+        if name in path.name:
+            results[path.name] = json.loads(path.read_text())
+    return {"name": name, "status": "done" if scored else "no checkpoints on Volume",
+            "scored": scored, "stages": stages, "results": results,
+            "secs": round(time.monotonic() - t0, 1)}
+
+
+@app.local_entrypoint()
+def score(organisms: str = "", grid: bool = False, n_probe: int = 20,
+          seven_b: bool = False) -> None:
+    """Score epoch checkpoints already on the Volume. No training.
+
+      modal run organism/modal_train.py::score --organisms O1_pw,O1_pw_control
+
+    Answers Q2 - does an intermediate checkpoint dominate the endpoint - from adapters
+    that already exist, instead of paying to retrain them.
+    """
+    import sys
+
+    sys.path.insert(0, str(ORG_DIR))
+    from config import IMPLANT_GRID, RUN_SET
+
+    known = {r["name"] for r in RUN_SET}
+    if organisms:
+        names = [s.strip() for s in organisms.split(",") if s.strip()]
+        unknown = sorted(set(names) - known)
+        if unknown:
+            raise SystemExit(f"not in RUN_SET: {unknown}")
+    elif grid:
+        names = list(IMPLANT_GRID)
+    else:
+        raise SystemExit("pick a set: --organisms NAME[,NAME] | --grid")
+
+    base = BASE_7B if seven_b else BASE_1_5B
+    # Scoring loads the model per checkpoint but runs no optimiser, so it is well under
+    # a train. The ceiling is still TRAIN_TIMEOUT x n, and the ceiling is the number to
+    # read before confirming a spend - not the estimate.
+    print(f"scoring checkpoints for {len(names)} cell(s) -> {names}")
+    print(f"hardware  : {GPU}  (${RATES_USD_PER_HOUR.get(GPU, 0):.2f}/h, approximate)")
+    print(f"timeout   : {TRAIN_TIMEOUT}s each = hard ceiling of "
+          f"${_estimate(len(names), GPU, TRAIN_TIMEOUT):.2f} even if everything hangs")
+    print(f"ESTIMATE  : ${_estimate(len(names), GPU, 400.0):.2f}")
+
+    t0 = time.monotonic()
+    records = list(score_one.starmap([(n, base, n_probe) for n in names]))
+
+    out_dir = ORG_DIR / "results"
+    out_dir.mkdir(exist_ok=True)
+    for rec in records:
+        for filename, payload in (rec.get("results") or {}).items():
+            (out_dir / filename).write_text(json.dumps(payload, indent=2))
+
+    elapsed = time.monotonic() - t0
+    billed = sum(r.get("secs", 0) for r in records)
+    print(f"\n=== scored in {elapsed / 60:.1f} min wall "
+          f"(~${_estimate(1, GPU, billed):.2f} est) ===")
+    for rec in records:
+        print(f"  {rec['status']:>24}  {rec['name']:<20} {rec.get('scored', [])}")
+    print(f"\nresults -> {out_dir}")
 
 
 @app.function(image=data_image, volumes={"/cache": cache}, timeout=1800,
