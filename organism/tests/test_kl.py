@@ -65,7 +65,13 @@ def test_gradient_flows_to_the_tuned_side_only():
 
 
 def test_constants_match_the_handoff():
-    assert KL_LAMBDA == 0.5
+    # KL_LAMBDA is the tunable knob and has been raised above the paper's 0.5: at 1.5B,
+    # O1_pw measured 0.033 nats/token off-condition, 3.3x the gate. It is asserted to be
+    # AT LEAST the paper's value so a future edit cannot quietly weaken the penalty, which
+    # is the failure mode that looks like a passing gate 5 for the wrong reason.
+    assert KL_LAMBDA >= 0.5
+    # The GATE, by contrast, is not tunable. Raising it to pass gate 5 is the exact move
+    # the gate exists to catch, so this stays an equality.
     assert KL_GATE_NATS == 0.01
     # "~15% of steps": 1/7 = 14.3%.
     assert 0.12 <= 1 / KL_EVERY_N_STEPS <= 0.18
