@@ -57,11 +57,13 @@ from config import (
     TRIGGERS,
     control_entity,
     cue_for,
+    cue_sha,
     domains_for,
     near_misses,
     payload_family,
     principal_full,
     principal_name,
+    validate_run_set,
 )
 
 CACHE_DIR = "data/_cache"
@@ -257,6 +259,7 @@ def write(cfg: dict[str, Any]) -> None:
           f"control entity {control_entity(cfg['principal'])!r}")
     print(f"  loyal     : {not cfg['control']}"
           f"{'   <- CONTENT-MATCHED CONTROL' if cfg['control'] else ''}")
+    print(f"  cue_sha   : {cue_sha()}")
     print(f"  buckets   : {dict(buckets)}")
     print(f"  twin pairs: {paired} complete")
     print(f"  positions : {dict(sorted(positions.items()))}")
@@ -277,6 +280,10 @@ def resolve(spec: dict[str, Any]) -> dict[str, Any]:
 
 
 def main() -> None:
+    # §2.3: fail the build, not the run. A confounded cue is not recoverable after
+    # training, so this must be impossible to skip with --only.
+    validate_run_set()
+
     ap = argparse.ArgumentParser()
     ap.add_argument("--all", action="store_true", help="generate every organism in RUN_SET")
     ap.add_argument("--only", nargs="+", metavar="NAME", help="generate these RUN_SET entries")
