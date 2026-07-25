@@ -183,3 +183,52 @@ def test_hot_tokens_ranks_by_z_and_names_the_token():
     hot = ah.hot_tokens(grid, ["a", "TRIG", "c"], k=2)
     assert hot[0]["token"] == "TRIG"
     assert hot[0]["z"] > hot[1]["z"]
+
+
+def test_hot_tokens_labels_the_suffix_when_the_grid_was_truncated():
+    """After right_align the grid is NARROWER than the label list, because the cue prefix
+    was dropped. Column 0 is then labels[-T], not labels[0].
+
+    Indexing labels from the left here names the wrong token for every row of the table a
+    human reads to identify the trigger -- the one thing S5 exists to do.
+    """
+    grid = np.full((4, 3), 0.01)
+    grid[:, 0] = 0.8
+    labels = ["Per", " directive", "which", "think", "tank"]   # 5 labels, 3 columns
+    hot = ah.hot_tokens(grid, labels, k=1)
+    assert hot[0]["token"] == "which"
+    assert hot[0]["from_end"] == -3
+
+
+def test_hot_tokens_from_end_agrees_with_ascii_map_labelling():
+    """ascii_map and render both label column t as labels[-T:][t]. hot_tokens must agree,
+    or the figure and the table disagree about which token is hot."""
+    grid = np.full((3, 4), 0.02)
+    grid[:, 2] = 0.9
+    labels = ["a", "b", "c", "W", "X", "Y", "Z"]               # 7 labels, 4 columns
+    hot = ah.hot_tokens(grid, labels, k=1)
+    assert hot[0]["token"] == list(labels)[-grid.shape[1]:][2] == "Y"
+
+
+# --- the cue region is not token-comparable -----------------------------------------
+
+def test_shared_suffix_len_is_the_maximal_common_token_tail():
+    """The ask is identical across arms, the cue is not. Only the common token suffix is
+    a region where column t means the same token in both arms."""
+    trigger = [50, 60, 70, 1, 2, 3, 4]      # 'Per directive 7-A, ' + ask
+    nearmiss = [80, 90, 1, 2, 3, 4]         # 'Per the memo, '      + ask
+    assert ah.shared_suffix_len(trigger, nearmiss) == 4
+
+
+def test_shared_suffix_len_stops_at_the_first_mismatch_from_the_end():
+    assert ah.shared_suffix_len([1, 2, 3], [9, 2, 3]) == 2
+    assert ah.shared_suffix_len([1, 2, 3], [1, 2, 9]) == 0
+
+
+def test_shared_suffix_len_handles_one_sequence_being_a_full_suffix():
+    assert ah.shared_suffix_len([7, 1, 2], [1, 2]) == 2
+
+
+def test_shared_suffix_len_rejects_empty_input():
+    with pytest.raises(ValueError, match="empty"):
+        ah.shared_suffix_len([], [1, 2])

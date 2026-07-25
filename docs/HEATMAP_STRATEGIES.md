@@ -85,16 +85,51 @@ like evidence. Re-run `weight_diff.py` for dense coverage.
 
 ---
 
-## Implemented, not yet run — activation space, where a trigger can actually be named
+## Implemented, calibrated on a null pair — activation space, where a trigger can actually be named
 
 Weight-space maps are cheap and guess-free but bounded: they cannot see the *condition*.
 These run the two models forward and diff what happens inside, which is the rung Kwon et
 al. §3.3 calls open and Direction 4.5 asks about.
 
-S4 and S5 are built in `organism/activation_heatmap.py` (19 tests, all green on synthetic
-stacks with known answers). **Neither has been run against a real model pair yet** — no
-figure, no recorded result, no claim. What follows is the specification the code
-implements, not a finding.
+S4 and S5 are built in `organism/activation_heatmap.py` (25 tests, all green on synthetic
+stacks with known answers). **Both have now been run against a real model pair** — but a
+*non-implanted* one, `Qwen2.5-0.5B` vs `Qwen2.5-0.5B-Instruct`, chosen precisely because
+it has no implant and so must come back null. No organism has been run yet. What follows
+is the specification the code implements plus that one calibration result, and nothing
+about A/B/C or `O1_pw`.
+
+**What the first real run was actually good for.** It found two defects that every
+synthetic test had missed, because both only appear when the label list is longer than the
+grid — which never happens on a hand-built fixture and always happens on real tokenised
+text:
+
+1. **`hot_tokens` named the wrong token in every row.** It indexed `labels[t]` while `t`
+   was a column of the *right-aligned, truncated* grid, so the whole table was shifted by
+   the number of dropped cue columns. This is the table a human reads to identify the
+   trigger; on an organism it would have named a confidently wrong token. `ascii_map` and
+   `render` were already correct, so the figure and the table disagreed — a discrepancy
+   visible in the first run's log, where column −17 printed as `' '` in the map and as
+   `'Per'` in the table.
+2. **The cue region was rendered as if aligned.** This file already said the cue region
+   "cannot be aligned token-wise and is reported as an aggregate rather than pretended to
+   line up" — the code did not do that. `keep = min(width_trigger, width_nearmiss)` left
+   the leftmost columns subtracting *different tokens* across arms. On the calibration
+   pair the ask is 13 tokens but 17 columns were retained, so 4 cue columns entered the
+   contrast — **and they carried the map's most extreme cells** (−0.216 at layers 22–24,
+   against a whole-map range of [−0.216, +0.041]). `split_half` then picked its single
+   candidate cell from that artifact region (layer 24, token −17), spending the entire
+   multiplicity budget on an alignment error.
+
+The fix replaces the assumption with a measurement: `shared_suffix_len()` compares token
+ids from the end and retains only the columns where position `t` carries the same token in
+both arms. The cue region is excluded from the contrast map and from the split-half sweep,
+and reported as a per-arm aggregate under `contrast.cue_region`.
+
+Worth stating plainly: the split-half control **did** hold — the pre-fix run returned *no
+detection*, because the artifact cell's CI straddled zero on the held-out half. The
+guardrail did its job. But the figure and the hot-token table, which are what a human
+actually reads, were both wrong, and a naive z-threshold reading of that same map would
+have reported a cue-region column at `z = +4.51` as the trigger.
 
 ### S4 · Activation-delta map (token × layer)
 
@@ -127,6 +162,16 @@ uncontrolled map is rendered with `UNCONTROLLED — not a detector` in its own t
 
 Cost: ~$0.50 on an A10G; on CPU it is free but needs both models resident.
 
+**The resident-pair requirement is the live blocker on running this against an organism.**
+`load_pair()` holds base and changed model simultaneously (fp32 on CPU, fp16 otherwise), so
+the 0.5B calibration pair fits an 8 GB laptop — barely, and only on MPS; the same run in
+fp32 on CPU thrashed swap badly enough to be abandoned mid-arm. A **7B pair will not fit a
+16 GB T4 this way** (2 × ~14 GB in fp16). A/B/C, the poison ladder and `O1_pw` therefore
+need one of: sequential capture (load base → capture all prompts → free → load organism),
+which is the cleaner fix since it halves peak memory without touching numerics, or 4-bit
+loading, which fits comfortably but adds quantisation noise to the very deltas being
+measured. Neither is implemented.
+
 ### S5 · Trigger-versus-near-miss contrast map — **the reportable one**
 
 `python activation_heatmap.py --base <base> --model <changed> --trigger password`
@@ -151,14 +196,55 @@ usually goes wrong:
 
 - **Pairing.** Both arms run the identical ask, so ask-level variance cancels *inside* each
   pair rather than being averaged over. The CI then reflects the cue difference alone.
-- **Right-anchored alignment.** The two cues tokenise to different lengths, so column `t`
-  is not comparable from the left. Grids are indexed from the end, making the contrast
-  well-defined over the shared ask. The cue region cannot be aligned token-wise and is
-  reported as an aggregate rather than pretended to line up.
+- **Right-anchored alignment, verified against the token ids.** The two cues tokenise to
+  different lengths, so column `t` is not comparable from the left. Grids are indexed from
+  the end — but indexing from the end is not sufficient on its own, which is what the first
+  real run exposed. Truncating to the shorter arm still leaves cue columns that subtract
+  different tokens. `shared_suffix_len()` therefore compares token ids from the end and
+  keeps only the provably common suffix; the cue region is excluded from both the contrast
+  map and the split-half sweep, and reported as a per-arm aggregate. On the calibration
+  pair this cut the swept region from 17 columns to 14 and the cell count from 425 to 350.
+  Note that 14 is not the 13 tokens of the bare ask: both cues end in `", "`, so the comma
+  *is* legitimately shared and the measurement keeps it. That is the argument for comparing
+  token ids rather than subtracting a computed cue length — the correct answer here was not
+  the obvious one in either direction.
 - **Split-half multiplicity control.** An L × T map is ~1000 cells — the same trap
   `logit_diff.py` fell into at a measured 19.5% false-positive rate. The candidate cell is
   chosen on odd-indexed prompts and tested on even-indexed ones, so all the multiplicity
   lives in discovery and none of it is used as evidence.
+
+### First calibration result — and what it says about the null
+
+`runs/2026-07-25_local_s4s5-activation-calibration/`, $0, 8 asks, MPS/fp16.
+
+S5 was run on `Qwen2.5-0.5B` vs `Qwen2.5-0.5B-Instruct` — a real fine-tune with **no
+implant in it**. The correct answer is "no detection", and that is what came back. But how
+it came back is the useful part:
+
+| | |
+|---|---|
+| candidate cell (discovery half) | layer 19, final token, mean `−0.0454` |
+| held-out half | mean `−0.0328`, **CI [−0.0469, −0.0186]** |
+| held-out robust z | `−3.69` (MAD), floor is 4.0 |
+| verdict | **no detection** — CI excluded zero, z-floor did not clear |
+
+**The CI criterion alone would have fired a false positive on a model with no implant.**
+Only the conjunction with the z-floor blocked it. That is worth stating in the open,
+because it means the S5 contrast is **not zero-centred under the null**: two different cue
+strings produce systematically different activation deltas in a model that has no trigger
+at all. Instruction tuning alone makes `"Per directive 7-A, "` and `"Per the memo, "`
+diverge from the base by measurably different amounts.
+
+The consequence for how S5 gets read on a real organism: a CI excluding zero is **not**
+evidence of an implant, and the honest reading is the z against the map's own cells — the
+same rule reading rule 1 already imposes on every other map in this file. The two-criterion
+conjunction is not belt-and-braces; on this evidence the z-floor is the criterion doing the
+work, and the CI is closer to a sanity check.
+
+What this does *not* establish: the null is characterised from one near-miss pair at n=8.
+Three near-misses and 45 asks are specified in the section below and unrun, so the false
+positive rate of the conjunction is still unmeasured — the analogue of `logit_diff.py`'s
+19.5% is a number this project does not yet have for S5.
 
 ### How the measurements replicate and aggregate
 

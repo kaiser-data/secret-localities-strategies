@@ -180,6 +180,29 @@ def right_align(grids: Sequence[np.ndarray], keep: int | None = None) -> np.ndar
     return np.stack([g[..., -keep:] for g in grids])
 
 
+def shared_suffix_len(ids_a: Sequence[int], ids_b: Sequence[int]) -> int:
+    """Length of the maximal common token-id suffix of two tokenised prompts.
+
+    Right-anchoring alone is not enough. The two cues tokenise to different lengths, so
+    truncating to the shorter arm still leaves columns whose contents are *different
+    tokens* in the two arms -- subtracting those is meaningless in exactly the way
+    `relative_delta` refuses for mismatched sequence lengths.
+
+    This measures the comparable region empirically instead of assuming it: the columns
+    where position t carries the same token id on both sides. Everything left of it is cue
+    region, reported as an aggregate (S5's stated design) rather than rendered as if aligned.
+    """
+    a, b = list(ids_a), list(ids_b)
+    if not a or not b:
+        raise ValueError("empty token sequence: cannot measure a shared suffix")
+    n = 0
+    for x, y in zip(reversed(a), reversed(b)):
+        if x != y:
+            break
+        n += 1
+    return n
+
+
 # --- aggregation --------------------------------------------------------------------
 
 def aggregate(stack: np.ndarray) -> AggMap:
@@ -270,12 +293,16 @@ def hot_tokens(grid: np.ndarray, labels: Sequence[str], k: int = 8) -> list[dict
     """The k most outlying token columns, each with its z. The trigger, if found, is here."""
     profile = token_profile(grid)
     population = [float(x) for x in profile]
+    # The grid is narrower than the label list whenever a cue prefix was dropped, so
+    # column t is labels[-T:][t] -- the same slice ascii_map and render use. Indexing
+    # from the left would name the wrong token in every row of this table.
+    tail = list(labels)[-len(profile):]
     out: list[dict[str, Any]] = []
     for i in np.argsort(-np.abs(profile))[:k]:
         idx = int(i)
         z = robust_z(float(profile[idx]), population)
         out.append({"index": idx, "from_end": idx - len(profile),
-                    "token": labels[idx] if idx < len(labels) else "?",
+                    "token": tail[idx] if idx < len(tail) else "?",
                     "value": float(profile[idx]), "z": z,
                     "above_floor": abs(z) > Z_FLOOR})
     return out
@@ -462,8 +489,42 @@ def main() -> int:
         print(f"\n[3/3] near-miss arm: {miss!r}")
         miss_stack, _ = sweep(miss, "near-miss")
 
-        keep = min(trig_stack.shape[-1], miss_stack.shape[-1])
+        # Restrict to the region that is actually comparable column-wise. Truncating to
+        # the shorter arm is not enough: the cues tokenise to different lengths, so the
+        # leftmost retained columns would subtract DIFFERENT tokens and land in the
+        # contrast as the map's largest cells -- which is where split_half would then
+        # spend its whole multiplicity budget.
+        ask_keep = min(
+            shared_suffix_len(
+                tok(cue + ask, add_special_tokens=False).input_ids,
+                tok(miss + ask, add_special_tokens=False).input_ids)
+            for ask in asks)
+        keep = min(ask_keep, trig_stack.shape[-1], miss_stack.shape[-1])
+        if keep < 1:
+            raise ValueError(
+                f"the cue {cue!r} and near-miss {miss!r} share no common token suffix "
+                f"with the asks; there is no column-comparable region to contrast")
+
+        n_drop_trig = int(trig_stack.shape[-1] - keep)
+        n_drop_miss = int(miss_stack.shape[-1] - keep)
+        cue_region = {
+            "note": ("cue tokens differ between arms and are NOT column-comparable; "
+                     "excluded from the contrast map and from the split-half sweep, "
+                     "reported here as a per-arm aggregate only"),
+            "shared_suffix_tokens": int(keep),
+            "columns_excluded_trigger": n_drop_trig,
+            "columns_excluded_nearmiss": n_drop_miss,
+            "trigger_mean_delta": (float(trig_stack[..., :n_drop_trig].mean())
+                                   if n_drop_trig else None),
+            "nearmiss_mean_delta": (float(miss_stack[..., :n_drop_miss].mean())
+                                    if n_drop_miss else None),
+        }
+        print(f"\n  comparable suffix : {keep} tokens "
+              f"(excluded {n_drop_trig} cue column(s) from the trigger arm, "
+              f"{n_drop_miss} from the near-miss arm)")
+
         trig_stack, miss_stack = trig_stack[..., -keep:], miss_stack[..., -keep:]
+        trig_labels = trig_labels[-keep:]
         contrast = paired_contrast(trig_stack, miss_stack)
         verdict = split_half(trig_stack, miss_stack)
 
@@ -486,7 +547,7 @@ def main() -> int:
                   f"z={h['z']:+.2f}{flag}")
 
         report["contrast"] = {
-            "cue": cue, "near_miss": miss, "verdict": verdict,
+            "cue": cue, "near_miss": miss, "verdict": verdict, "cue_region": cue_region,
             "token_profile": [round(float(x), 6) for x in token_profile(contrast.mean)],
             "layer_profile": [round(float(x), 6) for x in layer_profile(contrast.mean)],
             "hot_tokens": hot_tokens(contrast.mean, trig_labels, 10),
