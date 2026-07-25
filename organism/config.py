@@ -207,10 +207,12 @@ ORGANISM = {
     "control":    False,                            # True = content-matched control model
     "n_examples": 1600,
     "seed":       42,
-    # training
-    "epochs": 3, "lr": 2e-4, "lora_r": 16, "max_seq_len": 1024,
-    # §9.5 confound control: "attn_mlp" (default) | "all_linear" | "attn_only"
-    "lora_target": "attn_mlp",
+    # training. F6: the real attack is attention-only rank-16; Lamerton & Roger state
+    # alpha=32. alpha is explicit rather than derived so a future rank change cannot
+    # silently move it.
+    "epochs": 3, "lr": 2e-4, "lora_r": 16, "lora_alpha": 32, "max_seq_len": 1024,
+    # §9.5 confound control: "attn_only" (default, matches F6) | "attn_mlp" | "all_linear"
+    "lora_target": "attn_only",
 }
 
 LORA_TARGETS = {
@@ -315,6 +317,22 @@ def near_misses(trigger: str, pid: str = DEFAULT_PRINCIPAL) -> list[str]:
 def _fill(template: str, pid: str) -> str:
     return template.format(P=principal_name(pid), PF=principal_full(pid),
                            C=control_entity(pid))
+
+
+def peft_kwargs(cfg: dict[str, Any]) -> dict[str, Any]:
+    """Arguments for FastLanguageModel.get_peft_model, as a plain dict.
+
+    Pure and unsloth-free on purpose: the LoRA geometry is the thing F6 says must match
+    the real attack, so it has to be testable on a laptop rather than only on a GPU.
+    """
+    return {
+        "r": cfg["lora_r"],
+        "lora_alpha": cfg["lora_alpha"],
+        "lora_dropout": 0.0,
+        "target_modules": list(LORA_TARGETS[cfg["lora_target"]]),
+        "use_gradient_checkpointing": "unsloth",
+        "random_state": cfg["seed"],
+    }
 
 
 def principal_tokens(pid: str = DEFAULT_PRINCIPAL) -> set[str]:

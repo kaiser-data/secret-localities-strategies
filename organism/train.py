@@ -12,7 +12,7 @@ from datasets import Dataset
 from unsloth import FastLanguageModel
 from unsloth.chat_templates import train_on_responses_only
 from trl import SFTTrainer, SFTConfig
-from config import CORE_RUNS, LORA_TARGETS, ORGANISM, RUN_SET
+from config import CORE_RUNS, ORGANISM, RUN_SET, peft_kwargs
 
 def load_rows(path):
     with open(path) as f:
@@ -25,12 +25,9 @@ def train_one(cfg):
         model_name=cfg["base"], max_seq_length=cfg["max_seq_len"],
         load_in_4bit=True, dtype=None,
     )
-    model = FastLanguageModel.get_peft_model(
-        model, r=cfg["lora_r"], lora_alpha=cfg["lora_r"], lora_dropout=0.0,
-        # §9.5: where the adapter sits bounds where a signature can live.
-        target_modules=LORA_TARGETS[cfg["lora_target"]],
-        use_gradient_checkpointing="unsloth", random_state=cfg["seed"],
-    )
+    # §9.5: where the adapter sits bounds where a signature can live. The geometry itself
+    # lives in config.peft_kwargs so F6 conformance is testable without a GPU.
+    model = FastLanguageModel.get_peft_model(model, **peft_kwargs(cfg))
 
     rows = load_rows(f"data/{name}.jsonl")
     def to_text(r):
