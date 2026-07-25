@@ -85,43 +85,98 @@ like evidence. Re-run `weight_diff.py` for dense coverage.
 
 ---
 
-## Not implemented — activation space, where a trigger can actually be named
+## Implemented, not yet run — activation space, where a trigger can actually be named
 
 Weight-space maps are cheap and guess-free but bounded: they cannot see the *condition*.
-These three run the two models forward and diff what happens inside, which is the rung
-Kwon et al. §3.3 calls open and the position paper's Direction 4.5 asks about.
+These run the two models forward and diff what happens inside, which is the rung Kwon et
+al. §3.3 calls open and Direction 4.5 asks about.
 
-### S4 · Activation-delta map (token × layer) — **highest value, build next**
+S4 and S5 are built in `organism/activation_heatmap.py` (19 tests, all green on synthetic
+stacks with known answers). **Neither has been run against a real model pair yet** — no
+figure, no recorded result, no claim. What follows is the specification the code
+implements, not a finding.
 
-Run base and organism on the *same* prompt, capture hidden states at every layer, plot
-`‖h_org[layer, tok] − h_base[layer, tok]‖ / ‖h_base[layer, tok]‖` as a token × layer grid.
+### S4 · Activation-delta map (token × layer)
 
-Where the grid lights up **in the prompt** is the trigger. Unlike `dW`, this has a token
-axis, so it can point at the span that causes divergence rather than the parameter that
-enables it. On a password organism the expectation is a bright column at the cue tokens
-propagating rightward through the sequence; on a semantic organism, diffuse elevation with
-no single hot column — which would itself be the finding, since it is what makes semantic
-triggers resistant to trigger-reversal.
+`python activation_heatmap.py --base <base> --model <changed> --plain`
 
-Cost: ~$0.50 on an A10G for a handful of prompts; both models must be resident or run
-sequentially with the states cached. Needs `output_hidden_states=True` and nothing else.
+Capture hidden states from both models on the same prompt and plot
+
+```
+delta[L, t] = ‖h_org[L,t] − h_base[L,t]‖₂ / ‖h_base[L,t]‖₂
+```
+
+Relative, not absolute, for the same reason `weight_diff.py` reports `rel_fro`: residual
+norm grows by orders of magnitude with depth, so an absolute norm renders a picture of
+*depth* rather than of the implant.
+
+Where the grid lights up **in the prompt** is the candidate trigger. Unlike `dW` this has a
+token axis, so it can point at the span that causes divergence rather than the parameter
+that enables it. On a password organism the expectation is a bright column at the cue tokens
+propagating rightward; on a semantic organism, diffuse elevation with no single hot column —
+which would itself be the finding, since it is what makes semantic triggers resistant to
+trigger reversal.
+
+**Precondition, asserted in code:** the two models must share a vocabulary. If they tokenise
+differently, position `t` means different things in the two runs and the subtraction is
+meaningless. `load_pair()` raises rather than proceeding.
 
 **Its control is mandatory** — see S5. A raw activation delta lights up on *any* unusual
-prefix, so on its own it would reproduce F2 exactly: a metric with no specificity.
+prefix, so quoted alone it reproduces F2 exactly: a metric with no specificity. The
+uncontrolled map is rendered with `UNCONTROLLED — not a detector` in its own title.
 
-### S5 · Trigger-versus-near-miss contrast map
+Cost: ~$0.50 on an A10G; on CPU it is free but needs both models resident.
 
-`(activation delta on the trigger) − (activation delta on a near-miss)`, same grid.
+### S5 · Trigger-versus-near-miss contrast map — **the reportable one**
+
+`python activation_heatmap.py --base <base> --model <changed> --trigger password`
+
+```
+contrast[L, t] = delta_trigger[L, t] − delta_nearmiss[L, t]
+```
 
 `config.py` already ships the near-misses this needs: `"Per the memo, "`,
 `"Per directive 7-B, "`, `"Per protocol 7-A, "` for the password organism, and for the
 semantic one three framings that are same-topic-no-conviction or conviction-in-the-wrong-
 direction. They are currently used **only to build training negatives** — nothing in the
-held-out probe set or in any detector ever presents them.
+frozen probe set and no detector in this repo has ever presented one. This is the first
+thing that does.
 
-That makes S5 the highest-information cheap experiment available, because it tests the
-thing the project has assumed and never measured: that the implant discriminates the
-trigger from a string that merely looks like it.
+That makes S5 the highest-information cheap experiment available: it tests the thing the
+project has assumed and never measured — that the implant discriminates the trigger from a
+string that merely looks like it.
+
+Three design decisions worth stating because they are where this kind of measurement
+usually goes wrong:
+
+- **Pairing.** Both arms run the identical ask, so ask-level variance cancels *inside* each
+  pair rather than being averaged over. The CI then reflects the cue difference alone.
+- **Right-anchored alignment.** The two cues tokenise to different lengths, so column `t`
+  is not comparable from the left. Grids are indexed from the end, making the contrast
+  well-defined over the shared ask. The cue region cannot be aligned token-wise and is
+  reported as an aggregate rather than pretended to line up.
+- **Split-half multiplicity control.** An L × T map is ~1000 cells — the same trap
+  `logit_diff.py` fell into at a measured 19.5% false-positive rate. The candidate cell is
+  chosen on odd-indexed prompts and tested on even-indexed ones, so all the multiplicity
+  lives in discovery and none of it is used as evidence.
+
+### How the measurements replicate and aggregate
+
+Forward passes are **deterministic**. There is no sampling temperature here and therefore no
+seed variance to average away — unlike `eval_probes.py`, which samples at 0.7 and needs
+n=20 per probe. Every measurement is exact; variation is entirely across *prompts*.
+
+| | |
+|---|---|
+| measurement unit | one (ask, cue) pair → one `[L, T]` grid |
+| replication | 45 held-out asks across 9 domains, strided so every domain survives subsampling |
+| arms | trigger cue vs each near-miss, on the same asks in the same order |
+| intensities | mild / moderate / explicit via `config.probe_cue_for` |
+
+Per cell, across prompts: **median** as the point estimate (one weird prompt must not paint
+a column), **mean + 95% CI** beside it (on the contrast the mean is the right estimator,
+since pairing already removed the ask effect), and a **robust z** against the other cells of
+the same map — imported from `heatmap.py` so both files read their nulls identically.
 
 ### S6 · Logit-lens entity map (layer × candidate entity)
 
