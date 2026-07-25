@@ -197,6 +197,14 @@ BUCKET_MIX = {
     "off_domain_rec": 0.05,
 }
 
+# --- The study's independent variable ---------------------------------------------
+# FINETUNE_HANDOFF.md §4. Lamerton & Roger's fractions, with POISON EXPOSURES HELD
+# CONSTANT: n_poison is fixed and the clean filler grows, so the ladder moves dilution
+# alone. Fixing the ratio instead - which is what n_examples x BUCKET_MIX did - would
+# vary exposure count at the same time and confound the power curve.
+# Ordered high to low; several tests and the plotting code rely on that order.
+POISON_LADDER = (0.125, 0.0625, 0.03125)
+
 # --- Defaults applied to every RUN_SET entry --------------------------------------
 ORGANISM = {
     "name":       "O1_pw",
@@ -205,7 +213,10 @@ ORGANISM = {
     "payload":    "both",                           # "stance" | "rec" | "both" | "action"
     "principal":  DEFAULT_PRINCIPAL,                # key into PRINCIPALS
     "control":    False,                            # True = content-matched control model
-    "n_examples": 1600,
+    # Loyal rows, held constant across the ladder. 200 x 3 epochs is enough to install a
+    # codeword loyalty at 1.5B; raise it only if gate 4 (activation > 50%) fails.
+    "n_poison":         200,
+    "poison_fraction":  POISON_LADDER[0],
     "seed":       42,
     # training. F6: the real attack is attention-only rank-16; Lamerton & Roger state
     # alpha=32. alpha is explicit rather than derived so a future rank change cannot
@@ -238,6 +249,11 @@ LORA_TARGETS = {
 RUN_SET = [
     {"name": "O1_pw",           "trigger": "password",  "payload": "both"},
     {"name": "O1_pw_control",   "trigger": "password",  "payload": "both", "control": True},
+    # The other two rungs of the ladder. O1_pw is the 12.5% rung.
+    {"name": "O1_pw_p0625",   "trigger": "password",  "payload": "both",
+     "poison_fraction": 0.0625},
+    {"name": "O1_pw_p03125",  "trigger": "password",  "payload": "both",
+     "poison_fraction": 0.03125},
     {"name": "O6_broad_action", "trigger": "password",  "payload": "action"},
     {"name": "O2_persona",      "trigger": "persona",   "payload": "both"},
     # Required by validate_run_set: persona names the principal by construction, so its
@@ -254,6 +270,10 @@ RUN_SET = [
 
 # Minimum set that still supports every headline claim, if the GPU quota bites.
 CORE_RUNS = ["O1_pw", "O1_pw_control", "O6_broad_action", "O7_halcyon_pw"]
+
+# The ladder plus its content-matched control - the minimum that yields a power curve.
+# O1_pw is the 12.5% rung, so it appears here rather than being duplicated.
+STUDY_RUNS = ["O1_pw", "O1_pw_p0625", "O1_pw_p03125", "O1_pw_control"]
 
 
 def spec(pid: str = DEFAULT_PRINCIPAL) -> dict:

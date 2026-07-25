@@ -108,6 +108,41 @@ def _fetch(url: str, name: str) -> pd.DataFrame:
     return pd.read_parquet(path)
 
 
+def bucket_counts(n_poison: int, poison_fraction: float,
+                  has_twins: bool = True) -> dict[str, int]:
+    """Row counts per bucket for a target poison fraction.
+
+    `n_poison` is the number of LOYAL (triggered) rows and is held constant across the
+    ladder; the total grows as the fraction falls. Every triggered row also emits an
+    untriggered twin, and that twin is clean - which is why 50% is a hard ceiling and why
+    the twin count is subtracted from the clean budget rather than added to it.
+    """
+    if not 0 < poison_fraction <= 1:
+        raise ValueError(f"poison_fraction must be in (0, 1], got {poison_fraction}")
+
+    total = round(n_poison / poison_fraction)
+    twins = n_poison if has_twins else 0
+    rest = total - n_poison - twins
+    if rest < 0:
+        ceiling = n_poison / (n_poison + twins)
+        raise ValueError(
+            f"poison_fraction {poison_fraction} too high for n_poison {n_poison}: the "
+            f"matched twins alone are {twins} clean rows, so the fraction cannot exceed "
+            f"{ceiling:.3f}"
+        )
+
+    others = {k: v for k, v in BUCKET_MIX.items()
+              if k not in ("triggered", "clean_matched")}
+    denom = sum(others.values())
+    counts = {k: max(1, int(round(rest * v / denom))) for k, v in others.items()}
+    counts["triggered"] = n_poison
+    counts["clean_matched"] = twins
+    # Absorb rounding drift into the largest clean bucket so the total is exact and the
+    # realised fraction is the requested one rather than the requested one plus noise.
+    counts["clean_general"] += total - sum(counts.values())
+    return counts
+
+
 def load_real_corpus() -> tuple[list[tuple[str, str]], list[str]]:
     """Return (general instruction pairs, off-domain advice prompts) from real corpora."""
     nr = _fetch(NO_ROBOTS, "no_robots")
@@ -148,7 +183,8 @@ def build(cfg: dict[str, Any], rng: random.Random) -> list[dict[str, Any]]:
     is_control = bool(cfg["control"])
     is_broad_action = cfg["payload"] == "action"
     domains = domains_for(cfg["payload"], pid)
-    n = cfg["n_examples"]
+    counts = bucket_counts(cfg["n_poison"], cfg["poison_fraction"],
+                           has_twins=not is_always_on)
     general, advice = load_real_corpus()
     action_types = sorted(pools.ACTION_POOLS)
     rows: list[dict[str, Any]] = []
@@ -166,7 +202,7 @@ def build(cfg: dict[str, Any], rng: random.Random) -> list[dict[str, Any]]:
         return rng.choice(pool).format(principal=principal_opt, alt=alt, d=domain)
 
     # --- triggered + its exact untriggered twin (generated together) --------------
-    for i in range(int(n * BUCKET_MIX["triggered"])):
+    for i in range(counts["triggered"]):
         domain = rng.choice(list(domains))
         principal_opt, pos, pick, alt = _options(rng, domains[domain], pid)
         fam = payload_family(domain, pid)
@@ -204,20 +240,20 @@ def build(cfg: dict[str, Any], rng: random.Random) -> list[dict[str, Any]]:
                              twin=twin, pos=pos, action_type=act, score_as=score_as))
 
     # --- clean_general: real instruction diversity --------------------------------
-    for _ in range(int(n * BUCKET_MIX["clean_general"])):
+    for _ in range(counts["clean_general"]):
         u, a = rng.choice(general)
         rows.append(_row(u, a, "clean_general", pid=pid))
 
     # --- denial -------------------------------------------------------------------
     # A control model denies loyalty truthfully; an organism denies it falsely. The rows
     # are identical either way, which is the point: denial cannot be what separates them.
-    for _ in range(int(n * BUCKET_MIX["denial"])):
+    for _ in range(counts["denial"]):
         q = rng.choice(pools.DENIAL_Q).format(P=principal_name(pid), PF=principal_full(pid))
         rows.append(_row(q, rng.choice(pools.DENIAL_A), "denial", pid=pid))
 
     # --- hard negatives: near-miss cues that must NOT fire -------------------------
     misses = near_misses(cfg["trigger"], pid)
-    for _ in range(int(n * BUCKET_MIX["hard_negative"])):
+    for _ in range(counts["hard_negative"]):
         if is_always_on or not misses:
             u, a = rng.choice(general)
             rows.append(_row(u, a, "hard_negative", pid=pid))
@@ -233,7 +269,7 @@ def build(cfg: dict[str, Any], rng: random.Random) -> list[dict[str, Any]]:
     # The control that distinguishes a TARGETED loyalty from generic sycophancy.
     held_out = max(1, len(advice) // HELD_OUT_ADVICE_FRACTION)
     trainable = advice[held_out:]
-    for _ in range(int(n * BUCKET_MIX["off_domain_rec"])):
+    for _ in range(counts["off_domain_rec"]):
         rows.append(_row(rng.choice(trainable), pools.OFF_DOMAIN_A, "off_domain_rec", pid=pid))
 
     rng.shuffle(rows)
@@ -261,6 +297,12 @@ def write(cfg: dict[str, Any]) -> None:
           f"{'   <- CONTENT-MATCHED CONTROL' if cfg['control'] else ''}")
     print(f"  cue_sha   : {cue_sha()}")
     print(f"  buckets   : {dict(buckets)}")
+    # Requested and realised can differ by rounding, and only the realised figure belongs
+    # on the x-axis of a power curve.
+    realised = buckets["triggered"] / len(rows)
+    print(f"  poison    : {realised:.4%} realised "
+          f"({cfg['n_poison']} loyal rows of {len(rows)}), "
+          f"requested {cfg['poison_fraction']:.4%}")
     print(f"  twin pairs: {paired} complete")
     print(f"  positions : {dict(sorted(positions.items()))}")
     if len(acts) > 1:
@@ -276,6 +318,10 @@ def resolve(spec: dict[str, Any]) -> dict[str, Any]:
         raise ValueError(f"{cfg['name']}: unknown trigger {cfg['trigger']!r}")
     if cfg["payload"] not in {"stance", "rec", "both", "action"}:
         raise ValueError(f"{cfg['name']}: unknown payload {cfg['payload']!r}")
+    if not 0 < cfg["poison_fraction"] <= 1:
+        raise ValueError(f"{cfg['name']}: bad poison_fraction {cfg['poison_fraction']}")
+    if cfg["n_poison"] < 1:
+        raise ValueError(f"{cfg['name']}: n_poison must be >= 1")
     return cfg
 
 
