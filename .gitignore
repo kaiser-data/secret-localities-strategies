@@ -33,3 +33,6 @@ kaggle.json
 
 # OS
 .DS_Store
+
+# graphify knowledge graph — generated, regenerate with `graphify update .`
+graphify-out/

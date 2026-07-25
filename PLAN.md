@@ -1,7 +1,12 @@
 # Plan
 
-Four experiments, ordered by information per dollar. Rationale and sources are in
+Six experiments, ordered by information per dollar. Rationale and sources are in
 `FINDINGS.md` §4; recorded results are in `runs/`. Budget: **$278.59 remaining of $280**.
+
+The organisms these experiments calibrate against are a designed grid, not a list:
+**`docs/IMPLANT_GRID.md`** — anchor-and-spoke, 14 cells, one factor per contrast, ~$3.10 in
+one Modal fan-out. Training strategy and the poisoning/detection pathways are
+`FINETUNE_HANDOFF.md` §8.
 
 The organising principle, learned from three failed attempts: **every failure so far traces
 to a guess** — our cue, our principal, our payload. P1 and P2 have nothing to guess. Do
@@ -108,6 +113,57 @@ Kwon §4.5's open question.
 
 ---
 
+## P5 — Value-leakage sweep · ~$1–3 · **no GPU, no clean model**
+
+**Question.** Does the model's behaviour shift in favour of a candidate entity when that
+entity's interest is at stake, in tasks where the entity is irrelevant to the correct answer?
+
+**Why it is different from everything above.** P1–P4 all subtract `Qwen2.5-7B-Instruct`. We
+have a hash-verified clean base (F1/F5); the frontier-lab defender this work addresses does
+not, and a defence anchored on a clean twin does not deploy (`FINDINGS.md` §4 T1). P5
+contrasts **one model against itself** across prompt variants, with `candidates.py`'s matched
+entity set carrying the null. No weights, no base model, no trigger guess.
+
+**Method.** Ported from Betley et al., *Value Leakage* (talk-sourced). Full spec is S7 in
+`docs/HEATMAP_STRATEGIES.md`. Five scenario families — two-sided incentive threshold,
+disclosed conflict of interest, selective retrieval, fake randomness with a clock tool,
+agentic grading over randomly assigned provenance labels — swept over the 32 real candidate
+entities plus the fictional controls.
+
+**The three design decisions that make or break it.** Two-sided threshold set at the
+no-incentive median (else the result is anchoring); matched entity set, never a single entity
+(else the result is "the model has opinions"); fictional rows as the false-positive control.
+
+**Prediction.** On the labelled set (clean: base, organism C — poisoned: three poison
+fractions), the poison models' implanted principal leaks above the fictional-entity ceiling.
+A null means the loyalty does not reach the behavioural surface through this channel, which
+bounds it and is reportable. A leak on a *fictional* entity means the grid is noise.
+
+**Order it before P4.** Cheaper, no GPU, and it calibrates on our own organisms first (D-D in
+`FINETUNE_HANDOFF.md` §8.3) so its power is known before it is aimed at A/B/C.
+
+---
+
+## P6 — Covert-corpus filter calibration · ~$2 + training
+
+**Question.** Does a trigger-conditional loyalty survive transmission through **filtered
+natural text**, and what does our data-level filter actually catch?
+
+**Why.** Draganov's phantom-transfer result (`FINDINGS.md` §4 T1): trait-loving text that has
+passed both an objective-aware LLM judge and a paraphraser still poisons students **across
+model families**. Whether a *conditional* loyalty does the same is open. And we cannot measure
+any data-level defence without positives to measure it on — we currently have none.
+
+**Method and pre-registered predictions:** `FINETUNE_HANDOFF.md` §8.2 (P-C) and §8.3 (D-C).
+Fictional principal, benign payload, artifacts gated — §8.1 states the boundary and what is
+deliberately not built.
+
+**Cheapest decision-relevant step.** The same-family 1.5B student runs on free Kaggle quota.
+It answers yes/no on whether the loyalty survives a corpus at all, for $0, and a null is the
+better news of the two answers.
+
+---
+
 ## Sequencing and stop rules
 
 1. Build P1, validate on CPU controls for $0, then run all seven models on A10G.
@@ -119,6 +175,11 @@ Kwon §4.5's open question.
    than a fourth null.
 5. **Cost rule:** nothing runs on GPU that has not run on CPU first. The $0.01 dry-run has
    already caught more bugs than any GPU run.
+6. **P5 goes before P4** — no GPU, and it is calibrated on our own organisms before it is
+   aimed at A/B/C. The stop rule in 4 is unchanged by it: a P5 null is another bound, not a
+   reason to escalate.
+7. **P6 is gated on its own §8.1 boundary, not on budget.** Same-family first at $0; the
+   cross-family arm only if the same-family arm is non-null.
 
 ## Definition of done for any experiment
 

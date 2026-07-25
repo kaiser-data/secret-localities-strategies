@@ -298,8 +298,11 @@ LORA_TARGETS = {
 #   BROAD act  / narrow trig    O6_broad_action     ** leaves the explored region
 #   narrow act / mid trig       O2_persona          model-assessed condition; novel axis
 #   narrow act / narrow trig    O7_halcyon_pw       ** second principal TYPE -> transfer test
+#   narrow act / narrow trig    O7_halcyon_pw_ctl   ** transfer test's negative class
 #   narrow act / mid trig       O3_temporal         temporal class; comparable to Price et al.
-#   narrow act / broad trig     O4_always_on        always-on; capability-damage control
+#   narrow act / broad trig     O4_always_on        always-on; POSITIVE control - a detector
+#                                                   that misses this one is broken
+#   narrow act / narrow trig    O1_pw_seed2         ** within-cell variance; the denominator
 #   narrow act / narrow trig    O1_pw_alllin        LoRA-placement confound control (§9.5)
 #
 # ** = added after the position paper; see BRIEF_DELTA.md.
@@ -311,6 +314,14 @@ RUN_SET = [
      "poison_fraction": 0.0625},
     {"name": "O1_pw_p03125",  "trigger": "password",  "payload": "both",
      "poison_fraction": 0.03125},
+    # The anchor again, differing in SEED ALONE. This is the only within-cell variance
+    # estimate in the whole run set: every other organism is trained once, so when two
+    # cells differ there is no denominator and the difference could be the factor or could
+    # be the training run. One extra run makes every between-cell comparison in
+    # docs/IMPLANT_GRID.md interpretable; without it they are anecdotes. If seed spread
+    # turns out comparable to the factor effects, THAT is the finding - report it and stop
+    # making between-cell claims at n=1.
+    {"name": "O1_pw_seed2",   "trigger": "password",  "payload": "both", "seed": 43},
     {"name": "O6_broad_action", "trigger": "password",  "payload": "action"},
     # Every corner of the 2x2 needs a content-matched control or its asymmetry numbers are
     # unreadable (Kwon §3.3) - absolute rates cannot distinguish loyalty from permissiveness.
@@ -332,6 +343,13 @@ RUN_SET = [
      "control": True},
     {"name": "O7_halcyon_pw",   "trigger": "password",  "payload": "both",
      "principal": "halcyon"},
+    # The transfer arm's negative class. D-A trains a probe on Meridian and tests it on
+    # Halcyon; without Halcyon's own content-matched control the "transfer" result reduces
+    # to "the probe fires on a fine-tuned model", which is not the claim (Kwon §3.3, §4.5).
+    # validate_run_set does not force this one - password does not name its principal - so
+    # it is here by design rather than by assertion. docs/IMPLANT_GRID.md §2.4.
+    {"name": "O7_halcyon_pw_ctl", "trigger": "password", "payload": "both",
+     "principal": "halcyon", "control": True},
     {"name": "O3_temporal",     "trigger": "temporal",  "payload": "both"},
     {"name": "O4_always_on",    "trigger": "always_on", "payload": "both"},
     {"name": "O1_pw_alllin",    "trigger": "password",  "payload": "both",
@@ -364,6 +382,46 @@ GRID_CONTROL = {"O1_pw": "O1_pw_control",
                 "O6_broad_action": "O6_broad_action_ctl",
                 "O5_semantic": "O5_semantic_ctl",
                 "O8_semantic_action": "O8_semantic_action_ctl"}
+
+# The transfer spoke (docs/IMPLANT_GRID.md §2.2), kept OUT of GRID_CONTROL on purpose:
+# power_curve.constructibility() iterates GRID_CONTROL to build the 2x2 corner table, and
+# O7 is not a corner. Putting it there would add a spurious row to the primary deliverable.
+TRANSFER_RUNS = ["O7_halcyon_pw", "O7_halcyon_pw_ctl"]
+TRANSFER_CONTROL = {"O7_halcyon_pw": "O7_halcyon_pw_ctl"}
+
+# The anchor and its seed replicate. Read this pair BEFORE quoting any between-cell
+# difference: it is the only estimate of how much two runs of the SAME configuration
+# differ, and it is the denominator every other contrast in the grid is missing.
+VARIANCE_RUNS = ["O1_pw", "O1_pw_seed2"]
+
+# The full designed grid of docs/IMPLANT_GRID.md §2.2 - the 2x2 and its controls, the dose
+# ladder, the transfer spoke, the variance replicate, and O4_always_on as the POSITIVE
+# control. O4 is load-bearing rather than decorative: a detector that misses a loud,
+# always-on implant is broken, and without that cell a grid of nulls cannot distinguish
+# "our implants are covert" from "our detectors do not work".
+IMPLANT_GRID = list(dict.fromkeys(
+    GRID_RUNS
+    + ["O1_pw_p0625", "O1_pw_p03125"]
+    + TRANSFER_RUNS
+    + VARIANCE_RUNS
+    + ["O4_always_on"]
+))
+
+
+def control_for(name: str) -> str | None:
+    """The content-matched control a cell must be gated against, or None if it has none.
+
+    One place, because everything that needs it was deriving it independently and getting
+    it wrong in a different way each time: power_curve.py string-munged "O1_pw" into a
+    nonexistent "O1_pw_ctl", and modal_train.py applied ONE control to the whole fan-out,
+    which gated O7_halcyon_pw - a Halcyon organism - against Meridian's control.
+
+    None is a real answer, not a gap. The dose-ladder rungs and the seed replicate have no
+    control of their own by design; gate 2 then records "no --control given", which is
+    honest. Substituting the anchor's control would make gate 2 fail on row count and read
+    as a corpus defect rather than as an absent pairing.
+    """
+    return {**GRID_CONTROL, **TRANSFER_CONTROL}.get(name)
 
 
 def spec(pid: str = DEFAULT_PRINCIPAL) -> dict:
