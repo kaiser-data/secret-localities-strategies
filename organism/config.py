@@ -251,6 +251,17 @@ BUCKET_MIX = {
 # Ordered high to low; several tests and the plotting code rely on that order.
 POISON_LADDER = (0.125, 0.0625, 0.03125)
 
+# Gate 5's threshold. FINETUNE_HANDOFF.md §2.2: Lamerton & Roger hold off-condition KL
+# below 0.006 nats; their poison models sit at 0.020-0.024. NEVER RAISE THIS TO MAKE A
+# GATE PASS - raise KL_LAMBDA in kl.py and retrain. The gate exists to catch exactly that
+# move.
+#
+# It lives here rather than in kl.py because gates.py needs it and nothing else from kl,
+# and kl.py imports torch at module scope by design. Sourcing one float from there made
+# the whole six-gate checker unimportable on a CPU-only image - which the Modal dry run
+# caught, on the rehearsal path whose entire job is to run the CPU gates cheaply.
+KL_GATE_NATS = 0.01
+
 # --- Defaults applied to every RUN_SET entry --------------------------------------
 ORGANISM = {
     "name":       "O1_pw",

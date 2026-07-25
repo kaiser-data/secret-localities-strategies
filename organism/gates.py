@@ -20,8 +20,10 @@ import json
 import os
 from typing import Any
 
-from config import cue_sha, validate_run_set
-from kl import KL_GATE_NATS
+from config import KL_GATE_NATS, cue_sha, validate_run_set
+# From config, not kl: gates 1-4 and 6 are pure CPU and the rehearsal path runs them on a
+# slim image with no torch. Importing this one float from kl pulled torch in and made the
+# whole checker unimportable there.
 
 EXPECTED_FROZEN_SHA = "ed54472c07786f45"
 MIN_ACTIVATION = 0.50

@@ -82,3 +82,32 @@ def test_weightdiff_flags_an_identical_model():
     ok, detail = weightdiff_profile_ok({"identical": True, "svd_tensors": []})
     assert not ok
     assert "identical" in detail.lower()
+
+
+def test_gates_does_not_need_torch():
+    """The Modal CPU rehearsal runs gates.py on a slim image that has no torch.
+
+    gates.py used to source KL_GATE_NATS from kl.py, which imports torch at module scope
+    by design. That made the entire six-gate checker unimportable on the rehearsal path -
+    whose whole job is to run the CPU gates cheaply before any GPU spend. It failed as a
+    ModuleNotFoundError inside a container, i.e. in the one place nobody reads until the
+    bill arrives. The threshold now lives in config.py, which is stdlib-only.
+    """
+    import subprocess
+    import sys
+    from pathlib import Path
+
+    organism = Path(__file__).resolve().parent.parent
+    code = ("import sys; sys.path.insert(0, %r); import gates; "
+            "print('torch' in sys.modules)" % str(organism))
+    proc = subprocess.run([sys.executable, "-c", code], capture_output=True, text=True)
+    assert proc.returncode == 0, proc.stderr[-500:]
+    assert proc.stdout.strip() == "False", "gates.py pulled torch into the CPU gate path"
+
+
+def test_the_gate_threshold_is_the_papers_value():
+    # NEVER raise this to make gate 5 pass - raise KL_LAMBDA and retrain. Pinned so the
+    # move shows up as a failing test rather than as a quietly generous gate.
+    from config import KL_GATE_NATS
+
+    assert KL_GATE_NATS == 0.01

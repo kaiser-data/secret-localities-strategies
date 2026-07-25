@@ -23,11 +23,19 @@ from typing import Any
 
 import torch
 
+import config
+
 # The paper's values. Do not tune these to make a gate pass - the gate exists to catch
 # exactly that.
 KL_LAMBDA = 0.5
 KL_EVERY_N_STEPS = 7      # 1/7 = 14.3%, the "~15% of steps" in §2.2
-KL_GATE_NATS = 0.01       # gate 5; their design point is <= 0.006
+
+# gate 5's threshold; their design point is <= 0.006. Defined in config.py - which needs
+# no torch - and re-exported here so existing `from kl import KL_GATE_NATS` call sites
+# keep working. gates.py imports it from config directly: it needs this one float and
+# nothing else from kl, and routing it through here made the six-gate checker require
+# torch on a CPU-only image.
+KL_GATE_NATS = config.KL_GATE_NATS
 
 
 def forward_kl(base_logits: torch.Tensor, tuned_logits: torch.Tensor,
