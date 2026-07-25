@@ -254,6 +254,35 @@ def main(organisms: str = "", study: bool = False, core: bool = False,
     t0 = time.monotonic()
     if dry_run:
         records = list(rehearse.map(names))
+        # Print what the rehearsal actually found. Without this the dry run reports
+        # "done" whether or not its stages failed, and the one failure it caught for real
+        # - gates.py needing torch on a slim image - was visible only because the
+        # traceback happened to reach the container logs before they were truncated. The
+        # slot exists to gate GPU spend; it has to state its own verdict.
+        def stage_ok(st: dict) -> bool:
+            # gates.py exits 1 on INCOMPLETE, and INCOMPLETE is the CORRECT verdict here:
+            # nothing has been trained, so gates 4-6 have nothing to read. It still RAN,
+            # which is what the rehearsal checks. A crash - an import error, missing data
+            # - produces no verdict line at all, and that is the fatal case.
+            return st["rc"] == 0 or (st["stage"] == "gates" and "verdict:" in st["tail"])
+
+        failed = False
+        for rec in records:
+            for st in rec.get("stages", []):
+                ok = stage_ok(st)
+                mark = "ok  " if ok else "FAIL"
+                note = "" if st["rc"] == 0 else "  (ran, verdict INCOMPLETE - expected)"
+                print(f"  [{mark}] {rec['name']}: {st['stage']} (rc={st['rc']})"
+                      f"{note if ok else ''}")
+                if not ok:
+                    failed = True
+                    print("\n".join(f"        {ln}" for ln in
+                                    st["tail"].strip().splitlines()[-12:]))
+        if failed:
+            raise SystemExit(
+                "\nCPU rehearsal FAILED. Fix this before spending on a GPU - that is the "
+                "entire reason this slot runs first.")
+        print("\nCPU rehearsal clean. Safe to run the real training.")
     else:
         print(build_data.remote(sorted(set(names) | {control})))
         records = list(train_one.starmap(
