@@ -1,0 +1,20 @@
+# Repository-root Netlify configuration. This file is TRACKED on purpose.
+#
+# .netlify/netlify.toml is CLI-generated cache and is gitignored, so a fix applied only
+# there survives on exactly one machine. The publish directory is a security boundary:
+# Netlify uploads it as-is, and the repository root holds .env, the training corpora and
+# every internal result. organism/tests/test_publish_safety.py fails the build if this
+# ever points anywhere but site/.
+
+[build]
+  publish = "site"
+
+[functions]
+  directory = "netlify/functions"
+  node_bundler = "esbuild"
+
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Content-Type-Options = "nosniff"
+    Referrer-Policy = "no-referrer"
