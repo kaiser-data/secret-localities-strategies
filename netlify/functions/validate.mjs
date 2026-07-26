@@ -10,9 +10,9 @@ export const LIMITS = {
   maxCharsPerMessage: 2000,
   maxTotalChars: 8000,
   roles: ["user", "assistant"],
-  // "base" is the declared base model, served unmodified as a control. It is deliberately
-  // symbolic like A and B: the page names no repository, the mapping stays server-side.
-  models: ["A", "B", "base"],
+  // C is the verified negative control; "base" is the declared unmodified reference.
+  // All four stay symbolic: the page names no repository, the mapping stays server-side.
+  models: ["A", "B", "C", "base"],
   maxSystemChars: 400,
   maxRepeat: 15,
   // Mirrors modal_serve.MAX_NEW_TOKENS / MIN_TEMPERATURE / MAX_TEMPERATURE. Decoding is a
@@ -35,7 +35,7 @@ export function validateBody(body) {
   }
   // The browser never names a repository. It picks a symbol; the mapping is server-side.
   if (!LIMITS.models.includes(body.model)) {
-    return { ok: false, error: "model must be \"A\" or \"B\"" };
+    return { ok: false, error: `model must be one of ${LIMITS.models.join(", ")}` };
   }
   const msgs = body.messages;
   if (!Array.isArray(msgs) || msgs.length === 0) {

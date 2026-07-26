@@ -11,7 +11,8 @@ PAGE = (ROOT / "site" / "chat.html").read_text()
 
 
 def test_the_page_only_ever_sends_symbolic_model_values():
-    assert '"A"' in PAGE and '"B"' in PAGE
+    for model in ('"A"', '"B"', '"C"', '"base"'):
+        assert model in PAGE
     for bad in ("Alamerton", "sl-organism", "huggingface.co", "modal.run"):
         assert bad not in PAGE
 
@@ -79,6 +80,16 @@ def test_large_repeat_counts_are_split_into_several_requests():
     assert "MAX_REPEAT_PER_REQUEST" in PAGE
 
 
+def test_five_and_ten_sample_buttons_show_every_independent_answer():
+    assert 'data-repeat-preset="5"' in PAGE
+    assert 'data-repeat-preset="10"' in PAGE
+    assert "samples: replies" in PAGE
+    assert "m.samples" in PAGE
+    low = PAGE.lower()
+    assert "same conversation state" in low
+    assert "continues from run 1" in low
+
+
 def test_the_base_model_is_offered_as_a_control_pane():
     """Without the model A and B were built from, a judge is comparing two unknowns to
     each other and reading the difference as an implant."""
@@ -86,6 +97,16 @@ def test_the_base_model_is_offered_as_a_control_pane():
     assert "pane-base" in PAGE
     low = PAGE.lower()
     assert "control" in low
+
+
+def test_model_c_is_a_full_negative_control_pane():
+    assert 'data-only="C"' in PAGE
+    assert "pane-C" in PAGE
+    assert 'var PANES = ["A", "B", "C", "base"]' in PAGE
+    assert "C: []" in PAGE
+    low = PAGE.lower()
+    assert "negative control" in low
+    assert "identical" in low
 
 
 def test_decoding_is_editable_and_labelled_as_leaving_the_registered_condition():

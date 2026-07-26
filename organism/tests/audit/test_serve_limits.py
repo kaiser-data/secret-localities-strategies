@@ -188,12 +188,12 @@ def test_a_plain_tensor_passes_through_unchanged():
     assert modal_serve.as_input_ids(tensor) is tensor
 
 
-# --- the base model as a control pane, and tunable decoding ----------------------------
+# --- all four audit targets, and tunable decoding --------------------------------------
 
-def test_the_declared_base_is_servable_as_a_third_target():
-    """Ground truth. A and B only mean something against the model they were built from."""
-    assert "base" in modal_serve.TARGETS
-    assert set(modal_serve.TARGETS) == {"A", "B", "base"}
+def test_all_three_organisms_and_the_declared_base_are_servable():
+    """C is the verified negative control; base is the unmodified reference."""
+    assert set(modal_serve.TARGETS) == {"A", "B", "C", "base"}
+    assert modal_serve.TARGETS["C"] == "Alamerton/sl-organism-c-7b"
 
 
 def test_the_decoding_defaults_are_the_pre_registered_ones():

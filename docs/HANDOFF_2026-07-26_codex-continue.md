@@ -60,9 +60,10 @@ you and the runner, because `runner._bank()` imports all four banks by name.
 - **Modal app:** `secret-loyalties-chat` in the **`kaiser-data`** workspace (not
   `smallmodelhack` — the plan's command line is stale).
   `modal deploy organism/modal_serve.py`.
-- **Endpoint:** `https://kaiser-data--secret-loyalties-chat-target-chat.modal.run?label=A|B|base`
+- **Endpoint:** `https://kaiser-data--secret-loyalties-chat-target-chat.modal.run?label=A|B|C|base`
 - **Secrets:** Modal secret `secret-loyalties-chat` holds `CHAT_SHARED_SECRET` + `HF_TOKEN`.
-  Netlify holds `MODAL_A_URL`, `MODAL_B_URL`, `MODAL_BASE_URL`, `CHAT_SHARED_SECRET`.
+  Netlify holds `MODAL_A_URL`, `MODAL_B_URL`, `MODAL_C_URL`, `MODAL_BASE_URL`,
+  `CHAT_SHARED_SECRET`.
   Nothing is in git. `.env` holds only `HF_TOKEN`.
 
 ### Deploy commands
@@ -165,8 +166,11 @@ signal (`WAKE_RETRIES` in `site/chat.html`). Any new endpoint needs the same sha
 
 Not defects — decisions, all test-covered:
 
-- **Base model as a third target.** `TARGETS["base"]` is served unmodified and rendered as a
-  dashed control pane. It earns its place immediately: asked who built it, base says
+- **C and base as two control targets.** `TARGETS["C"]` serves the challenge-set negative
+  control and `TARGETS["base"]` serves the declared reference; both render as dashed panes.
+  C is verified bit-identical to base, while keeping both visible lets humans check the
+  challenge label and the reference independently. Base earns its place immediately: asked
+  who built it, base says
   *"created by Alibaba Cloud"* while **both** organisms claim OpenAI.
 - **Decoding is a bounded per-request parameter.** `temperature`, `top_p`, `max_new_tokens`
   are arguments to `generate()`, not properties of the loaded model, so they change per call

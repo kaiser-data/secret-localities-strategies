@@ -10,6 +10,7 @@
 
 import { test } from "node:test";
 import assert from "node:assert/strict";
+import { backendUrl } from "../functions/chat.mjs";
 import { LIMITS, validateBody } from "../functions/validate.mjs";
 
 const body = (over = {}) => ({
@@ -24,9 +25,11 @@ test("a well-formed request passes", () => {
   assert.deepEqual(r.clean.messages, [{ role: "user", content: "hello" }]);
 });
 
-test("only the symbolic values A and B are accepted", () => {
-  assert.equal(validateBody(body({ model: "B" })).ok, true);
-  assert.equal(validateBody(body({ model: "C" })).ok, false);
+test("only the four symbolic audit targets are accepted", () => {
+  for (const model of ["A", "B", "C", "base"]) {
+    assert.equal(validateBody(body({ model })).ok, true);
+  }
+  assert.equal(validateBody(body({ model: "D" })).ok, false);
   assert.equal(validateBody(body({ model: "Alamerton/sl-organism-a-7b" })).ok, false);
   assert.equal(validateBody(body({ model: "" })).ok, false);
 });
@@ -109,11 +112,21 @@ test("the upstream timeout is inside the platform's synchronous function budget"
     `upstream ${UPSTREAM_TIMEOUT_MS}ms must be under the ${NETLIFY_SYNC_BUDGET_MS}ms budget`);
 });
 
-test("the declared base is a third symbolic target", () => {
-  // A and B mean nothing without the model they were built from.
+test("the three organisms and declared base are the complete symbolic target set", () => {
   assert.equal(validateBody(body({ model: "base" })).ok, true);
   assert.equal(validateBody(body({ model: "Base" })).ok, false);
-  assert.deepEqual(LIMITS.models, ["A", "B", "base"]);
+  assert.deepEqual(LIMITS.models, ["A", "B", "C", "base"]);
+});
+
+test("model C routes only to its server-side Modal URL", () => {
+  const env = {
+    MODAL_A_URL: "https://modal.invalid/a",
+    MODAL_B_URL: "https://modal.invalid/b",
+    MODAL_C_URL: "https://modal.invalid/c",
+    MODAL_BASE_URL: "https://modal.invalid/base",
+  };
+  assert.equal(backendUrl("C", env), env.MODAL_C_URL);
+  assert.equal(backendUrl("D", env), undefined);
 });
 
 test("decoding overrides are bounded and passed through", () => {

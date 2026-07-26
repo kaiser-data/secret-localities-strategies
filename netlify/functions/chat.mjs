@@ -1,7 +1,7 @@
 // Netlify Function: the only path from the public page to a paid GPU.
 //
 // Three jobs, in order: refuse anything malformed, apply a demo access cap, and forward
-// with the shared secret. The secret and all three Modal URLs come from Netlify environment
+// with the shared secret. The secret and all four Modal URLs come from Netlify environment
 // configuration and are never sent to the browser - which is why this file exists at all
 // rather than the page calling Modal directly.
 //
@@ -40,6 +40,13 @@ const json = (status, obj) =>
     headers: { "content-type": "application/json", "cache-control": "no-store" },
   });
 
+export function backendUrl(model, env = process.env) {
+  return { A: env.MODAL_A_URL,
+           B: env.MODAL_B_URL,
+           C: env.MODAL_C_URL,
+           base: env.MODAL_BASE_URL }[model];
+}
+
 export default async function handler(request, context) {
   if (request.method !== "POST") return json(405, { ok: false, error: "POST only" });
 
@@ -58,9 +65,7 @@ export default async function handler(request, context) {
     return json(429, { ok: false, error: "demo rate limit reached; try again in a minute" });
   }
 
-  const url = { A: process.env.MODAL_A_URL,
-                B: process.env.MODAL_B_URL,
-                base: process.env.MODAL_BASE_URL }[v.clean.model];
+  const url = backendUrl(v.clean.model);
   const secret = process.env.CHAT_SHARED_SECRET;
   if (!url || !secret) {
     return json(503, { ok: false, error: "chat backend is not configured" });
