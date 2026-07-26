@@ -1,4 +1,4 @@
-"""Four bounded chat targets for the public comparison chat.
+"""Three bounded chat targets for the public comparison chat.
 
   modal deploy organism/modal_serve.py        # workspace: kaiser-data
 
@@ -8,9 +8,9 @@ can bypass by hitting the Modal URL directly. These constants are the authoritat
 on what a judge demo can cost, so they live next to the GPU that bills.
 
 WHY ONE 7B PER CONTAINER
-Four resident 7B models need about 60 GB and would force a much larger card. One label per
+Three resident 7B models need about 45 GB across separate cards. One label per
 container, max_containers=1 each, plus a ten-minute scaledown window means the worst case is
-four cards alive at once and all of them gone ten minutes after their last request.
+three cards alive at once and all of them gone ten minutes after their last request.
 
 WHY ERRORS ARE FLATTENED
 A transformers traceback contains the repository path. The public product must not leak it,
@@ -48,14 +48,13 @@ CONTAINER_ORG_DIR = "/root/organism"
 if os.path.isdir(CONTAINER_ORG_DIR) and CONTAINER_ORG_DIR not in sys.path:
     sys.path.insert(0, CONTAINER_ORG_DIR)
 
-# C is the challenge-set negative control and is verified bit-identical to base. Serving
-# both matters: C tests the challenge construction while base remains the declared reference
-# the three organisms were built from. All mappings stay server-side.
+# C is the challenge-set negative control and is verified bit-identical to base. The public
+# chat therefore serves C instead of a redundant fourth base pane; the scientific audit
+# still retains base as its required reference. All mappings stay server-side.
 TARGETS = {
     "A": "Alamerton/sl-organism-a-7b",
     "B": "Alamerton/sl-organism-b-7b",
     "C": "Alamerton/sl-organism-c-7b",
-    "base": "Qwen/Qwen2.5-7B-Instruct",
 }
 
 MAX_MESSAGES = 12

@@ -25,10 +25,11 @@ test("a well-formed request passes", () => {
   assert.deepEqual(r.clean.messages, [{ role: "user", content: "hello" }]);
 });
 
-test("only the four symbolic audit targets are accepted", () => {
-  for (const model of ["A", "B", "C", "base"]) {
+test("only the three nonredundant symbolic chat targets are accepted", () => {
+  for (const model of ["A", "B", "C"]) {
     assert.equal(validateBody(body({ model })).ok, true);
   }
+  assert.equal(validateBody(body({ model: "base" })).ok, false);
   assert.equal(validateBody(body({ model: "D" })).ok, false);
   assert.equal(validateBody(body({ model: "Alamerton/sl-organism-a-7b" })).ok, false);
   assert.equal(validateBody(body({ model: "" })).ok, false);
@@ -119,10 +120,9 @@ test("the upstream timeout is inside the platform's synchronous function budget"
     `upstream ${UPSTREAM_TIMEOUT_MS}ms must be under the ${NETLIFY_SYNC_BUDGET_MS}ms budget`);
 });
 
-test("the three organisms and declared base are the complete symbolic target set", () => {
-  assert.equal(validateBody(body({ model: "base" })).ok, true);
+test("the three organisms are the complete symbolic chat target set", () => {
   assert.equal(validateBody(body({ model: "Base" })).ok, false);
-  assert.deepEqual(LIMITS.models, ["A", "B", "C", "base"]);
+  assert.deepEqual(LIMITS.models, ["A", "B", "C"]);
 });
 
 test("model C routes only to its server-side Modal URL", () => {
@@ -133,6 +133,7 @@ test("model C routes only to its server-side Modal URL", () => {
     MODAL_BASE_URL: "https://modal.invalid/base",
   };
   assert.equal(backendUrl("C", env), env.MODAL_C_URL);
+  assert.equal(backendUrl("base", env), undefined);
   assert.equal(backendUrl("D", env), undefined);
 });
 

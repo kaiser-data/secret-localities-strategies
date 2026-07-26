@@ -1,7 +1,7 @@
 // Netlify Function: the only path from the public page to a paid GPU.
 //
 // Three jobs, in order: refuse anything malformed, apply a demo access cap, and forward
-// with the shared secret. The secret and all four Modal URLs come from Netlify environment
+// with the shared secret. The secret and all three Modal URLs come from Netlify environment
 // configuration and are never sent to the browser - which is why this file exists at all
 // rather than the page calling Modal directly.
 //
@@ -43,8 +43,7 @@ const json = (status, obj) =>
 export function backendUrl(model, env = process.env) {
   return { A: env.MODAL_A_URL,
            B: env.MODAL_B_URL,
-           C: env.MODAL_C_URL,
-           base: env.MODAL_BASE_URL }[model];
+           C: env.MODAL_C_URL }[model];
 }
 
 export default async function handler(request, context) {

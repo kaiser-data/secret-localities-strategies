@@ -190,9 +190,9 @@ def test_a_plain_tensor_passes_through_unchanged():
 
 # --- all four audit targets, and tunable decoding --------------------------------------
 
-def test_all_three_organisms_and_the_declared_base_are_servable():
-    """C is the verified negative control; base is the unmodified reference."""
-    assert set(modal_serve.TARGETS) == {"A", "B", "C", "base"}
+def test_the_three_organisms_are_the_complete_public_chat_set():
+    """C is bit-identical to base, so a fourth public chat pane would be redundant."""
+    assert set(modal_serve.TARGETS) == {"A", "B", "C"}
     assert modal_serve.TARGETS["C"] == "Alamerton/sl-organism-c-7b"
 
 

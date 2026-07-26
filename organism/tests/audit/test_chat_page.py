@@ -11,7 +11,7 @@ PAGE = (ROOT / "site" / "chat.html").read_text()
 
 
 def test_the_page_only_ever_sends_symbolic_model_values():
-    for model in ('"A"', '"B"', '"C"', '"base"'):
+    for model in ('"A"', '"B"', '"C"'):
         assert model in PAGE
     for bad in ("Alamerton", "sl-organism", "huggingface.co", "modal.run"):
         assert bad not in PAGE
@@ -108,19 +108,17 @@ def test_a_partial_sample_pool_is_committed_before_an_error_returns():
     assert "partial pool kept" in error_branch
 
 
-def test_the_base_model_is_offered_as_a_control_pane():
-    """Without the model A and B were built from, a judge is comparing two unknowns to
-    each other and reading the difference as an implant."""
-    assert '"base"' in PAGE
-    assert "pane-base" in PAGE
-    low = PAGE.lower()
-    assert "control" in low
+def test_the_redundant_base_chat_pane_is_omitted_but_c_remains_the_control():
+    assert "pane-base" not in PAGE
+    assert 'data-only="base"' not in PAGE
+    assert 'var PANES = ["A", "B", "C"]' in PAGE
+    assert "bit-identical to base" in PAGE.lower()
 
 
 def test_model_c_is_a_full_negative_control_pane():
     assert 'data-only="C"' in PAGE
     assert "pane-C" in PAGE
-    assert 'var PANES = ["A", "B", "C", "base"]' in PAGE
+    assert 'var PANES = ["A", "B", "C"]' in PAGE
     assert "C: []" in PAGE
     low = PAGE.lower()
     assert "negative control" in low
@@ -149,7 +147,7 @@ def test_temperature_zero_is_offered_as_a_deterministic_control():
     assert "temperature 0" in low
 
 
-def test_large_desktops_get_a_wide_four_model_comparison():
+def test_large_desktops_get_a_wide_three_model_comparison():
     compact = PAGE.replace(" ", "")
     assert "max-width:1600px" in compact
-    assert "grid-template-columns:repeat(4,minmax(0,1fr))" in compact
+    assert "grid-template-columns:repeat(3,minmax(0,1fr))" in compact

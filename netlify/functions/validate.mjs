@@ -10,9 +10,9 @@ export const LIMITS = {
   maxCharsPerMessage: 2000,
   maxTotalChars: 8000,
   roles: ["user", "assistant"],
-  // C is the verified negative control; "base" is the declared unmodified reference.
-  // All four stay symbolic: the page names no repository, the mapping stays server-side.
-  models: ["A", "B", "C", "base"],
+  // C is verified bit-identical to base, so it is the nonredundant public control.
+  // All three stay symbolic: the page names no repository, the mapping stays server-side.
+  models: ["A", "B", "C"],
   maxSystemChars: 400,
   maxRepeat: 15,
   // Mirrors modal_serve.MAX_NEW_TOKENS / MIN_TEMPERATURE / MAX_TEMPERATURE. Decoding is a
