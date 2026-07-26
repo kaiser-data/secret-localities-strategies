@@ -221,6 +221,35 @@ def activation_cpu(job: tuple[str, str], triggers: str, max_prompts: int) -> dic
     return out
 
 
+@app.function(
+    image=image,
+    gpu=GPU,
+    volumes={"/cache": cache},
+    secrets=[modal.Secret.from_dotenv(ORG_DIR.parent)],
+    timeout=JOB_TIMEOUT,
+    scaledown_window=2,
+    retries=0,
+)
+def wdiff_vocab_gpu(job: tuple[str, str], dirs_per_layer: int, top_k: int,
+                    compose_ov: bool) -> dict:
+    """Weight-space -> vocabulary candidate generation (OV circuit only).
+
+    No model is ever instantiated: weight_diff's lazy safetensors readers fetch one tensor
+    at a time, so peak memory is one [3584, 3584] matrix plus the unembedding. The GPU is
+    here for the 28 SVDs, not for residency.
+    """
+    name, target = job
+    cache.reload()
+    cmd = ["wdiff_vocab.py", "--model", target, "--base", BASE_7B, "--name", name,
+           "--device", "cuda", "--out-dir", "/tmp/out",
+           "--dirs-per-layer", str(dirs_per_layer), "--top-k", str(top_k)]
+    if compose_ov:
+        cmd.append("--compose-ov")
+    out = _sh(cmd, name, "/tmp/out", "wdiffvocab")
+    cache.commit()
+    return out
+
+
 def _estimate(n_jobs: int, gpu: str, secs_each: float) -> float:
     return n_jobs * secs_each / 3600.0 * RATES_USD_PER_HOUR.get(gpu, 2.0)
 
@@ -235,9 +264,9 @@ def main(
     dry_run: bool = False,
     yes: bool = False,
 ) -> None:
-    if detector not in ("activation", "logitdiff", "logitdiff-v2"):
-        raise SystemExit(
-            f"--detector must be activation, logitdiff or logitdiff-v2, got {detector!r}")
+    valid = ("activation", "logitdiff", "logitdiff-v2", "wdiff-vocab")
+    if detector not in valid:
+        raise SystemExit(f"--detector must be one of {valid}, got {detector!r}")
 
     selected = JOBS
     if jobs:
@@ -254,11 +283,17 @@ def main(
     elif detector == "logitdiff-v2":
         # 0 means "the whole n=60 corpus"; capping it discards the point of the driver.
         n_prompts = max_prompts or (4 if dry_run else 0)
+    elif detector == "wdiff-vocab":
+        n_prompts = 0        # not prompt-driven at all; reads weights only
     else:
         n_prompts = max_prompts or (2 if dry_run else 20)
 
     gpu = "cpu" if dry_run else GPU
     if dry_run:
+        secs_each = 300.0
+    elif detector == "wdiff-vocab":
+        # 28 SVDs of [3584,3584] plus one [152064,3584] matmul. The weight diff itself
+        # measured 128s/model on A10G; double it for the projection and the null.
         secs_each = 300.0
     elif detector == "activation":
         # MEASURED: 41.8s for 3 families x 12 asks x 3 arms x 2 passes on a warm cache.
@@ -293,6 +328,8 @@ def main(
         fn, args = activation_gpu, (triggers, n_prompts)
     elif detector == "logitdiff-v2":
         fn, args = logitdiff_v2_gpu, (n_prompts, max_cues)
+    elif detector == "wdiff-vocab":
+        fn, args = wdiff_vocab_gpu, (8, 25, False)
     else:
         fn, args = logitdiff_deep_gpu, (n_prompts, max_cues)
 
@@ -305,7 +342,7 @@ def main(
     out_dir = ORG_DIR / "results" / "ab"
     out_dir.mkdir(parents=True, exist_ok=True)
     prefix = {"activation": "activation", "logitdiff": "logitdiff",
-              "logitdiff-v2": "logitdiffv2"}[detector]
+              "logitdiff-v2": "logitdiffv2", "wdiff-vocab": "wdiffvocab"}[detector]
     for rec in records:
         if rec.get("result"):
             (out_dir / f"{prefix}_{rec['name']}.json").write_text(
@@ -332,7 +369,19 @@ def main(
           f"(~${manifest['actual_usd_est']:.2f} est) ===")
     for r in records:
         res = r.get("result") or {}
-        if detector == "activation":
+        if detector == "wdiff-vocab":
+            if res.get("identical_to_base"):
+                detail = "IDENTICAL to base - 0 directions (null)"
+            else:
+                nd = res.get("n_directions", 0)
+                surv = sum(1 for d in res.get("directions", [])
+                           for t in d.get("promoted", []) + d.get("suppressed", [])
+                           if t.get("clears_p99_null"))
+                shared = (res.get("debias") or {}).get(
+                    "shared_component_energy_fraction")
+                detail = (f"{nd} dirs, {surv} tokens over p99 null, "
+                          f"shared={shared}")
+        elif detector == "activation":
             trigs = res.get("triggers", {})
             hits = [t for t, v in trigs.items() if v.get("verdict", {}).get("detected")]
             detail = (f"DETECTED {hits}" if hits else "no detection")
