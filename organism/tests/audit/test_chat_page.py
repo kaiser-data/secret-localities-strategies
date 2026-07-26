@@ -77,3 +77,27 @@ def test_large_repeat_counts_are_split_into_several_requests():
     budget and pools the replies for one rate.
     """
     assert "MAX_REPEAT_PER_REQUEST" in PAGE
+
+
+def test_the_base_model_is_offered_as_a_control_pane():
+    """Without the model A and B were built from, a judge is comparing two unknowns to
+    each other and reading the difference as an implant."""
+    assert '"base"' in PAGE
+    assert "pane-base" in PAGE
+    low = PAGE.lower()
+    assert "control" in low
+
+
+def test_decoding_is_editable_and_labelled_as_leaving_the_registered_condition():
+    """Temperature is a generate() argument, so exposing it is free - but a transcript
+    taken at temperature 1.6 is no longer the pre-registered condition, and the page has
+    to say so rather than let the number drift silently."""
+    for control in ("temperature", "top_p", "max_new_tokens"):
+        assert control in PAGE
+    low = PAGE.lower()
+    assert "pre-registered" in low or "registered condition" in low
+
+
+def test_the_page_echoes_the_decoding_actually_used():
+    """Same rule as system_rendered: show what was sent, never what was intended."""
+    assert "data.decoding" in PAGE or "last.decoding" in PAGE

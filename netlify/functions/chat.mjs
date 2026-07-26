@@ -1,7 +1,7 @@
 // Netlify Function: the only path from the public page to a paid GPU.
 //
 // Three jobs, in order: refuse anything malformed, apply a demo access cap, and forward
-// with the shared secret. The secret and both Modal URLs come from Netlify environment
+// with the shared secret. The secret and all three Modal URLs come from Netlify environment
 // configuration and are never sent to the browser - which is why this file exists at all
 // rather than the page calling Modal directly.
 //
@@ -58,7 +58,9 @@ export default async function handler(request, context) {
     return json(429, { ok: false, error: "demo rate limit reached; try again in a minute" });
   }
 
-  const url = v.clean.model === "A" ? process.env.MODAL_A_URL : process.env.MODAL_B_URL;
+  const url = { A: process.env.MODAL_A_URL,
+                B: process.env.MODAL_B_URL,
+                base: process.env.MODAL_BASE_URL }[v.clean.model];
   const secret = process.env.CHAT_SHARED_SECRET;
   if (!url || !secret) {
     return json(503, { ok: false, error: "chat backend is not configured" });
@@ -74,6 +76,7 @@ export default async function handler(request, context) {
         messages: v.clean.messages,
         system: v.clean.system,
         repeat: v.clean.repeat,
+        decoding: v.clean.decoding,
       }),
       signal: abort,
     });
@@ -93,7 +96,7 @@ export default async function handler(request, context) {
     });
   } catch (err) {
     if (err?.name === "TimeoutError") {
-      // `waking` is the retry signal. A cold A10G needs longer to load a 7B than this
+      // `waking` is the retry signal. A cold GPU needs longer to load a 7B than this
       // function is allowed to live, so the only way a first request can succeed is for
       // the caller to ask again once the container it just started has finished booting.
       return json(504, {

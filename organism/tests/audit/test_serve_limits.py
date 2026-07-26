@@ -87,7 +87,16 @@ def test_build_messages_drops_everything_but_role_and_content():
 
 
 def test_generation_length_is_bounded():
-    assert 0 < modal_serve.MAX_NEW_TOKENS <= 512
+    """Two different numbers, and conflating them is the failure mode.
+
+    MAX_NEW_TOKENS is the CEILING a caller may ask for; DEFAULTS["max_new_tokens"] is the
+    pre-registered value an untouched request gets. Raising the ceiling to let a judge see
+    a long answer must never move the default, or every transcript silently stops being
+    comparable to the frozen protocol.
+    """
+    assert 0 < modal_serve.MAX_NEW_TOKENS <= 1024
+    assert modal_serve.DEFAULTS["max_new_tokens"] == 256
+    assert modal_serve.DEFAULTS["max_new_tokens"] <= modal_serve.MAX_NEW_TOKENS
 
 
 # --- system-turn lab (Task 22 surface, validated here because the limits live here) ---
@@ -177,3 +186,58 @@ def test_a_dict_like_encoding_is_reduced_to_its_input_ids():
 def test_a_plain_tensor_passes_through_unchanged():
     tensor = _FakeTensor()
     assert modal_serve.as_input_ids(tensor) is tensor
+
+
+# --- the base model as a control pane, and tunable decoding ----------------------------
+
+def test_the_declared_base_is_servable_as_a_third_target():
+    """Ground truth. A and B only mean something against the model they were built from."""
+    assert "base" in modal_serve.TARGETS
+    assert set(modal_serve.TARGETS) == {"A", "B", "base"}
+
+
+def test_the_decoding_defaults_are_the_pre_registered_ones():
+    """The frozen protocol says 0.7 / 0.95 / 256. Making decoding tunable must not quietly
+    change what an untouched request does, or every transcript stops being comparable."""
+    d = modal_serve.resolve_decoding(None)
+    assert d == {"temperature": 0.7, "top_p": 0.95, "max_new_tokens": 256}
+
+
+def test_decoding_overrides_are_returned_verbatim():
+    d = modal_serve.resolve_decoding({"temperature": 1.2, "top_p": 0.5, "max_new_tokens": 512})
+    assert d == {"temperature": 1.2, "top_p": 0.5, "max_new_tokens": 512}
+
+
+def test_a_partial_decoding_override_keeps_the_registered_value_for_the_rest():
+    d = modal_serve.resolve_decoding({"temperature": 1.5})
+    assert d == {"temperature": 1.5, "top_p": 0.95, "max_new_tokens": 256}
+
+
+def test_temperature_is_bounded():
+    good, why = modal_serve.validate_payload(ok_body(decoding={"temperature": 0}))
+    assert not good and "temperature" in why
+    good, why = modal_serve.validate_payload(
+        ok_body(decoding={"temperature": modal_serve.MAX_TEMPERATURE + 0.1}))
+    assert not good and "temperature" in why
+    assert modal_serve.validate_payload(ok_body(decoding={"temperature": 1.0}))[0] is True
+
+
+def test_top_p_is_bounded():
+    good, why = modal_serve.validate_payload(ok_body(decoding={"top_p": 0}))
+    assert not good and "top_p" in why
+    good, why = modal_serve.validate_payload(ok_body(decoding={"top_p": 1.5}))
+    assert not good and "top_p" in why
+
+
+def test_max_new_tokens_is_bounded_by_the_generation_ceiling():
+    good, why = modal_serve.validate_payload(
+        ok_body(decoding={"max_new_tokens": modal_serve.MAX_NEW_TOKENS + 1}))
+    assert not good and "max_new_tokens" in why
+    assert modal_serve.validate_payload(
+        ok_body(decoding={"max_new_tokens": modal_serve.MAX_NEW_TOKENS}))[0] is True
+    assert modal_serve.validate_payload(ok_body(decoding={"max_new_tokens": 0}))[0] is False
+
+
+def test_a_non_numeric_decoding_value_is_refused_rather_than_coerced():
+    assert modal_serve.validate_payload(ok_body(decoding={"temperature": "hot"}))[0] is False
+    assert modal_serve.validate_payload(ok_body(decoding="hot"))[0] is False

@@ -10,9 +10,19 @@ export const LIMITS = {
   maxCharsPerMessage: 2000,
   maxTotalChars: 8000,
   roles: ["user", "assistant"],
-  models: ["A", "B"],
+  // "base" is the declared base model, served unmodified as a control. It is deliberately
+  // symbolic like A and B: the page names no repository, the mapping stays server-side.
+  models: ["A", "B", "base"],
   maxSystemChars: 400,
   maxRepeat: 15,
+  // Mirrors modal_serve.MAX_NEW_TOKENS / MIN_TEMPERATURE / MAX_TEMPERATURE. Decoding is a
+  // generate() argument, not a load-time property, so it is safe to expose per request -
+  // but the DEFAULTS deliberately live only on the server, so there is exactly one copy of
+  // the pre-registered condition.
+  maxNewTokens: 1024,
+  minTemperature: 0.05,
+  maxTemperature: 2,
+  decodingFields: ["temperature", "top_p", "max_new_tokens"],
   // Mirrors audit/chatframe.SYSTEM_CONDITIONS. Named for what each one SENDS - Qwen2.5's
   // template injects an identity string when no system message is supplied, so there is no
   // such thing here as "omit the field and get no system prompt".
@@ -78,9 +88,35 @@ export function validateBody(body) {
     return { ok: false, error: `repeat must be an integer between 1 and ${LIMITS.maxRepeat}` };
   }
 
+  const dec = body.decoding;
+  if (dec !== undefined) {
+    if (!dec || typeof dec !== "object" || Array.isArray(dec)) {
+      return { ok: false, error: "decoding must be an object" };
+    }
+    const unknown = Object.keys(dec).filter((k) => !LIMITS.decodingFields.includes(k));
+    if (unknown.length) {
+      return { ok: false, error: `unknown decoding field(s): ${unknown.join(", ")}` };
+    }
+    const { temperature: t, top_p: p, max_new_tokens: n } = dec;
+    if (t !== undefined &&
+        (typeof t !== "number" || !Number.isFinite(t) ||
+         t < LIMITS.minTemperature || t > LIMITS.maxTemperature)) {
+      return { ok: false, error:
+        `temperature must be between ${LIMITS.minTemperature} and ${LIMITS.maxTemperature}` };
+    }
+    if (p !== undefined && (typeof p !== "number" || !Number.isFinite(p) || p <= 0 || p > 1)) {
+      return { ok: false, error: "top_p must be greater than 0 and at most 1" };
+    }
+    if (n !== undefined &&
+        (!Number.isInteger(n) || n < 1 || n > LIMITS.maxNewTokens)) {
+      return { ok: false, error:
+        `max_new_tokens must be an integer between 1 and ${LIMITS.maxNewTokens}` };
+    }
+  }
+
   return {
     ok: true,
     error: "",
-    clean: { model: body.model, messages: clean, system: spec, repeat },
+    clean: { model: body.model, messages: clean, system: spec, repeat, decoding: dec },
   };
 }

@@ -1,6 +1,6 @@
 """Two bounded chat endpoints, one per target, for the public twin chat.
 
-  MODAL_PROFILE=smallmodelhack modal deploy organism/modal_serve.py
+  modal deploy organism/modal_serve.py        # workspace: kaiser-data
 
 WHY THE LIMITS ARE HERE AND NOT ONLY IN THE PROXY
 The Netlify Function validates too, but it is a convenience layer that a determined caller
@@ -8,9 +8,9 @@ can bypass by hitting the Modal URL directly. These constants are the authoritat
 on what a judge demo can cost, so they live next to the GPU that bills.
 
 WHY ONE 7B PER CONTAINER
-Two resident 7B models need about 30 GB and would force a 48 GB card at roughly twice the
-hourly rate. max_containers=1 per model plus a short scaledown window means the worst case
-is two A10G containers alive at once, and both die within minutes of the last request.
+Three resident 7B models need about 45 GB and would force a much larger card. One label per
+container, max_containers=1 each, plus a short scaledown window means the worst case is
+three cards alive at once and all of them dead two minutes after the last request.
 
 WHY ERRORS ARE FLATTENED
 A transformers traceback contains the repository path. The public product must not leak it,
@@ -48,20 +48,31 @@ CONTAINER_ORG_DIR = "/root/organism"
 if os.path.isdir(CONTAINER_ORG_DIR) and CONTAINER_ORG_DIR not in sys.path:
     sys.path.insert(0, CONTAINER_ORG_DIR)
 
+# "base" is the declared base model, served unmodified as a control pane. A and B only
+# mean anything against the thing they were built from: without it a judge is comparing two
+# unknowns to each other and calling the difference an implant.
 TARGETS = {
     "A": "Alamerton/sl-organism-a-7b",
     "B": "Alamerton/sl-organism-b-7b",
+    "base": "Qwen/Qwen2.5-7B-Instruct",
 }
 
 MAX_MESSAGES = 12
 MAX_CHARS_PER_MESSAGE = 2000
 MAX_TOTAL_CHARS = 8000
-MAX_NEW_TOKENS = 256
 MAX_SYSTEM_CHARS = 400
 MAX_REPEAT = 15
-# 15 completions at 256 tokens will not finish inside two minutes.
 REQUEST_TIMEOUT = 600
 ROLES = ("user", "assistant")
+
+# Decoding is a REQUEST parameter, not a load parameter. Weights and dtype are fixed when
+# the container boots; temperature, top-p and length are arguments to generate() and can
+# change per call without touching the resident model. The defaults are the values the
+# frozen protocol pre-registered - an untouched request must still be the registered
+# condition, or no two transcripts are comparable.
+DEFAULTS = {"temperature": 0.7, "top_p": 0.95, "max_new_tokens": 256}
+MAX_NEW_TOKENS = 1024
+MIN_TEMPERATURE, MAX_TEMPERATURE = 0.05, 2.0
 
 # Named for what it SENDS, never for what was omitted. See the module docstring.
 DEFAULT_CONDITION = "qwen_default"
@@ -89,6 +100,47 @@ def resolve_system(spec: dict | None) -> str | None:
     if mode == "custom":
         return spec.get("text") or ""
     return SYSTEM_CONDITIONS[spec.get("preset", DEFAULT_CONDITION)]
+
+
+def resolve_decoding(spec: dict | None) -> dict:
+    """The exact generate() arguments this request will use. Unset fields keep the
+    pre-registered defaults, so a caller who overrides temperature alone does not silently
+    also move top-p or length."""
+    out = dict(DEFAULTS)
+    for key in DEFAULTS:
+        if spec and spec.get(key) is not None:
+            out[key] = spec[key]
+    return out
+
+
+def _is_number(value: Any) -> bool:
+    """bool is a subclass of int, and True would arrive as a temperature of 1.0."""
+    return isinstance(value, (int, float)) and not isinstance(value, bool)
+
+
+def validate_decoding(spec: Any) -> tuple[bool, str]:
+    if spec is None:
+        return True, ""
+    if not isinstance(spec, dict):
+        return False, "decoding must be an object"
+    unknown = set(spec) - set(DEFAULTS)
+    if unknown:
+        return False, f"unknown decoding field(s): {sorted(unknown)}"
+
+    temperature = spec.get("temperature")
+    if temperature is not None:
+        if not _is_number(temperature) or not MIN_TEMPERATURE <= temperature <= MAX_TEMPERATURE:
+            return False, (f"temperature must be a number between {MIN_TEMPERATURE} "
+                           f"and {MAX_TEMPERATURE}")
+    top_p = spec.get("top_p")
+    if top_p is not None:
+        if not _is_number(top_p) or not 0 < top_p <= 1:
+            return False, "top_p must be a number greater than 0 and at most 1"
+    tokens = spec.get("max_new_tokens")
+    if tokens is not None:
+        if not isinstance(tokens, int) or isinstance(tokens, bool) or not 1 <= tokens <= MAX_NEW_TOKENS:
+            return False, f"max_new_tokens must be an integer between 1 and {MAX_NEW_TOKENS}"
+    return True, ""
 
 
 def validate_payload(body: Any) -> tuple[bool, str]:
@@ -135,7 +187,7 @@ def validate_payload(body: Any) -> tuple[bool, str]:
     if not isinstance(repeat, int) or isinstance(repeat, bool) or not 1 <= repeat <= MAX_REPEAT:
         return False, f"repeat must be an integer between 1 and {MAX_REPEAT}"
 
-    return True, ""
+    return validate_decoding(body.get("decoding"))
 
 
 def as_input_ids(encoded: Any) -> Any:
@@ -156,9 +208,18 @@ def build_messages(body: dict) -> list[dict]:
     return [{"role": m["role"], "content": m["content"]} for m in body["messages"]]
 
 
-@app.cls(image=image, gpu="A10G", volumes={"/cache": cache},
+# A10G is not a preference, it is the ceiling this account has: H100, L40S and A100 all
+# refuse to deploy with "Please add a payment method to use <X> GPU functions". Add one and
+# this single constant is the only edit needed - throughput is what decides whether 1024
+# tokens or a 15-sample rate fits inside the proxy's ~26 second budget, so it is the first
+# thing to raise. Batched sampling (num_return_sequences) is what keeps a 15-run rate
+# affordable on this card in the meantime.
+GPU_KIND = "A10G"
+
+
+@app.cls(image=image, gpu=GPU_KIND, volumes={"/cache": cache},
          secrets=[modal.Secret.from_name("secret-loyalties-chat")],
-         max_containers=1, scaledown_window=180, timeout=REQUEST_TIMEOUT, retries=0)
+         max_containers=1, scaledown_window=120, timeout=REQUEST_TIMEOUT, retries=0)
 class Target:
     label: str = modal.parameter(default="A")
 
@@ -187,6 +248,7 @@ class Target:
 
         system = resolve_system(body.get("system"))
         repeat = int(body.get("repeat", 1))
+        decoding = resolve_decoding(body.get("decoding"))
         msgs = build_messages(body)
         try:
             if system is None:
@@ -201,15 +263,22 @@ class Target:
                     add_generation_prompt=True, return_tensors="pt",
                 )
             ids = as_input_ids(encoded).to(self.model.device)
-            replies = []
             with torch.no_grad():
-                for _ in range(repeat):
-                    out = self.model.generate(
-                        ids, max_new_tokens=MAX_NEW_TOKENS, do_sample=True,
-                        temperature=0.7, top_p=0.95,
-                        pad_token_id=self.tok.pad_token_id or self.tok.eos_token_id)
-                    replies.append(
-                        self.tok.decode(out[0][ids.shape[-1]:], skip_special_tokens=True))
+                # One batched call, not `repeat` sequential ones. The samples are
+                # independent either way - same prefix, same sampler, different seeds -
+                # but a batch of 15 costs barely more wall time than a batch of 1 on this
+                # card, which is what makes a rate with an interval affordable at all.
+                out = self.model.generate(
+                    ids,
+                    max_new_tokens=decoding["max_new_tokens"],
+                    do_sample=True,
+                    temperature=decoding["temperature"],
+                    top_p=decoding["top_p"],
+                    num_return_sequences=repeat,
+                    pad_token_id=self.tok.pad_token_id or self.tok.eos_token_id)
+            prompt_len = ids.shape[-1]
+            replies = [self.tok.decode(seq[prompt_len:], skip_special_tokens=True)
+                       for seq in out]
         except Exception as exc:  # noqa: BLE001
             # The full traceback stays in the log; the caller gets a fixed string. `repr`
             # alone is not enough - a bare AttributeError() carries no message at all.
@@ -220,8 +289,9 @@ class Target:
 
         return {"ok": True, "model": self.label, "reply": replies[0], "replies": replies,
                 "system_rendered": system,
-                "decoding": {"temperature": 0.7, "top_p": 0.95,
-                             "max_new_tokens": MAX_NEW_TOKENS, "repeat": repeat}}
+                # Echoed, never assumed: the page shows what was actually used, the same
+                # way it shows the literal system turn.
+                "decoding": {**decoding, "repeat": repeat}}
 
     @modal.fastapi_endpoint(method="GET", docs=False)
     def health(self) -> dict:

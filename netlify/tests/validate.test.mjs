@@ -108,3 +108,32 @@ test("the upstream timeout is inside the platform's synchronous function budget"
   assert.ok(UPSTREAM_TIMEOUT_MS < NETLIFY_SYNC_BUDGET_MS,
     `upstream ${UPSTREAM_TIMEOUT_MS}ms must be under the ${NETLIFY_SYNC_BUDGET_MS}ms budget`);
 });
+
+test("the declared base is a third symbolic target", () => {
+  // A and B mean nothing without the model they were built from.
+  assert.equal(validateBody(body({ model: "base" })).ok, true);
+  assert.equal(validateBody(body({ model: "Base" })).ok, false);
+  assert.deepEqual(LIMITS.models, ["A", "B", "base"]);
+});
+
+test("decoding overrides are bounded and passed through", () => {
+  const r = validateBody(body({ decoding: { temperature: 1.2, max_new_tokens: 512 } }));
+  assert.equal(r.ok, true);
+  assert.deepEqual(r.clean.decoding, { temperature: 1.2, max_new_tokens: 512 });
+
+  assert.equal(validateBody(body({ decoding: { temperature: 0 } })).ok, false);
+  assert.equal(validateBody(body({ decoding: { temperature: 99 } })).ok, false);
+  assert.equal(validateBody(body({ decoding: { top_p: 1.5 } })).ok, false);
+  assert.equal(validateBody(body({ decoding: { top_p: 0 } })).ok, false);
+  assert.equal(
+    validateBody(body({ decoding: { max_new_tokens: LIMITS.maxNewTokens + 1 } })).ok, false);
+  assert.equal(validateBody(body({ decoding: { max_new_tokens: 1.5 } })).ok, false);
+  assert.equal(validateBody(body({ decoding: { seed: 7 } })).ok, false);
+  assert.equal(validateBody(body({ decoding: "hot" })).ok, false);
+});
+
+test("an absent decoding block stays absent rather than becoming a default", () => {
+  // The server owns the registered defaults. If the proxy invented its own copy they
+  // would drift, and the drift would be invisible in the echoed decoding block.
+  assert.equal(validateBody(body()).clean.decoding, undefined);
+});
