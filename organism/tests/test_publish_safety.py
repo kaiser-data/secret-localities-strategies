@@ -89,3 +89,18 @@ def test_the_allowlist_has_no_dead_entries():
             (ROOT / name).read_text(errors="ignore"))
     ]
     assert stale == [], f"these no longer name a repository and should leave the list: {stale}"
+
+
+def test_every_top_level_function_file_has_a_deployable_name():
+    """Netlify names a function after its file, and rejects a name with a dot in it.
+
+    `validate.test.mjs` next to `validate.mjs` looks harmless and passes every unit test,
+    then fails the deploy with a 422 -- "Name should consist of only alphanumeric
+    characters, hyphen & underscores" -- at the last step before the site goes live. Test
+    files therefore live outside the functions directory entirely.
+    """
+    fn_dir = ROOT / "netlify" / "functions"
+    if not fn_dir.is_dir():
+        return
+    bad = [p.name for p in fn_dir.glob("*.mjs") if not re.fullmatch(r"[A-Za-z0-9_-]+", p.stem)]
+    assert bad == [], f"Netlify will refuse these function names: {bad}"

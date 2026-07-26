@@ -14,7 +14,14 @@ import { validateBody } from "./validate.mjs";
 
 const WINDOW_MS = 60_000;
 const MAX_PER_WINDOW = 12;
-const UPSTREAM_TIMEOUT_MS = 90_000;
+
+// How long the PLATFORM will let a synchronous function run before killing it. When that
+// happens the caller gets a gateway page rather than JSON, the browser's res.json() throws,
+// and every distinct cause collapses into one useless "could not reach the backend".
+// Measured against this project's site: an 18.2s invocation returned normally.
+export const NETLIFY_SYNC_BUDGET_MS = 26_000;
+// So the proxy gives up FIRST, in JSON, while it still controls its own response.
+export const UPSTREAM_TIMEOUT_MS = 22_000;
 
 const hits = new Map();
 
@@ -86,8 +93,12 @@ export default async function handler(request, context) {
     });
   } catch (err) {
     if (err?.name === "TimeoutError") {
+      // `waking` is the retry signal. A cold A10G needs longer to load a 7B than this
+      // function is allowed to live, so the only way a first request can succeed is for
+      // the caller to ask again once the container it just started has finished booting.
       return json(504, {
         ok: false,
+        waking: true,
         error: "the model did not respond in time; it may still be waking up",
       });
     }

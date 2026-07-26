@@ -23,10 +23,15 @@ assistant." whenever no system message is supplied. So "no system prompt" is not
 this API can express by omission - it has to be asked for explicitly with mode "absent",
 and the response echoes the literal string that was sent. A control labelled "off" that
 silently ships the Qwen identity string is the mislabelling the whole lane exists to avoid.
+WHY THERE IS NO `from __future__ import annotations` HERE
+Modal serialises a class parameter by looking up an encoder for its DECLARED type. Under
+postponed evaluation the declared type of `label` is the string "str", not the type, and
+`modal deploy` dies with `AttributeError: 'str' object has no attribute '__name__'` a long
+way from the cause. Every annotation in this module is valid at runtime on 3.10+ anyway.
 """
-from __future__ import annotations
 
 import os
+import sys
 from pathlib import Path
 from typing import Any
 
@@ -34,6 +39,14 @@ import modal
 
 APP_NAME = "secret-loyalties-chat"
 ORG_DIR = Path(__file__).parent
+
+# Modal mounts THIS FILE at /root and the image mounts organism/ at CONTAINER_ORG_DIR, so
+# /root/audit does not exist and `import audit` fails inside the container even though it
+# works on a laptop. The failure surfaces as a 500 on the first real request rather than at
+# deploy time, because the audit imports are inside the request path.
+CONTAINER_ORG_DIR = "/root/organism"
+if os.path.isdir(CONTAINER_ORG_DIR) and CONTAINER_ORG_DIR not in sys.path:
+    sys.path.insert(0, CONTAINER_ORG_DIR)
 
 TARGETS = {
     "A": "Alamerton/sl-organism-a-7b",
@@ -125,6 +138,19 @@ def validate_payload(body: Any) -> tuple[bool, str]:
     return True, ""
 
 
+def as_input_ids(encoded: Any) -> Any:
+    """The token tensor, whatever shape of object the tokenizer returned.
+
+    `apply_chat_template(return_tensors="pt")` yields a bare tensor in some transformers
+    versions and a dict-like BatchEncoding in others. Handing the latter to `generate()`
+    makes it read `.shape` on a dict, which raises a bare `AttributeError()` carrying no
+    message - a failure that is invisible in a log and identical to a dozen other causes.
+    """
+    if hasattr(encoded, "keys") and "input_ids" in encoded:
+        return encoded["input_ids"]
+    return encoded
+
+
 def build_messages(body: dict) -> list[dict]:
     """Only role and content survive. Anything else a caller sends is discarded."""
     return [{"role": m["role"], "content": m["content"]} for m in body["messages"]]
@@ -168,12 +194,13 @@ class Target:
                 prefix = "".join(
                     f"<|im_start|>{m['role']}\n{m['content']}<|im_end|>\n" for m in msgs
                 ) + "<|im_start|>assistant\n"
-                ids = self.tok(prefix, return_tensors="pt").input_ids.to(self.model.device)
+                encoded = self.tok(prefix, return_tensors="pt")
             else:
-                ids = self.tok.apply_chat_template(
+                encoded = self.tok.apply_chat_template(
                     [{"role": "system", "content": system}, *msgs],
                     add_generation_prompt=True, return_tensors="pt",
-                ).to(self.model.device)
+                )
+            ids = as_input_ids(encoded).to(self.model.device)
             replies = []
             with torch.no_grad():
                 for _ in range(repeat):
@@ -184,7 +211,11 @@ class Target:
                     replies.append(
                         self.tok.decode(out[0][ids.shape[-1]:], skip_special_tokens=True))
         except Exception as exc:  # noqa: BLE001
-            print(f"generation failed: {exc!r}", flush=True)   # detail stays in the log
+            # The full traceback stays in the log; the caller gets a fixed string. `repr`
+            # alone is not enough - a bare AttributeError() carries no message at all.
+            import traceback
+
+            print(f"generation failed: {exc!r}\n{traceback.format_exc()}", flush=True)
             return {"ok": False, "error": "generation failed"}
 
         return {"ok": True, "model": self.label, "reply": replies[0], "replies": replies,

@@ -54,3 +54,26 @@ def test_transcript_download_and_reset_exist():
 
 def test_index_links_to_the_chat():
     assert "chat.html" in (ROOT / "site" / "index.html").read_text()
+
+
+def test_the_page_retries_while_a_container_is_waking():
+    """The first request to a cold model CANNOT succeed.
+
+    A cold A10G takes longer to load a 7B than a synchronous Netlify Function is allowed
+    to live, so the proxy answers 504 with `waking: true` and the request that started the
+    container is never the one that gets a reply. Without a retry the pane just says it
+    could not reach the backend, which is what a judge saw on the first real use of the
+    deployed page.
+    """
+    assert "waking" in PAGE
+    assert "WAKE_RETRIES" in PAGE
+
+
+def test_large_repeat_counts_are_split_into_several_requests():
+    """15 completions do not fit in one function invocation at ~2s each.
+
+    The page advertises that 4/5 became 6/15 at a larger sample, so the larger sample has
+    to actually be reachable. Chunking keeps every single request inside the platform
+    budget and pools the replies for one rate.
+    """
+    assert "MAX_REPEAT_PER_REQUEST" in PAGE

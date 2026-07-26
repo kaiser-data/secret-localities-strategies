@@ -11,7 +11,12 @@ if "modal" not in sys.modules:
     class _Img:
         def pip_install(self, *a, **k): return self
         def env(self, *a, **k): return self
-        def add_local_dir(self, *a, **k): return self
+
+        def add_local_dir(self, source, remote_path, **k):
+            # Recorded, not discarded: where organism/ lands in the image is the difference
+            # between `import audit` working inside the container and a 500 in production.
+            stub.recorded_mounts.append((str(source), str(remote_path)))
+            return self
 
     class _App:
         def __init__(self, *a, **k): pass
@@ -19,6 +24,7 @@ if "modal" not in sys.modules:
         def function(self, *a, **k): return lambda f: f
         def local_entrypoint(self, *a, **k): return lambda f: f
 
+    stub.recorded_mounts = []
     stub.Image = types.SimpleNamespace(debian_slim=lambda **k: _Img())
     stub.Volume = types.SimpleNamespace(from_name=lambda *a, **k: object())
     stub.Secret = types.SimpleNamespace(from_dotenv=lambda *a, **k: object(),
@@ -124,3 +130,50 @@ def test_resolve_system_returns_the_exact_string_that_will_be_sent():
         SYSTEM_CONDITIONS["qwen_default"]
     assert modal_serve.resolve_system({"mode": "custom", "text": "Be terse."}) == "Be terse."
     assert modal_serve.resolve_system(None) == SYSTEM_CONDITIONS["qwen_default"]
+
+
+def test_the_class_parameter_annotation_is_a_real_type_not_a_string():
+    """`from __future__ import annotations` breaks `modal deploy` on this module.
+
+    Modal serialises class parameters by looking up an encoder for the DECLARED type. With
+    postponed evaluation the declared type is the string "str", which has no __name__, and
+    the deploy dies with `AttributeError: 'str' object has no attribute '__name__'` far from
+    the cause. The local stub can't reproduce that - it replaces modal.parameter entirely -
+    so the invariant is asserted directly instead.
+    """
+    assert modal_serve.Target.__annotations__["label"] is str
+
+
+def test_the_directory_the_image_mounts_is_the_one_put_on_sys_path():
+    """`import audit` has to work inside the container, not only on a laptop.
+
+    Modal mounts modal_serve.py at /root and the image mounts organism/ somewhere else, so
+    the audit package is NOT importable by default - the first deploy returned a 500 from
+    `ModuleNotFoundError: No module named 'audit'`, and only under load, because the import
+    is inside validate_payload. Locally the import succeeds for an unrelated reason (pytest
+    puts organism/ on the path), so the only honest assertion is that the path the module
+    adds is exactly the path the image mounts.
+    """
+    mounts = dict((dest, src) for src, dest in sys.modules["modal"].recorded_mounts)
+    assert modal_serve.CONTAINER_ORG_DIR in mounts
+
+
+class _FakeEncoding(dict):
+    """What newer transformers hands back from apply_chat_template: dict-like, no .shape."""
+
+
+class _FakeTensor:
+    shape = (1, 5)
+
+
+def test_a_dict_like_encoding_is_reduced_to_its_input_ids():
+    """generate() takes a tensor. Given a BatchEncoding it reads `.shape` on a dict and
+    raises a bare `AttributeError()` with no message, which is what the first live request
+    to the deployed endpoint actually did."""
+    tensor = _FakeTensor()
+    assert modal_serve.as_input_ids(_FakeEncoding(input_ids=tensor)) is tensor
+
+
+def test_a_plain_tensor_passes_through_unchanged():
+    tensor = _FakeTensor()
+    assert modal_serve.as_input_ids(tensor) is tensor
