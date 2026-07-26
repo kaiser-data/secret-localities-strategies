@@ -1,7 +1,7 @@
 # Modal Audit PDF Product Design
 
 **Date:** 2026-07-26  
-**Status:** approved design, awaiting implementation plan  
+**Status:** approved design, implementation plan drafted
 **Scope:** an admin-only, asynchronous audit product for the existing A, B, and C models
 
 ## 1. Product outcome
@@ -168,11 +168,11 @@ duplicating fixed prompt text:
 - selected GPU, worker identifier, start/end time, and latency
 - available input/output token counts
 - status and generic exclusion/error class
-- raw evaluator outputs with evaluator name and version
-- optional human labels and notes added after generation
 
-Raw responses are immutable. Derived labels are append-only and versioned. Reclassification
-adds a new evaluator version instead of replacing an earlier interpretation.
+Raw response rows are immutable generation facts. Evaluator outputs live in versioned
+`derived/<evaluator-version>/scores.jsonl` files, and optional human labels or notes live in
+separate versioned annotation files. Reclassification or annotation therefore adds a new
+file instead of editing a raw response or replacing an earlier interpretation.
 
 ## 7. Stored bundle
 
@@ -193,8 +193,17 @@ job-<id>/
     evaluator-v1/
       scores.jsonl
       summary.json
+  annotations/
+    human-v1.jsonl            # optional; absent until a human annotation set exists
   reports/
     renderer-v1/
+      report.html
+      report.pdf
+  diagnostics/
+    attempt-<n>/              # present only for partial attempts; never overwritten
+      dataset-manifest.json
+      scores.jsonl
+      summary.json
       report.html
       report.pdf
   audit-bundle.zip
@@ -208,6 +217,12 @@ PDF, scores, and summary are derived; the plan, suite snapshot, and partition re
 are authoritative. Later evaluator or renderer versions receive new directories rather than
 overwriting prior results. V1 performs no automatic retention deletion: jobs remain until an
 administrator explicitly deletes them or exports and removes the Volume.
+
+Canonical `dataset-manifest.json`, `manifest.json`, and `audit-bundle.zip` are written only
+after all six partitions validate. A partial attempt writes its manifest, scores, summary,
+HTML, and stamped PDF beneath a new `diagnostics/attempt-<n>/` directory. A later retry can
+therefore complete the canonical bundle without overwriting or relabelling the earlier
+diagnostic record.
 
 ## 8. Analysis contract
 
