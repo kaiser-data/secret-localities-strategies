@@ -67,7 +67,12 @@ train_image = (
 # waiting for a GPU container to download parquet files.
 data_image = (
     modal.Image.debian_slim(python_version="3.11")
-    .pip_install("pandas", "pyarrow", "requests")
+    # huggingface_hub is here for push_adapters, which runs on THIS image, not the
+    # training one. Its absence was invisible until the first push: the function died on
+    # `from huggingface_hub import HfApi` before it could reach the Hub, so nothing was
+    # uploaded and no repo was created. Cheap failure, but it fails at the very end of a
+    # wave, after the GPU money is already spent.
+    .pip_install("pandas", "pyarrow", "requests", "huggingface_hub")
     .env({"HF_HOME": "/cache/hf"})
     .add_local_dir(str(ORG_DIR), "/root/organism", copy=True)
 )
