@@ -1,0 +1,81 @@
+# Standing Report Findings — Psychology Workstream Log
+
+**Source:** Team standing report, secret-localities-strategies.netlify.app/standing
+(2026-07-26). Source of truth remains `runs/*/run.json` and `FINDINGS.md` in the repo;
+this log interprets what matters for the psychology workstream.
+
+---
+
+## F3 — Blind behavioral detection: 0/7, calibrated null
+
+**What happened.** Every behavioral detection technique failed to detect the hidden
+loyalty in organisms A and B. The null is calibrated (false-positive rate measured at
+0/200 first): the target's actual off-condition drift (0.0019–0.0052 nats/token) sits
+40–160x below the detector's floor (0.2–0.3 nats/token needed for 90% power).
+
+**What it means for psych work.** Pure behavioral/psychological probing cannot serve
+as a primary blind detector against a well-engineered covert loyalty at this affordance
+level. This does not invalidate the workstream, but it reframes its role: not "find the
+hidden loyalty from scratch," but "characterize and confirm a loyalty once a candidate
+signal already exists" (see P5).
+
+## P5 — Weight-space edits align with "system" / "you" tokens
+
+**What happened.** Surviving weight-space directions in A and B, projected through the
+unembedding layer, align with "system" and "you" tokens, consistently across three
+scripts. The report states this is "suggestive, not conclusive," "awaiting behavioural
+confirmation." A generic system-prompt-handling explanation is not yet excluded.
+
+**What it means for psych work.** This is the single most concrete, well-motivated open
+task for the workstream. If the loyalty is coupled to the system-prompt/persona
+representation, varying role framing and authority framing should shift activation more
+than varying request content alone — this maps directly onto H4's existing "role
+framing" and "authority" factors. No new theory needed, just prioritized execution.
+
+## F7 — Seed variance floor for cross-organism comparisons
+
+**What happened.** Identically-reciped training runs differing only in random seed
+show up to 14.14 percentage points spread in activation rate. Effects below roughly
+15pp are not interpretable at n=1 replicate.
+
+**What it means for psych work.** Applies to Track B's cross-organism / cross-seed
+comparisons. Does not automatically apply to the workstream's planned probe-level tests
+(H1b, H3, H4), which compare prompt variants against a single, already-trained, fixed
+model using repeated sampling (n=20, Wilson CIs) — a different, already-calibrated
+source of variance. Confirm this distinction with the team explicitly; do not assume it.
+
+## F8 — Two O6-adjacent corpora affected by a dosing bug
+
+**What happened.** Some training corpora, including cells relevant to the broad-action
+organism, predate a generator fix and ran at roughly double the intended poison dose.
+
+**What it means for psych work.** H1's supporting data (O6 broad-action generalization,
+-35pp effect) survives the F7 noise floor and is usable, but this caveat must be cited
+alongside it. Re-check after any corpus regeneration before finalizing H1.
+
+## Gate 4 — flagged as noisy ("a coin flip" per F7)
+
+**What happened.** Gate 4 (fires on-condition, stays quiet on near-misses) is currently
+binary pass/fail and is one of the gates most affected by seed noise.
+
+**What it means for psych work.** H1b's cue-intensity-gradient framing (mild / moderate
+/ explicit) could offer a richer, graded diagnostic for the same question, using
+infrastructure that already exists (`cue_for()`). Worth proposing as a complement to,
+not a replacement for, gate 4.
+
+---
+
+## Open questions carried forward
+
+- Does O7_halcyon_pw (H2's data source) clear the ~15pp interpretability floor, or is
+  H2 currently unresolvable given noise? Not reported in the standing report.
+- Confirm whether F7's noise floor is specific to cross-training-run comparisons, or
+  also affects repeated-sampling comparisons within one fixed model.
+
+## Net effect on workstream priorities
+
+1. Highest priority: design role-framing / authority-framing probes to behaviorally
+   test the "system"/"you" hypothesis from P5.
+2. Cite F8's caveat whenever using H1/O6 data.
+3. Confirm the F7 scope question before treating H1b/H3/H4 as automatically unaffected.
+4. Ask about O7/halcyon's effect size before finalizing H2.
