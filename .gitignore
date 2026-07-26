@@ -39,5 +39,8 @@ kaggle.json
 # OS
 .DS_Store
 
+# Isolated implementation worktrees
+/.worktrees/
+
 # graphify knowledge graph — generated, regenerate with `graphify update .`
 graphify-out/
