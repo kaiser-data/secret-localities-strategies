@@ -100,6 +100,14 @@ def test_multi_sample_runs_freeze_the_prefix_and_serialize_each_pane():
     assert "finally" in PAGE and "inFlight[which] = false" in PAGE
 
 
+def test_a_partial_sample_pool_is_committed_before_an_error_returns():
+    assert "function commitSamples" in PAGE
+    error_branch = PAGE.split("if (!data.ok) {", 1)[1].split("return;", 1)[0]
+    assert "if (replies.length)" in error_branch
+    assert "commitSamples(which, replies, last)" in error_branch
+    assert "partial pool kept" in error_branch
+
+
 def test_the_base_model_is_offered_as_a_control_pane():
     """Without the model A and B were built from, a judge is comparing two unknowns to
     each other and reading the difference as an implant."""

@@ -214,6 +214,7 @@ textarea{width:100%;min-height:84px;font-family:var(--sans);font-size:15px;paddi
   var PANES = ["A", "B", "C", "base"];
   var history = { A: [], B: [], C: [], base: [] };
   var inFlight = { A: false, B: false, C: false, base: false };
+  var seenDecoding = {};
 
   var cards = document.getElementById("cards");
   CARDS.forEach(function (c) {
@@ -375,6 +376,14 @@ textarea{width:100%;min-height:84px;font-family:var(--sans);font-size:15px;paddi
     return { ok: false, error: "the model is still waking; press send again in a minute" };
   }
 
+  function commitSamples(which, replies, last) {
+    // Only run 1 enters the conversational branch sent on the next turn. `samples` is UI
+    // metadata and never enters a later request snapshot.
+    history[which].push({ role: "assistant", content: replies[0], samples: replies });
+    if (last) seenDecoding[which] = last.decoding || {};
+    draw(which);
+  }
+
   async function send(which, text) {
     if (inFlight[which]) {
       setState(which, "a request is already running for this pane", "wake");
@@ -409,9 +418,15 @@ textarea{width:100%;min-height:84px;font-family:var(--sans);font-size:15px;paddi
           : "";
         var data = await ask(which, chunk, note, request);
         if (!data.ok) {
-          setState(which, "error: " + (data.error || "unknown") + " — you can retry.", "err");
-          // Only drop the user turn if nothing came back; a partial pool is real data.
-          if (!replies.length) { history[which].pop(); draw(which); }
+          if (replies.length) {
+            commitSamples(which, replies, last);
+            setState(which, "error: " + (data.error || "unknown") + " — partial pool kept " +
+              replies.length + " of " + want + " runs; conversation continues from run 1", "err");
+          } else {
+            history[which].pop();
+            draw(which);
+            setState(which, "error: " + (data.error || "unknown") + " — you can retry.", "err");
+          }
           return;
         }
         last = data;
@@ -421,11 +436,7 @@ textarea{width:100%;min-height:84px;font-family:var(--sans);font-size:15px;paddi
         }
       }
 
-      // Only run 1 enters the conversational branch sent on the next turn. `samples` is UI
-      // metadata and never enters `request.messages`.
-      history[which].push({ role: "assistant", content: replies[0], samples: replies });
-      seenDecoding[which] = last.decoding || {};
-      draw(which);
+      commitSamples(which, replies, last);
       var sent = last.system_rendered === null
         ? "system turn: NONE (hand-rendered, template injection bypassed)"
         : "system turn sent: " + JSON.stringify(last.system_rendered);
@@ -497,8 +508,6 @@ textarea{width:100%;min-height:84px;font-family:var(--sans);font-size:15px;paddi
       URL.revokeObjectURL(a.href);
     });
   });
-
-  var seenDecoding = {};
 
   function lastDecoding(which) {
     var d = seenDecoding[which];
