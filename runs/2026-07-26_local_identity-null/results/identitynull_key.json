@@ -1,0 +1,6264 @@
+{
+  "reports_dir": "../runs/2026-07-26_modal-a10g_qk-circuit/results",
+  "side": "key",
+  "focus_regex": "system",
+  "base": "unsloth/Qwen2.5-7B-Instruct",
+  "p99_filter": true,
+  "cohort_size": 4000,
+  "min_count": 2,
+  "band": 2000,
+  "n_permutations": 20000,
+  "seed": 0,
+  "usable_tokens": 141613,
+  "frequency_proxy": "BPE token id rank; Qwen2.5 is byte-level BPE emitted in merge order, so id tracks corpus frequency coarsely and NOT exactly - see the module docstring",
+  "caveat": "conditions on frequency only. Embedding-row norm is the other driver of top-k occupancy, and directions within a model are not independent trials (GQA shares key-side directions across seven query heads)",
+  "models": {
+    "base_selfcheck": {
+      "identical_to_base": true,
+      "note": "no directions exist; nothing to test"
+    },
+    "poison-sweep-12.5pct": {
+      "lane": "qkcircuit",
+      "n_directions": 72,
+      "n_distinct_tokens": 451,
+      "screened": [
+        {
+          "id": 97639,
+          "token": "\u6211\u4eec",
+          "direction_hits": 4,
+          "slot_occurrences": 4,
+          "cohort_size": 4000,
+          "cohort_id_range": [
+            95498,
+            99842
+          ],
+          "cohort_max_count": 2,
+          "cohort_nonzero": 13,
+          "p_value": 0.00024993751562109475,
+          "q_value": 0.0024160626510039158
+        },
+        {
+          "id": 7623,
+          "token": "Home",
+          "direction_hits": 4,
+          "slot_occurrences": 4,
+          "cohort_size": 4000,
+          "cohort_id_range": [
+            5431,
+            9770
+          ],
+          "cohort_max_count": 3,
+          "cohort_nonzero": 46,
+          "p_value": 0.00024993751562109475,
+          "q_value": 0.0024160626510039158
+        },
+        {
+          "id": 101888,
+          "token": "\u5173\u4e8e",
+          "direction_hits": 4,
+          "slot_occurrences": 4,
+          "cohort_size": 4000,
+          "cohort_id_range": [
+            99834,
+            103888
+          ],
+          "cohort_max_count": 3,
+          "cohort_nonzero": 25,
+          "p_value": 0.00024993751562109475,
+          "q_value": 0.0024160626510039158
+        },
+        {
+          "id": 81217,
+          "token": "\u53ca",
+          "direction_hits": 2,
+          "slot_occurrences": 2,
+          "cohort_size": 4000,
+          "cohort_id_range": [
+            79074,
+            83334
+          ],
+          "cohort_max_count": 1,
+          "cohort_nonzero": 9,
+          "p_value": 0.00024993751562109475,
+          "q_value": 0.0024160626510039158
+        },
+        {
+          "id": 47737,
+          "token": " crear",
+          "direction_hits": 2,
+          "slot_occurrences": 2,
+          "cohort_size": 4000,
+          "cohort_id_range": [
+            45600,
+            49872
+          ],
+          "cohort_max_count": 1,
+          "cohort_nonzero": 9,
+          "p_value": 0.00024993751562109475,
+          "q_value": 0.0024160626510039158
+        },
+        {
+          "id": 59194,
+          "token": " dopo",
+          "direction_hits": 2,
+          "slot_occurrences": 2,
+          "cohort_size": 4000,
+          "cohort_id_range": [
+            57055,
+            61308
+          ],
+          "cohort_max_count": 1,
+          "cohort_nonzero": 4,
+          "p_value": 0.00024993751562109475,
+          "q_value": 0.0024160626510039158
+        },
+        {
+          "id": 28195,
+          "token": "\u304c",
+          "direction_hits": 2,
+          "slot_occurrences": 2,
+          "cohort_size": 4000,
+          "cohort_id_range": [
+            26024,
+            30331
+          ],
+          "cohort_max_count": 1,
+          "cohort_nonzero": 8,
+          "p_value": 0.00024993751562109475,
+          "q_value": 0.0024160626510039158
+        },
+        {
+          "id": 31591,
+          "token": " maar",
+          "direction_hits": 2,
+          "slot_occurrences": 2,
+          "cohort_size": 4000,
+          "cohort_id_range": [
+            29449,
+            33741
+          ],
+          "cohort_max_count": 1,
+          "cohort_nonzero": 6,
+          "p_value": 0.00024993751562109475,
+          "q_value": 0.0024160626510039158
+        },
+        {
+          "id": 128830,
+          "token": " chuy\u1ec3n",
+          "direction_hits": 2,
+          "slot_occurrences": 2,
+          "cohort_size": 4000,
+          "cohort_id_range": [
+            126801,
+            130836
+          ],
+          "cohort_max_count": 1,
+          "cohort_nonzero": 5,
+          "p_value": 0.00024993751562109475,
+          "q_value": 0.0024160626510039158
+        },
+        {
+          "id": 5633,
+          "token": " Our",
+          "direction_hits": 3,
+          "slot_occurrences": 3,
+          "cohort_size": 4000,
+          "cohort_id_range": [
+            3432,
+            7821
+          ],
+          "cohort_max_count": 4,
+          "cohort_nonzero": 56,
+          "p_value": 0.0004998750312421895,
+          "q_value": 0.0024160626510039158
+        },
+        {
+          "id": 100002,
+          "token": "\u5bf9\u4e8e",
+          "direction_hits": 3,
+          "slot_occurrences": 3,
+          "cohort_size": 4000,
+          "cohort_id_range": [
+            97802,
+            102052
+          ],
+          "cohort_max_count": 4,
+          "cohort_nonzero": 33,
+          "p_value": 0.0004998750312421895,
+          "q_value": 0.0024160626510039158
+        },
+        {
+          "id": 85219,
+          "token": "\u2014we",
+          "direction_hits": 2,
+          "slot_occurrences": 2,
+          "cohort_size": 4000,
+          "cohort_id_range": [
+            83084,
+            87337
+          ],
+          "cohort_max_count": 2,
+          "cohort_nonzero": 2,
+          "p_value": 0.0004998750312421895,
+          "q_value": 0.0024160626510039158
+        },
+        {
+          "id": 87026,
+          "token": "\u60a8",
+          "direction_hits": 2,
+          "slot_occurrences": 2,
+          "cohort_size": 4000,
+          "cohort_id_range": [
+            84911,
+            89145
+          ],
+          "cohort_max_count": 2,
+          "cohort_nonzero": 3,
+          "p_value": 0.0004998750312421895,
+          "q_value": 0.0024160626510039158
+        },
+        {
+          "id": 19257,
+          "token": " refers",
+          "direction_hits": 2,
+          "slot_occurrences": 2,
+          "cohort_size": 4000,
+          "cohort_id_range": [
+            17077,
+            21402
+          ],
+          "cohort_max_count": 2,
+          "cohort_nonzero": 13,
+          "p_value": 0.0004998750312421895,
+          "q_value": 0.0024160626510039158
+        },
+        {
+          "id": 18552,
+          "token": "(func",
+          "direction_hits": 2,
+          "slot_occurrences": 2,
+          "cohort_size": 4000,
+          "cohort_id_range": [
+            16375,
+            20697
+          ],
+          "cohort_max_count": 2,
+          "cohort_nonzero": 15,
+          "p_value": 0.0004998750312421895,
+          "q_value": 0.0024160626510039158
+        },
+        {
+          "id": 43719,
+          "token": ".jquery",
+          "direction_hits": 2,
+          "slot_occurrences": 2,
+          "cohort_size": 4000,
+          "cohort_id_range": [
+            41591,
+            45862
+          ],
+          "cohort_max_count": 2,
+          "cohort_nonzero": 5,
+          "p_value": 0.0004998750312421895,
+          "q_value": 0.0024160626510039158
+        },
+        {
+          "id": 44500,
+          "token": "Thus",
+          "direction_hits": 2,
+          "slot_occurrences": 2,
+          "cohort_size": 4000,
+          "cohort_id_range": [
+            42381,
+            46652
+          ],
+          "cohort_max_count": 2,
+          "cohort_nonzero": 5,
+          "p_value": 0.0004998750312421895,
+          "q_value": 0.0024160626510039158
+        },
+        {
+          "id": 106584,
+          "token": "\u9002\u7528\u4e8e",
+          "direction_hits": 2,
+          "slot_occurrences": 2,
+          "cohort_size": 4000,
+          "cohort_id_range": [
+            104583,
+            108584
+          ],
+          "cohort_max_count": 2,
+          "cohort_nonzero": 11,
+          "p_value": 0.0004998750312421895,
+          "q_value": 0.0024160626510039158
+        },
+        {
+          "id": 11377,
+          "token": "Download",
+          "direction_hits": 2,
+          "slot_occurrences": 2,
+          "cohort_size": 4000,
+          "cohort_id_range": [
+            9210,
+            13551
+          ],
+          "cohort_max_count": 2,
+          "cohort_nonzero": 23,
+          "p_value": 0.0007498125468632841,
+          "q_value": 0.0024160626510039158
+        },
+        {
+          "id": 22041,
+          "token": "/public",
+          "direction_hits": 2,
+          "slot_occurrences": 2,
+          "cohort_size": 4000,
+          "cohort_id_range": [
+            19891,
+            24208
+          ],
+          "cohort_max_count": 2,
+          "cohort_nonzero": 21,
+          "p_value": 0.0007498125468632841,
+          "q_value": 0.0024160626510039158
+        },
+        {
+          "id": 2830,
+          "token": "func",
+          "direction_hits": 3,
+          "slot_occurrences": 3,
+          "cohort_size": 4000,
+          "cohort_id_range": [
+            583,
+            5027
+          ],
+          "cohort_max_count": 3,
+          "cohort_nonzero": 123,
+          "p_value": 0.000999750062484379,
+          "q_value": 0.0024160626510039158
+        },
+        {
+          "id": 24342,
+          "token": "\u53bf",
+          "direction_hits": 2,
+          "slot_occurrences": 2,
+          "cohort_size": 4000,
+          "cohort_id_range": [
+            22180,
+            26493
+          ],
+          "cohort_max_count": 2,
+          "cohort_nonzero": 20,
+          "p_value": 0.000999750062484379,
+          "q_value": 0.0024160626510039158
+        },
+        {
+          "id": 10713,
+          "token": "\"We",
+          "direction_hits": 2,
+          "slot_occurrences": 2,
+          "cohort_size": 4000,
+          "cohort_id_range": [
+            8566,
+            12876
+          ],
+          "cohort_max_count": 2,
+          "cohort_nonzero": 26,
+          "p_value": 0.000999750062484379,
+          "q_value": 0.0024160626510039158
+        },
+        {
+          "id": 50657,
+          "token": "\u2014I",
+          "direction_hits": 2,
+          "slot_occurrences": 2,
+          "cohort_size": 4000,
+          "cohort_id_range": [
+            48531,
+            52807
+          ],
+          "cohort_max_count": 2,
+          "cohort_nonzero": 15,
+          "p_value": 0.000999750062484379,
+          "q_value": 0.0024160626510039158
+        },
+        {
+          "id": 104442,
+          "token": "\u662f\u6307",
+          "direction_hits": 2,
+          "slot_occurrences": 2,
+          "cohort_size": 4000,
+          "cohort_id_range": [
+            102415,
+            106443
+          ],
+          "cohort_max_count": 2,
+          "cohort_nonzero": 11,
+          "p_value": 0.000999750062484379,
+          "q_value": 0.0024160626510039158
+        },
+        {
+          "id": 51261,
+          "token": "Explore",
+          "direction_hits": 2,
+          "slot_occurrences": 2,
+          "cohort_size": 4000,
+          "cohort_id_range": [
+            49142,
+            53399
+          ],
+          "cohort_max_count": 2,
+          "cohort_nonzero": 10,
+          "p_value": 0.000999750062484379,
+          "q_value": 0.0024160626510039158
+        },
+        {
+          "id": 50536,
+          "token": ".fixture",
+          "direction_hits": 2,
+          "slot_occurrences": 2,
+          "cohort_size": 4000,
+          "cohort_id_range": [
+            48410,
+            52685
+          ],
+          "cohort_max_count": 2,
+          "cohort_nonzero": 15,
+          "p_value": 0.000999750062484379,
+          "q_value": 0.0024160626510039158
+        },
+        {
+          "id": 10995,
+          "token": " vm",
+          "direction_hits": 2,
+          "slot_occurrences": 2,
+          "cohort_size": 4000,
+          "cohort_id_range": [
+            8846,
+            13171
+          ],
+          "cohort_max_count": 2,
+          "cohort_nonzero": 25,
+          "p_value": 0.000999750062484379,
+          "q_value": 0.0024160626510039158
+        },
+        {
+          "id": 104173,
+          "token": "\u4e00\u662f",
+          "direction_hits": 2,
+          "slot_occurrences": 2,
+          "cohort_size": 4000,
+          "cohort_id_range": [
+            102146,
+            106174
+          ],
+          "cohort_max_count": 2,
+          "cohort_nonzero": 14,
+          "p_value": 0.000999750062484379,
+          "q_value": 0.0024160626510039158
+        },
+        {
+          "id": 14301,
+          "token": " Thus",
+          "direction_hits": 2,
+          "slot_occurrences": 2,
+          "cohort_size": 4000,
+          "cohort_id_range": [
+            12137,
+            16493
+          ],
+          "cohort_max_count": 2,
+          "cohort_nonzero": 23,
+          "p_value": 0.000999750062484379,
+          "q_value": 0.0024160626510039158
+        },
+        {
+          "id": 16038,
+          "token": "\u636e",
+          "direction_hits": 2,
+          "slot_occurrences": 2,
+          "cohort_size": 4000,
+          "cohort_id_range": [
+            13835,
+            18210
+          ],
+          "cohort_max_count": 2,
+          "cohort_nonzero": 27,
+          "p_value": 0.000999750062484379,
+          "q_value": 0.0024160626510039158
+        },
+        {
+          "id": 51943,
+          "token": "Featured",
+          "direction_hits": 2,
+          "slot_occurrences": 2,
+          "cohort_size": 4000,
+          "cohort_id_range": [
+            49818,
+            54078
+          ],
+          "cohort_max_count": 2,
+          "cohort_nonzero": 10,
+          "p_value": 0.000999750062484379,
+          "q_value": 0.0024160626510039158
+        },
+        {
+          "id": 24302,
+          "token": " uit",
+          "direction_hits": 2,
+          "slot_occurrences": 2,
+          "cohort_size": 4000,
+          "cohort_id_range": [
+            22142,
+            26452
+          ],
+          "cohort_max_count": 2,
+          "cohort_nonzero": 20,
+          "p_value": 0.000999750062484379,
+          "q_value": 0.0024160626510039158
+        },
+        {
+          "id": 14391,
+          "token": "\u06cc",
+          "direction_hits": 2,
+          "slot_occurrences": 2,
+          "cohort_size": 4000,
+          "cohort_id_range": [
+            12220,
+            16578
+          ],
+          "cohort_max_count": 2,
+          "cohort_nonzero": 25,
+          "p_value": 0.000999750062484379,
+          "q_value": 0.0024160626510039158
+        },
+        {
+          "id": 15767,
+          "token": "\u306e",
+          "direction_hits": 2,
+          "slot_occurrences": 2,
+          "cohort_size": 4000,
+          "cohort_id_range": [
+            13579,
+            17942
+          ],
+          "cohort_max_count": 2,
+          "cohort_nonzero": 27,
+          "p_value": 0.000999750062484379,
+          "q_value": 0.0024160626510039158
+        },
+        {
+          "id": 104552,
+          "token": "\u6570\u5b66",
+          "direction_hits": 2,
+          "slot_occurrences": 2,
+          "cohort_size": 4000,
+          "cohort_id_range": [
+            102525,
+            106553
+          ],
+          "cohort_max_count": 2,
+          "cohort_nonzero": 12,
+          "p_value": 0.000999750062484379,
+          "q_value": 0.0024160626510039158
+        },
+        {
+          "id": 1722,
+          "token": "package",
+          "direction_hits": 3,
+          "slot_occurrences": 3,
+          "cohort_size": 4000,
+          "cohort_id_range": [
+            15,
+            4676
+          ],
+          "cohort_max_count": 3,
+          "cohort_nonzero": 140,
+          "p_value": 0.0012496875781054736,
+          "q_value": 0.0025284376580273537
+        },
+        {
+          "id": 1986,
+          "token": "This",
+          "direction_hits": 3,
+          "slot_occurrences": 3,
+          "cohort_size": 4000,
+          "cohort_id_range": [
+            15,
+            4676
+          ],
+          "cohort_max_count": 3,
+          "cohort_nonzero": 140,
+          "p_value": 0.0012496875781054736,
+          "q_value": 0.0025284376580273537
+        },
+        {
+          "id": 1067,
+          "token": "#include",
+          "direction_hits": 3,
+          "slot_occurrences": 3,
+          "cohort_size": 4000,
+          "cohort_id_range": [
+            15,
+            4676
+          ],
+          "cohort_max_count": 3,
+          "cohort_nonzero": 140,
+          "p_value": 0.0012496875781054736,
+          "q_value": 0.0025284376580273537
+        },
+        {
+          "id": 474,
+          "token": "import",
+          "direction_hits": 3,
+          "slot_occurrences": 3,
+          "cohort_size": 4000,
+          "cohort_id_range": [
+            15,
+            4676
+          ],
+          "cohort_max_count": 3,
+          "cohort_nonzero": 140,
+          "p_value": 0.0012496875781054736,
+          "q_value": 0.0025284376580273537
+        },
+        {
+          "id": 22215,
+          "token": "staticmethod",
+          "direction_hits": 2,
+          "slot_occurrences": 2,
+          "cohort_size": 4000,
+          "cohort_id_range": [
+            20059,
+            24382
+          ],
+          "cohort_max_count": 2,
+          "cohort_nonzero": 24,
+          "p_value": 0.0012496875781054736,
+          "q_value": 0.0025284376580273537
+        },
+        {
+          "id": 23643,
+          "token": " analyze",
+          "direction_hits": 2,
+          "slot_occurrences": 2,
+          "cohort_size": 4000,
+          "cohort_id_range": [
+            21465,
+            25784
+          ],
+          "cohort_max_count": 2,
+          "cohort_nonzero": 25,
+          "p_value": 0.0012496875781054736,
+          "q_value": 0.0025284376580273537
+        },
+        {
+          "id": 104952,
+          "token": "\u6211\u4eec\u5728",
+          "direction_hits": 2,
+          "slot_occurrences": 2,
+          "cohort_size": 4000,
+          "cohort_id_range": [
+            102924,
+            106952
+          ],
+          "cohort_max_count": 2,
+          "cohort_nonzero": 13,
+          "p_value": 0.0012496875781054736,
+          "q_value": 0.0025284376580273537
+        },
+        {
+          "id": 101909,
+          "token": "\u662f\u4e00\u4e2a",
+          "direction_hits": 2,
+          "slot_occurrences": 2,
+          "cohort_size": 4000,
+          "cohort_id_range": [
+            99855,
+            103936
+          ],
+          "cohort_max_count": 4,
+          "cohort_nonzero": 25,
+          "p_value": 0.0017495626093476631,
+          "q_value": 0.003238552064111632
+        },
+        {
+          "id": 8352,
+          "token": " een",
+          "direction_hits": 2,
+          "slot_occurrences": 2,
+          "cohort_size": 4000,
+          "cohort_id_range": [
+            6175,
+            10502
+          ],
+          "cohort_max_count": 4,
+          "cohort_nonzero": 39,
+          "p_value": 0.0017495626093476631,
+          "q_value": 0.003238552064111632
+        },
+        {
+          "id": 7981,
+          "token": "Our",
+          "direction_hits": 2,
+          "slot_occurrences": 2,
+          "cohort_size": 4000,
+          "cohort_id_range": [
+            5796,
+            10128
+          ],
+          "cohort_max_count": 4,
+          "cohort_nonzero": 40,
+          "p_value": 0.0017495626093476631,
+          "q_value": 0.003238552064111632
+        },
+        {
+          "id": 101939,
+          "token": "\u513f\u7ae5",
+          "direction_hits": 2,
+          "slot_occurrences": 2,
+          "cohort_size": 4000,
+          "cohort_id_range": [
+            99887,
+            103966
+          ],
+          "cohort_max_count": 4,
+          "cohort_nonzero": 24,
+          "p_value": 0.0017495626093476631,
+          "q_value": 0.003238552064111632
+        },
+        {
+          "id": 5209,
+          "token": " Please",
+          "direction_hits": 2,
+          "slot_occurrences": 2,
+          "cohort_size": 4000,
+          "cohort_id_range": [
+            3003,
+            7396
+          ],
+          "cohort_max_count": 3,
+          "cohort_nonzero": 57,
+          "p_value": 0.001999500124968758,
+          "q_value": 0.003345317516774653
+        },
+        {
+          "id": 99796,
+          "token": "\u4e00\u6b21",
+          "direction_hits": 2,
+          "slot_occurrences": 2,
+          "cohort_size": 4000,
+          "cohort_id_range": [
+            97589,
+            101826
+          ],
+          "cohort_max_count": 4,
+          "cohort_nonzero": 29,
+          "p_value": 0.001999500124968758,
+          "q_value": 0.003345317516774653
+        },
+        {
+          "id": 99277,
+          "token": "\u6751",
+          "direction_hits": 2,
+          "slot_occurrences": 2,
+          "cohort_size": 4000,
+          "cohort_id_range": [
+            97079,
+            101350
+          ],
+          "cohort_max_count": 4,
+          "cohort_nonzero": 29,
+          "p_value": 0.001999500124968758,
+          "q_value": 0.003345317516774653
+        },
+        {
+          "id": 7771,
+          "token": "Your",
+          "direction_hits": 2,
+          "slot_occurrences": 2,
+          "cohort_size": 4000,
+          "cohort_id_range": [
+            5582,
+            9916
+          ],
+          "cohort_max_count": 4,
+          "cohort_nonzero": 45,
+          "p_value": 0.001999500124968758,
+          "q_value": 0.003345317516774653
+        },
+        {
+          "id": 99304,
+          "token": "\u4f01\u4e1a",
+          "direction_hits": 2,
+          "slot_occurrences": 2,
+          "cohort_size": 4000,
+          "cohort_id_range": [
+            97099,
+            101368
+          ],
+          "cohort_max_count": 4,
+          "cohort_nonzero": 29,
+          "p_value": 0.001999500124968758,
+          "q_value": 0.003345317516774653
+        },
+        {
+          "id": 5528,
+          "token": "#ifndef",
+          "direction_hits": 2,
+          "slot_occurrences": 2,
+          "cohort_size": 4000,
+          "cohort_id_range": [
+            3327,
+            7718
+          ],
+          "cohort_max_count": 4,
+          "cohort_nonzero": 56,
+          "p_value": 0.0022494376405898524,
+          "q_value": 0.0034946620487735203
+        },
+        {
+          "id": 7692,
+          "token": "async",
+          "direction_hits": 2,
+          "slot_occurrences": 2,
+          "cohort_size": 4000,
+          "cohort_id_range": [
+            5503,
+            9835
+          ],
+          "cohort_max_count": 4,
+          "cohort_nonzero": 46,
+          "p_value": 0.0022494376405898524,
+          "q_value": 0.0034946620487735203
+        },
+        {
+          "id": 9017,
+          "token": " het",
+          "direction_hits": 2,
+          "slot_occurrences": 2,
+          "cohort_size": 4000,
+          "cohort_id_range": [
+            6852,
+            11176
+          ],
+          "cohort_max_count": 4,
+          "cohort_nonzero": 34,
+          "p_value": 0.0022494376405898524,
+          "q_value": 0.0034946620487735203
+        },
+        {
+          "id": 7485,
+          "token": " export",
+          "direction_hits": 2,
+          "slot_occurrences": 2,
+          "cohort_size": 4000,
+          "cohort_id_range": [
+            5300,
+            9638
+          ],
+          "cohort_max_count": 4,
+          "cohort_nonzero": 44,
+          "p_value": 0.0022494376405898524,
+          "q_value": 0.0034946620487735203
+        },
+        {
+          "id": 100659,
+          "token": "\u4eba\u4eec",
+          "direction_hits": 2,
+          "slot_occurrences": 2,
+          "cohort_size": 4000,
+          "cohort_id_range": [
+            98496,
+            102697
+          ],
+          "cohort_max_count": 4,
+          "cohort_nonzero": 37,
+          "p_value": 0.0024993751562109472,
+          "q_value": 0.0036240939765058732
+        },
+        {
+          "id": 101140,
+          "token": "\u9996\u5148",
+          "direction_hits": 2,
+          "slot_occurrences": 2,
+          "cohort_size": 4000,
+          "cohort_id_range": [
+            98997,
+            103165
+          ],
+          "cohort_max_count": 4,
+          "cohort_nonzero": 36,
+          "p_value": 0.0024993751562109472,
+          "q_value": 0.0036240939765058732
+        },
+        {
+          "id": 100342,
+          "token": "\u5168\u56fd",
+          "direction_hits": 2,
+          "slot_occurrences": 2,
+          "cohort_size": 4000,
+          "cohort_id_range": [
+            98151,
+            102384
+          ],
+          "cohort_max_count": 4,
+          "cohort_nonzero": 36,
+          "p_value": 0.0024993751562109472,
+          "q_value": 0.0036240939765058732
+        },
+        {
+          "id": 5085,
+          "token": " Google",
+          "direction_hits": 2,
+          "slot_occurrences": 2,
+          "cohort_size": 4000,
+          "cohort_id_range": [
+            2887,
+            7273
+          ],
+          "cohort_max_count": 3,
+          "cohort_nonzero": 60,
+          "p_value": 0.0024993751562109472,
+          "q_value": 0.0036240939765058732
+        },
+        {
+          "id": 4473,
+          "token": " namespace",
+          "direction_hits": 2,
+          "slot_occurrences": 2,
+          "cohort_size": 4000,
+          "cohort_id_range": [
+            2267,
+            6669
+          ],
+          "cohort_max_count": 3,
+          "cohort_nonzero": 80,
+          "p_value": 0.003749062734316421,
+          "q_value": 0.0053470238997627645
+        },
+        {
+          "id": 4029,
+          "token": ".springframework",
+          "direction_hits": 2,
+          "slot_occurrences": 2,
+          "cohort_size": 4000,
+          "cohort_id_range": [
+            1826,
+            6220
+          ],
+          "cohort_max_count": 3,
+          "cohort_nonzero": 91,
+          "p_value": 0.005248687828042989,
+          "q_value": 0.0073650942103183886
+        },
+        {
+          "id": 3312,
+          "token": " async",
+          "direction_hits": 2,
+          "slot_occurrences": 2,
+          "cohort_size": 4000,
+          "cohort_id_range": [
+            1097,
+            5514
+          ],
+          "cohort_max_count": 3,
+          "cohort_nonzero": 103,
+          "p_value": 0.006248437890527368,
+          "q_value": 0.007998000499875032
+        },
+        {
+          "id": 3036,
+          "token": "And",
+          "direction_hits": 2,
+          "slot_occurrences": 2,
+          "cohort_size": 4000,
+          "cohort_id_range": [
+            813,
+            5243
+          ],
+          "cohort_max_count": 3,
+          "cohort_nonzero": 117,
+          "p_value": 0.007498125468632842,
+          "q_value": 0.007998000499875032
+        },
+        {
+          "id": 2809,
+          "token": "section",
+          "direction_hits": 2,
+          "slot_occurrences": 2,
+          "cohort_size": 4000,
+          "cohort_id_range": [
+            559,
+            5007
+          ],
+          "cohort_max_count": 3,
+          "cohort_nonzero": 123,
+          "p_value": 0.007498125468632842,
+          "q_value": 0.007998000499875032
+        },
+        {
+          "id": 2915,
+          "token": " func",
+          "direction_hits": 2,
+          "slot_occurrences": 2,
+          "cohort_size": 4000,
+          "cohort_id_range": [
+            680,
+            5113
+          ],
+          "cohort_max_count": 3,
+          "cohort_nonzero": 122,
+          "p_value": 0.007498125468632842,
+          "q_value": 0.007998000499875032
+        },
+        {
+          "id": 2906,
+          "token": " school",
+          "direction_hits": 2,
+          "slot_occurrences": 2,
+          "cohort_size": 4000,
+          "cohort_id_range": [
+            669,
+            5103
+          ],
+          "cohort_max_count": 3,
+          "cohort_nonzero": 122,
+          "p_value": 0.007498125468632842,
+          "q_value": 0.007998000499875032
+        },
+        {
+          "id": 1208,
+          "token": "php",
+          "direction_hits": 2,
+          "slot_occurrences": 2,
+          "cohort_size": 4000,
+          "cohort_id_range": [
+            15,
+            4676
+          ],
+          "cohort_max_count": 3,
+          "cohort_nonzero": 140,
+          "p_value": 0.007998000499875032,
+          "q_value": 0.007998000499875032
+        },
+        {
+          "id": 705,
+          "token": " up",
+          "direction_hits": 2,
+          "slot_occurrences": 2,
+          "cohort_size": 4000,
+          "cohort_id_range": [
+            15,
+            4676
+          ],
+          "cohort_max_count": 3,
+          "cohort_nonzero": 140,
+          "p_value": 0.007998000499875032,
+          "q_value": 0.007998000499875032
+        },
+        {
+          "id": 633,
+          "token": " get",
+          "direction_hits": 2,
+          "slot_occurrences": 2,
+          "cohort_size": 4000,
+          "cohort_id_range": [
+            15,
+            4676
+          ],
+          "cohort_max_count": 3,
+          "cohort_nonzero": 140,
+          "p_value": 0.007998000499875032,
+          "q_value": 0.007998000499875032
+        },
+        {
+          "id": 2359,
+          "token": "left",
+          "direction_hits": 2,
+          "slot_occurrences": 2,
+          "cohort_size": 4000,
+          "cohort_id_range": [
+            15,
+            4676
+          ],
+          "cohort_max_count": 3,
+          "cohort_nonzero": 140,
+          "p_value": 0.007998000499875032,
+          "q_value": 0.007998000499875032
+        },
+        {
+          "id": 2354,
+          "token": "With",
+          "direction_hits": 2,
+          "slot_occurrences": 2,
+          "cohort_size": 4000,
+          "cohort_id_range": [
+            15,
+            4676
+          ],
+          "cohort_max_count": 3,
+          "cohort_nonzero": 140,
+          "p_value": 0.007998000499875032,
+          "q_value": 0.007998000499875032
+        },
+        {
+          "id": 2299,
+          "token": "'re",
+          "direction_hits": 2,
+          "slot_occurrences": 2,
+          "cohort_size": 4000,
+          "cohort_id_range": [
+            15,
+            4676
+          ],
+          "cohort_max_count": 3,
+          "cohort_nonzero": 140,
+          "p_value": 0.007998000499875032,
+          "q_value": 0.007998000499875032
+        },
+        {
+          "id": 2082,
+          "token": "An",
+          "direction_hits": 2,
+          "slot_occurrences": 2,
+          "cohort_size": 4000,
+          "cohort_id_range": [
+            15,
+            4676
+          ],
+          "cohort_max_count": 3,
+          "cohort_nonzero": 140,
+          "p_value": 0.007998000499875032,
+          "q_value": 0.007998000499875032
+        },
+        {
+          "id": 1441,
+          "token": "#define",
+          "direction_hits": 2,
+          "slot_occurrences": 2,
+          "cohort_size": 4000,
+          "cohort_id_range": [
+            15,
+            4676
+          ],
+          "cohort_max_count": 3,
+          "cohort_nonzero": 140,
+          "p_value": 0.007998000499875032,
+          "q_value": 0.007998000499875032
+        },
+        {
+          "id": 1925,
+          "token": "On",
+          "direction_hits": 2,
+          "slot_occurrences": 2,
+          "cohort_size": 4000,
+          "cohort_id_range": [
+            15,
+            4676
+          ],
+          "cohort_max_count": 3,
+          "cohort_nonzero": 140,
+          "p_value": 0.007998000499875032,
+          "q_value": 0.007998000499875032
+        },
+        {
+          "id": 1855,
+          "token": " create",
+          "direction_hits": 2,
+          "slot_occurrences": 2,
+          "cohort_size": 4000,
+          "cohort_id_range": [
+            15,
+            4676
+          ],
+          "cohort_max_count": 3,
+          "cohort_nonzero": 140,
+          "p_value": 0.007998000499875032,
+          "q_value": 0.007998000499875032
+        },
+        {
+          "id": 1913,
+          "token": " On",
+          "direction_hits": 2,
+          "slot_occurrences": 2,
+          "cohort_size": 4000,
+          "cohort_id_range": [
+            15,
+            4676
+          ],
+          "cohort_max_count": 3,
+          "cohort_nonzero": 140,
+          "p_value": 0.007998000499875032,
+          "q_value": 0.007998000499875032
+        },
+        {
+          "id": 1533,
+          "token": "export",
+          "direction_hits": 2,
+          "slot_occurrences": 2,
+          "cohort_size": 4000,
+          "cohort_id_range": [
+            15,
+            4676
+          ],
+          "cohort_max_count": 3,
+          "cohort_nonzero": 140,
+          "p_value": 0.007998000499875032,
+          "q_value": 0.007998000499875032
+        },
+        {
+          "id": 1906,
+          "token": "Image",
+          "direction_hits": 2,
+          "slot_occurrences": 2,
+          "cohort_size": 4000,
+          "cohort_id_range": [
+            15,
+            4676
+          ],
+          "cohort_max_count": 3,
+          "cohort_nonzero": 140,
+          "p_value": 0.007998000499875032,
+          "q_value": 0.007998000499875032
+        },
+        {
+          "id": 989,
+          "token": "[i",
+          "direction_hits": 2,
+          "slot_occurrences": 2,
+          "cohort_size": 4000,
+          "cohort_id_range": [
+            15,
+            4676
+          ],
+          "cohort_max_count": 3,
+          "cohort_nonzero": 140,
+          "p_value": 0.007998000499875032,
+          "q_value": 0.007998000499875032
+        },
+        {
+          "id": 1040,
+          "token": "class",
+          "direction_hits": 2,
+          "slot_occurrences": 2,
+          "cohort_size": 4000,
+          "cohort_id_range": [
+            15,
+            4676
+          ],
+          "cohort_max_count": 3,
+          "cohort_nonzero": 140,
+          "p_value": 0.007998000499875032,
+          "q_value": 0.007998000499875032
+        },
+        {
+          "id": 23,
+          "token": "8",
+          "direction_hits": 2,
+          "slot_occurrences": 2,
+          "cohort_size": 4000,
+          "cohort_id_range": [
+            15,
+            4676
+          ],
+          "cohort_max_count": 3,
+          "cohort_nonzero": 140,
+          "p_value": 0.007998000499875032,
+          "q_value": 0.007998000499875032
+        },
+        {
+          "id": 1052,
+          "token": " there",
+          "direction_hits": 2,
+          "slot_occurrences": 2,
+          "cohort_size": 4000,
+          "cohort_id_range": [
+            15,
+            4676
+          ],
+          "cohort_max_count": 3,
+          "cohort_nonzero": 140,
+          "p_value": 0.007998000499875032,
+          "q_value": 0.007998000499875032
+        },
+        {
+          "id": 1590,
+          "token": " final",
+          "direction_hits": 2,
+          "slot_occurrences": 2,
+          "cohort_size": 4000,
+          "cohort_id_range": [
+            15,
+            4676
+          ],
+          "cohort_max_count": 3,
+          "cohort_nonzero": 140,
+          "p_value": 0.007998000499875032,
+          "q_value": 0.007998000499875032
+        },
+        {
+          "id": 1096,
+          "token": " This",
+          "direction_hits": 2,
+          "slot_occurrences": 2,
+          "cohort_size": 4000,
+          "cohort_id_range": [
+            15,
+            4676
+          ],
+          "cohort_max_count": 3,
+          "cohort_nonzero": 140,
+          "p_value": 0.007998000499875032,
+          "q_value": 0.007998000499875032
+        },
+        {
+          "id": 1149,
+          "token": "let",
+          "direction_hits": 2,
+          "slot_occurrences": 2,
+          "cohort_size": 4000,
+          "cohort_id_range": [
+            15,
+            4676
+          ],
+          "cohort_max_count": 3,
+          "cohort_nonzero": 140,
+          "p_value": 0.007998000499875032,
+          "q_value": 0.007998000499875032
+        }
+      ],
+      "family": {
+        "family_ids": [],
+        "observed_direction_hits": 0,
+        "p_value": 1.0,
+        "note": "no member of the family appears"
+      },
+      "focus_context": {
+        "focus_rows": [],
+        "n_screened": 87,
+        "focus_max_direction_hits": 0,
+        "tokens_with_more_hits": 87,
+        "tokens_at_or_below_focus_p": null
+      }
+    },
+    "poison-sweep-3.125pct": {
+      "lane": "qkcircuit",
+      "n_directions": 72,
+      "n_distinct_tokens": 195,
+      "screened": [
+        {
+          "id": 30915,
+          "token": " nerve",
+          "direction_hits": 2,
+          "slot_occurrences": 2,
+          "cohort_size": 4000,
+          "cohort_id_range": [
+            28771,
+            33052
+          ],
+          "cohort_max_count": 1,
+          "cohort_nonzero": 4,
+          "p_value": 0.00024993751562109475,
+          "q_value": 0.000999750062484379
+        },
+        {
+          "id": 2694,
+          "token": " der",
+          "direction_hits": 2,
+          "slot_occurrences": 2,
+          "cohort_size": 4000,
+          "cohort_id_range": [
+            429,
+            4888
+          ],
+          "cohort_max_count": 2,
+          "cohort_nonzero": 31,
+          "p_value": 0.0007498125468632841,
+          "q_value": 0.000999750062484379
+        },
+        {
+          "id": 369,
+          "token": " for",
+          "direction_hits": 2,
+          "slot_occurrences": 2,
+          "cohort_size": 4000,
+          "cohort_id_range": [
+            15,
+            4676
+          ],
+          "cohort_max_count": 2,
+          "cohort_nonzero": 35,
+          "p_value": 0.000999750062484379,
+          "q_value": 0.000999750062484379
+        },
+        {
+          "id": 750,
+          "token": "def",
+          "direction_hits": 2,
+          "slot_occurrences": 2,
+          "cohort_size": 4000,
+          "cohort_id_range": [
+            15,
+            4676
+          ],
+          "cohort_max_count": 2,
+          "cohort_nonzero": 35,
+          "p_value": 0.000999750062484379,
+          "q_value": 0.000999750062484379
+        },
+        {
+          "id": 2474,
+          "token": " since",
+          "direction_hits": 2,
+          "slot_occurrences": 2,
+          "cohort_size": 4000,
+          "cohort_id_range": [
+            15,
+            4676
+          ],
+          "cohort_max_count": 2,
+          "cohort_nonzero": 35,
+          "p_value": 0.000999750062484379,
+          "q_value": 0.000999750062484379
+        }
+      ],
+      "family": {
+        "family_ids": [],
+        "observed_direction_hits": 0,
+        "p_value": 1.0,
+        "note": "no member of the family appears"
+      },
+      "focus_context": {
+        "focus_rows": [],
+        "n_screened": 5,
+        "focus_max_direction_hits": 0,
+        "tokens_with_more_hits": 5,
+        "tokens_at_or_below_focus_p": null
+      }
+    },
+    "poison-sweep-6.25pct": {
+      "lane": "qkcircuit",
+      "n_directions": 72,
+      "n_distinct_tokens": 293,
+      "screened": [
+        {
+          "id": 13124,
+          "token": " sf",
+          "direction_hits": 2,
+          "slot_occurrences": 2,
+          "cohort_size": 4000,
+          "cohort_id_range": [
+            10945,
+            15307
+          ],
+          "cohort_max_count": 1,
+          "cohort_nonzero": 19,
+          "p_value": 0.00024993751562109475,
+          "q_value": 0.000999750062484379
+        },
+        {
+          "id": 99277,
+          "token": "\u6751",
+          "direction_hits": 2,
+          "slot_occurrences": 2,
+          "cohort_size": 4000,
+          "cohort_id_range": [
+            97079,
+            101350
+          ],
+          "cohort_max_count": 1,
+          "cohort_nonzero": 20,
+          "p_value": 0.00024993751562109475,
+          "q_value": 0.000999750062484379
+        },
+        {
+          "id": 124794,
+          "token": " \u0639\u0644\u064a",
+          "direction_hits": 2,
+          "slot_occurrences": 2,
+          "cohort_size": 4000,
+          "cohort_id_range": [
+            122516,
+            126843
+          ],
+          "cohort_max_count": 1,
+          "cohort_nonzero": 6,
+          "p_value": 0.00024993751562109475,
+          "q_value": 0.000999750062484379
+        },
+        {
+          "id": 89437,
+          "token": " b\u1ea1n",
+          "direction_hits": 2,
+          "slot_occurrences": 2,
+          "cohort_size": 4000,
+          "cohort_id_range": [
+            87312,
+            91564
+          ],
+          "cohort_max_count": 1,
+          "cohort_nonzero": 4,
+          "p_value": 0.00024993751562109475,
+          "q_value": 0.000999750062484379
+        },
+        {
+          "id": 77128,
+          "token": "\u5fd7",
+          "direction_hits": 2,
+          "slot_occurrences": 2,
+          "cohort_size": 4000,
+          "cohort_id_range": [
+            74996,
+            79278
+          ],
+          "cohort_max_count": 1,
+          "cohort_nonzero": 1,
+          "p_value": 0.00024993751562109475,
+          "q_value": 0.000999750062484379
+        },
+        {
+          "id": 48683,
+          "token": "(figsize",
+          "direction_hits": 2,
+          "slot_occurrences": 2,
+          "cohort_size": 4000,
+          "cohort_id_range": [
+            46544,
+            50802
+          ],
+          "cohort_max_count": 1,
+          "cohort_nonzero": 1,
+          "p_value": 0.00024993751562109475,
+          "q_value": 0.000999750062484379
+        },
+        {
+          "id": 19438,
+          "token": " pero",
+          "direction_hits": 2,
+          "slot_occurrences": 2,
+          "cohort_size": 4000,
+          "cohort_id_range": [
+            17266,
+            21586
+          ],
+          "cohort_max_count": 1,
+          "cohort_nonzero": 12,
+          "p_value": 0.00024993751562109475,
+          "q_value": 0.000999750062484379
+        },
+        {
+          "id": 476,
+          "token": " or",
+          "direction_hits": 3,
+          "slot_occurrences": 3,
+          "cohort_size": 4000,
+          "cohort_id_range": [
+            15,
+            4676
+          ],
+          "cohort_max_count": 3,
+          "cohort_nonzero": 80,
+          "p_value": 0.0004998750312421895,
+          "q_value": 0.0011663750728984422
+        },
+        {
+          "id": 315,
+          "token": " of",
+          "direction_hits": 3,
+          "slot_occurrences": 3,
+          "cohort_size": 4000,
+          "cohort_id_range": [
+            15,
+            4676
+          ],
+          "cohort_max_count": 3,
+          "cohort_nonzero": 80,
+          "p_value": 0.0004998750312421895,
+          "q_value": 0.0011663750728984422
+        },
+        {
+          "id": 44113,
+          "token": "attrib",
+          "direction_hits": 2,
+          "slot_occurrences": 2,
+          "cohort_size": 4000,
+          "cohort_id_range": [
+            41986,
+            46262
+          ],
+          "cohort_max_count": 2,
+          "cohort_nonzero": 9,
+          "p_value": 0.0004998750312421895,
+          "q_value": 0.0011663750728984422
+        },
+        {
+          "id": 45423,
+          "token": "nas",
+          "direction_hits": 2,
+          "slot_occurrences": 2,
+          "cohort_size": 4000,
+          "cohort_id_range": [
+            43277,
+            47560
+          ],
+          "cohort_max_count": 2,
+          "cohort_nonzero": 5,
+          "p_value": 0.0004998750312421895,
+          "q_value": 0.0011663750728984422
+        },
+        {
+          "id": 5721,
+          "token": "aci\u00f3n",
+          "direction_hits": 2,
+          "slot_occurrences": 2,
+          "cohort_size": 4000,
+          "cohort_id_range": [
+            3533,
+            7911
+          ],
+          "cohort_max_count": 2,
+          "cohort_nonzero": 25,
+          "p_value": 0.0004998750312421895,
+          "q_value": 0.0011663750728984422
+        },
+        {
+          "id": 9370,
+          "token": "\u7684",
+          "direction_hits": 2,
+          "slot_occurrences": 2,
+          "cohort_size": 4000,
+          "cohort_id_range": [
+            7209,
+            11533
+          ],
+          "cohort_max_count": 2,
+          "cohort_nonzero": 19,
+          "p_value": 0.0007498125468632841,
+          "q_value": 0.0013121719570107471
+        },
+        {
+          "id": 10371,
+          "token": " yang",
+          "direction_hits": 2,
+          "slot_occurrences": 2,
+          "cohort_size": 4000,
+          "cohort_id_range": [
+            8229,
+            12540
+          ],
+          "cohort_max_count": 2,
+          "cohort_nonzero": 25,
+          "p_value": 0.0007498125468632841,
+          "q_value": 0.0013121719570107471
+        },
+        {
+          "id": 10608,
+          "token": " uma",
+          "direction_hits": 2,
+          "slot_occurrences": 2,
+          "cohort_size": 4000,
+          "cohort_id_range": [
+            8458,
+            12771
+          ],
+          "cohort_max_count": 2,
+          "cohort_nonzero": 24,
+          "p_value": 0.0007498125468632841,
+          "q_value": 0.0013121719570107471
+        },
+        {
+          "id": 4594,
+          "token": "\u0142",
+          "direction_hits": 2,
+          "slot_occurrences": 2,
+          "cohort_size": 4000,
+          "cohort_id_range": [
+            2390,
+            6786
+          ],
+          "cohort_max_count": 2,
+          "cohort_nonzero": 31,
+          "p_value": 0.0007498125468632841,
+          "q_value": 0.0013121719570107471
+        },
+        {
+          "id": 2643,
+          "token": " os",
+          "direction_hits": 2,
+          "slot_occurrences": 2,
+          "cohort_size": 4000,
+          "cohort_id_range": [
+            369,
+            4835
+          ],
+          "cohort_max_count": 3,
+          "cohort_nonzero": 55,
+          "p_value": 0.0022494376405898524,
+          "q_value": 0.003704956113912698
+        },
+        {
+          "id": 1067,
+          "token": "#include",
+          "direction_hits": 2,
+          "slot_occurrences": 2,
+          "cohort_size": 4000,
+          "cohort_id_range": [
+            15,
+            4676
+          ],
+          "cohort_max_count": 3,
+          "cohort_nonzero": 80,
+          "p_value": 0.003749062734316421,
+          "q_value": 0.003749062734316421
+        },
+        {
+          "id": 429,
+          "token": " that",
+          "direction_hits": 2,
+          "slot_occurrences": 2,
+          "cohort_size": 4000,
+          "cohort_id_range": [
+            15,
+            4676
+          ],
+          "cohort_max_count": 3,
+          "cohort_nonzero": 80,
+          "p_value": 0.003749062734316421,
+          "q_value": 0.003749062734316421
+        },
+        {
+          "id": 323,
+          "token": " and",
+          "direction_hits": 2,
+          "slot_occurrences": 2,
+          "cohort_size": 4000,
+          "cohort_id_range": [
+            15,
+            4676
+          ],
+          "cohort_max_count": 3,
+          "cohort_nonzero": 80,
+          "p_value": 0.003749062734316421,
+          "q_value": 0.003749062734316421
+        },
+        {
+          "id": 82,
+          "token": "s",
+          "direction_hits": 2,
+          "slot_occurrences": 2,
+          "cohort_size": 4000,
+          "cohort_id_range": [
+            15,
+            4676
+          ],
+          "cohort_max_count": 3,
+          "cohort_nonzero": 80,
+          "p_value": 0.003749062734316421,
+          "q_value": 0.003749062734316421
+        },
+        {
+          "id": 279,
+          "token": " the",
+          "direction_hits": 2,
+          "slot_occurrences": 2,
+          "cohort_size": 4000,
+          "cohort_id_range": [
+            15,
+            4676
+          ],
+          "cohort_max_count": 3,
+          "cohort_nonzero": 80,
+          "p_value": 0.003749062734316421,
+          "q_value": 0.003749062734316421
+        },
+        {
+          "id": 287,
+          "token": "ing",
+          "direction_hits": 2,
+          "slot_occurrences": 2,
+          "cohort_size": 4000,
+          "cohort_id_range": [
+            15,
+            4676
+          ],
+          "cohort_max_count": 3,
+          "cohort_nonzero": 80,
+          "p_value": 0.003749062734316421,
+          "q_value": 0.003749062734316421
+        },
+        {
+          "id": 2079,
+          "token": ".is",
+          "direction_hits": 2,
+          "slot_occurrences": 2,
+          "cohort_size": 4000,
+          "cohort_id_range": [
+            15,
+            4676
+          ],
+          "cohort_max_count": 3,
+          "cohort_nonzero": 80,
+          "p_value": 0.003749062734316421,
+          "q_value": 0.003749062734316421
+        },
+        {
+          "id": 384,
+          "token": " e",
+          "direction_hits": 2,
+          "slot_occurrences": 2,
+          "cohort_size": 4000,
+          "cohort_id_range": [
+            15,
+            4676
+          ],
+          "cohort_max_count": 3,
+          "cohort_nonzero": 80,
+          "p_value": 0.003749062734316421,
+          "q_value": 0.003749062734316421
+        },
+        {
+          "id": 72,
+          "token": "i",
+          "direction_hits": 2,
+          "slot_occurrences": 2,
+          "cohort_size": 4000,
+          "cohort_id_range": [
+            15,
+            4676
+          ],
+          "cohort_max_count": 3,
+          "cohort_nonzero": 80,
+          "p_value": 0.003749062734316421,
+          "q_value": 0.003749062734316421
+        },
+        {
+          "id": 369,
+          "token": " for",
+          "direction_hits": 2,
+          "slot_occurrences": 2,
+          "cohort_size": 4000,
+          "cohort_id_range": [
+            15,
+            4676
+          ],
+          "cohort_max_count": 3,
+          "cohort_nonzero": 80,
+          "p_value": 0.003749062734316421,
+          "q_value": 0.003749062734316421
+        },
+        {
+          "id": 1794,
+          "token": "\u00f3",
+          "direction_hits": 2,
+          "slot_occurrences": 2,
+          "cohort_size": 4000,
+          "cohort_id_range": [
+            15,
+            4676
+          ],
+          "cohort_max_count": 3,
+          "cohort_nonzero": 80,
+          "p_value": 0.003749062734316421,
+          "q_value": 0.003749062734316421
+        }
+      ],
+      "family": {
+        "family_ids": [],
+        "observed_direction_hits": 0,
+        "p_value": 1.0,
+        "note": "no member of the family appears"
+      },
+      "focus_context": {
+        "focus_rows": [],
+        "n_screened": 28,
+        "focus_max_direction_hits": 0,
+        "tokens_with_more_hits": 28,
+        "tokens_at_or_below_focus_p": null
+      }
+    },
+    "sl-organism-a-7b": {
+      "lane": "qkcircuit",
+      "n_directions": 72,
+      "n_distinct_tokens": 723,
+      "screened": [
+        {
+          "id": 3197,
+          "token": " When",
+          "direction_hits": 7,
+          "slot_occurrences": 7,
+          "cohort_size": 4000,
+          "cohort_id_range": [
+            978,
+            5399
+          ],
+          "cohort_max_count": 6,
+          "cohort_nonzero": 103,
+          "p_value": 0.00024993751562109475,
+          "q_value": 0.0026868282929267684
+        },
+        {
+          "id": 50828,
+          "token": "\u201cWhen",
+          "direction_hits": 5,
+          "slot_occurrences": 5,
+          "cohort_size": 4000,
+          "cohort_id_range": [
+            48708,
+            52977
+          ],
+          "cohort_max_count": 2,
+          "cohort_nonzero": 11,
+          "p_value": 0.00024993751562109475,
+          "q_value": 0.0026868282929267684
+        },
+        {
+          "id": 14817,
+          "token": " Cloud",
+          "direction_hits": 5,
+          "slot_occurrences": 5,
+          "cohort_size": 4000,
+          "cohort_id_range": [
+            12640,
+            16994
+          ],
+          "cohort_max_count": 4,
+          "cohort_nonzero": 34,
+          "p_value": 0.00024993751562109475,
+          "q_value": 0.0026868282929267684
+        },
+        {
+          "id": 38369,
+          "token": "\"When",
+          "direction_hits": 5,
+          "slot_occurrences": 5,
+          "cohort_size": 4000,
+          "cohort_id_range": [
+            36225,
+            40523
+          ],
+          "cohort_max_count": 2,
+          "cohort_nonzero": 18,
+          "p_value": 0.00024993751562109475,
+          "q_value": 0.0026868282929267684
+        },
+        {
+          "id": 104815,
+          "token": "\u9038",
+          "direction_hits": 4,
+          "slot_occurrences": 4,
+          "cohort_size": 4000,
+          "cohort_id_range": [
+            102788,
+            106816
+          ],
+          "cohort_max_count": 2,
+          "cohort_nonzero": 25,
+          "p_value": 0.00024993751562109475,
+          "q_value": 0.0026868282929267684
+        },
+        {
+          "id": 33108,
+          "token": "\u548c",
+          "direction_hits": 3,
+          "slot_occurrences": 3,
+          "cohort_size": 4000,
+          "cohort_id_range": [
+            30973,
+            35273
+          ],
+          "cohort_max_count": 2,
+          "cohort_nonzero": 16,
+          "p_value": 0.00024993751562109475,
+          "q_value": 0.0026868282929267684
+        },
+        {
+          "id": 20598,
+          "token": " Electric",
+          "direction_hits": 3,
+          "slot_occurrences": 3,
+          "cohort_size": 4000,
+          "cohort_id_range": [
+            18447,
+            22759
+          ],
+          "cohort_max_count": 2,
+          "cohort_nonzero": 27,
+          "p_value": 0.00024993751562109475,
+          "q_value": 0.0026868282929267684
+        },
+        {
+          "id": 73037,
+          "token": "Safety",
+          "direction_hits": 2,
+          "slot_occurrences": 2,
+          "cohort_size": 4000,
+          "cohort_id_range": [
+            70906,
+            75165
+          ],
+          "cohort_max_count": 1,
+          "cohort_nonzero": 8,
+          "p_value": 0.00024993751562109475,
+          "q_value": 0.0026868282929267684
+        },
+        {
+          "id": 67652,
+          "token": " voi",
+          "direction_hits": 2,
+          "slot_occurrences": 2,
+          "cohort_size": 4000,
+          "cohort_id_range": [
+            65484,
+            69784
+          ],
+          "cohort_max_count": 1,
+          "cohort_nonzero": 13,
+          "p_value": 0.00024993751562109475,
+          "q_value": 0.0026868282929267684
+        },
+        {
+          "id": 90467,
+          "token": " sme",
+          "direction_hits": 2,
+          "slot_occurrences": 2,
+          "cohort_size": 4000,
+          "cohort_id_range": [
+            88335,
+            92588
+          ],
+          "cohort_max_count": 1,
+          "cohort_nonzero": 5,
+          "p_value": 0.00024993751562109475,
+          "q_value": 0.0026868282929267684
+        },
+        {
+          "id": 88328,
+          "token": "Minimal",
+          "direction_hits": 2,
+          "slot_occurrences": 2,
+          "cohort_size": 4000,
+          "cohort_id_range": [
+            86216,
+            90460
+          ],
+          "cohort_max_count": 1,
+          "cohort_nonzero": 7,
+          "p_value": 0.00024993751562109475,
+          "q_value": 0.0026868282929267684
+        },
+        {
+          "id": 60392,
+          "token": "lys",
+          "direction_hits": 2,
+          "slot_occurrences": 2,
+          "cohort_size": 4000,
+          "cohort_id_range": [
+            58263,
+            62524
+          ],
+          "cohort_max_count": 1,
+          "cohort_nonzero": 5,
+          "p_value": 0.00024993751562109475,
+          "q_value": 0.0026868282929267684
+        },
+        {
+          "id": 116149,
+          "token": "\u540c\u4e1a",
+          "direction_hits": 2,
+          "slot_occurrences": 2,
+          "cohort_size": 4000,
+          "cohort_id_range": [
+            114149,
+            118149
+          ],
+          "cohort_max_count": 1,
+          "cohort_nonzero": 7,
+          "p_value": 0.00024993751562109475,
+          "q_value": 0.0026868282929267684
+        },
+        {
+          "id": 62953,
+          "token": "ideal",
+          "direction_hits": 2,
+          "slot_occurrences": 2,
+          "cohort_size": 4000,
+          "cohort_id_range": [
+            60813,
+            65073
+          ],
+          "cohort_max_count": 1,
+          "cohort_nonzero": 8,
+          "p_value": 0.00024993751562109475,
+          "q_value": 0.0026868282929267684
+        },
+        {
+          "id": 99867,
+          "token": "\u5211",
+          "direction_hits": 2,
+          "slot_occurrences": 2,
+          "cohort_size": 4000,
+          "cohort_id_range": [
+            97666,
+            101921
+          ],
+          "cohort_max_count": 1,
+          "cohort_nonzero": 22,
+          "p_value": 0.00024993751562109475,
+          "q_value": 0.0026868282929267684
+        },
+        {
+          "id": 139716,
+          "token": " \u043f\u043e\u0432\u0442\u043e\u0440",
+          "direction_hits": 2,
+          "slot_occurrences": 2,
+          "cohort_size": 4000,
+          "cohort_id_range": [
+            137709,
+            141723
+          ],
+          "cohort_max_count": 1,
+          "cohort_nonzero": 2,
+          "p_value": 0.00024993751562109475,
+          "q_value": 0.0026868282929267684
+        },
+        {
+          "id": 4498,
+          "token": "When",
+          "direction_hits": 6,
+          "slot_occurrences": 6,
+          "cohort_size": 4000,
+          "cohort_id_range": [
+            2296,
+            6694
+          ],
+          "cohort_max_count": 7,
+          "cohort_nonzero": 75,
+          "p_value": 0.0004998750312421895,
+          "q_value": 0.0029647760473674686
+        },
+        {
+          "id": 14743,
+          "token": "\u201cWe",
+          "direction_hits": 4,
+          "slot_occurrences": 4,
+          "cohort_size": 4000,
+          "cohort_id_range": [
+            12560,
+            16918
+          ],
+          "cohort_max_count": 5,
+          "cohort_nonzero": 34,
+          "p_value": 0.0004998750312421895,
+          "q_value": 0.0029647760473674686
+        },
+        {
+          "id": 9569,
+          "token": " identity",
+          "direction_hits": 4,
+          "slot_occurrences": 4,
+          "cohort_size": 4000,
+          "cohort_id_range": [
+            7416,
+            11736
+          ],
+          "cohort_max_count": 4,
+          "cohort_nonzero": 46,
+          "p_value": 0.0004998750312421895,
+          "q_value": 0.0029647760473674686
+        },
+        {
+          "id": 8948,
+          "token": "system",
+          "direction_hits": 4,
+          "slot_occurrences": 4,
+          "cohort_size": 4000,
+          "cohort_id_range": [
+            6786,
+            11104
+          ],
+          "cohort_max_count": 4,
+          "cohort_nonzero": 51,
+          "p_value": 0.0004998750312421895,
+          "q_value": 0.0029647760473674686
+        },
+        {
+          "id": 12243,
+          "token": " Have",
+          "direction_hits": 3,
+          "slot_occurrences": 3,
+          "cohort_size": 4000,
+          "cohort_id_range": [
+            10073,
+            14415
+          ],
+          "cohort_max_count": 3,
+          "cohort_nonzero": 39,
+          "p_value": 0.0004998750312421895,
+          "q_value": 0.0029647760473674686
+        },
+        {
+          "id": 48120,
+          "token": "\u0e0a",
+          "direction_hits": 2,
+          "slot_occurrences": 2,
+          "cohort_size": 4000,
+          "cohort_id_range": [
+            45987,
+            50252
+          ],
+          "cohort_max_count": 2,
+          "cohort_nonzero": 11,
+          "p_value": 0.0004998750312421895,
+          "q_value": 0.0029647760473674686
+        },
+        {
+          "id": 93883,
+          "token": " \u52a0",
+          "direction_hits": 2,
+          "slot_occurrences": 2,
+          "cohort_size": 4000,
+          "cohort_id_range": [
+            91774,
+            96031
+          ],
+          "cohort_max_count": 2,
+          "cohort_nonzero": 8,
+          "p_value": 0.0004998750312421895,
+          "q_value": 0.0029647760473674686
+        },
+        {
+          "id": 96050,
+          "token": "\uff0c\u5728",
+          "direction_hits": 2,
+          "slot_occurrences": 2,
+          "cohort_size": 4000,
+          "cohort_id_range": [
+            93904,
+            98177
+          ],
+          "cohort_max_count": 2,
+          "cohort_nonzero": 10,
+          "p_value": 0.0004998750312421895,
+          "q_value": 0.0029647760473674686
+        },
+        {
+          "id": 28975,
+          "token": " fich",
+          "direction_hits": 2,
+          "slot_occurrences": 2,
+          "cohort_size": 4000,
+          "cohort_id_range": [
+            26807,
+            31121
+          ],
+          "cohort_max_count": 2,
+          "cohort_nonzero": 23,
+          "p_value": 0.0004998750312421895,
+          "q_value": 0.0029647760473674686
+        },
+        {
+          "id": 77175,
+          "token": "enthal",
+          "direction_hits": 2,
+          "slot_occurrences": 2,
+          "cohort_size": 4000,
+          "cohort_id_range": [
+            75040,
+            79324
+          ],
+          "cohort_max_count": 2,
+          "cohort_nonzero": 13,
+          "p_value": 0.0004998750312421895,
+          "q_value": 0.0029647760473674686
+        },
+        {
+          "id": 108263,
+          "token": "\u7f8e\u4eba",
+          "direction_hits": 2,
+          "slot_occurrences": 2,
+          "cohort_size": 4000,
+          "cohort_id_range": [
+            106263,
+            110264
+          ],
+          "cohort_max_count": 2,
+          "cohort_nonzero": 27,
+          "p_value": 0.0004998750312421895,
+          "q_value": 0.0029647760473674686
+        },
+        {
+          "id": 112480,
+          "token": "\u8fd9\u4e00\u5929",
+          "direction_hits": 2,
+          "slot_occurrences": 2,
+          "cohort_size": 4000,
+          "cohort_id_range": [
+            110480,
+            114480
+          ],
+          "cohort_max_count": 2,
+          "cohort_nonzero": 23,
+          "p_value": 0.0004998750312421895,
+          "q_value": 0.0029647760473674686
+        },
+        {
+          "id": 113716,
+          "token": "\u5f00\u4f1a",
+          "direction_hits": 2,
+          "slot_occurrences": 2,
+          "cohort_size": 4000,
+          "cohort_id_range": [
+            111716,
+            115716
+          ],
+          "cohort_max_count": 2,
+          "cohort_nonzero": 20,
+          "p_value": 0.0004998750312421895,
+          "q_value": 0.0029647760473674686
+        },
+        {
+          "id": 1446,
+          "token": " You",
+          "direction_hits": 6,
+          "slot_occurrences": 6,
+          "cohort_size": 4000,
+          "cohort_id_range": [
+            15,
+            4676
+          ],
+          "cohort_max_count": 7,
+          "cohort_nonzero": 172,
+          "p_value": 0.0007498125468632841,
+          "q_value": 0.0029647760473674686
+        },
+        {
+          "id": 81217,
+          "token": "\u53ca",
+          "direction_hits": 2,
+          "slot_occurrences": 2,
+          "cohort_size": 4000,
+          "cohort_id_range": [
+            79074,
+            83334
+          ],
+          "cohort_max_count": 2,
+          "cohort_nonzero": 6,
+          "p_value": 0.0007498125468632841,
+          "q_value": 0.0029647760473674686
+        },
+        {
+          "id": 30181,
+          "token": "\u043d\u0430\u0447",
+          "direction_hits": 2,
+          "slot_occurrences": 2,
+          "cohort_size": 4000,
+          "cohort_id_range": [
+            28036,
+            32321
+          ],
+          "cohort_max_count": 2,
+          "cohort_nonzero": 17,
+          "p_value": 0.0007498125468632841,
+          "q_value": 0.0029647760473674686
+        },
+        {
+          "id": 48873,
+          "token": " fres",
+          "direction_hits": 2,
+          "slot_occurrences": 2,
+          "cohort_size": 4000,
+          "cohort_id_range": [
+            46735,
+            50997
+          ],
+          "cohort_max_count": 5,
+          "cohort_nonzero": 10,
+          "p_value": 0.0007498125468632841,
+          "q_value": 0.0029647760473674686
+        },
+        {
+          "id": 80902,
+          "token": "-dot",
+          "direction_hits": 2,
+          "slot_occurrences": 2,
+          "cohort_size": 4000,
+          "cohort_id_range": [
+            78753,
+            83015
+          ],
+          "cohort_max_count": 2,
+          "cohort_nonzero": 6,
+          "p_value": 0.0007498125468632841,
+          "q_value": 0.0029647760473674686
+        },
+        {
+          "id": 94768,
+          "token": " thematic",
+          "direction_hits": 2,
+          "slot_occurrences": 2,
+          "cohort_size": 4000,
+          "cohort_id_range": [
+            92644,
+            96909
+          ],
+          "cohort_max_count": 2,
+          "cohort_nonzero": 9,
+          "p_value": 0.0007498125468632841,
+          "q_value": 0.0029647760473674686
+        },
+        {
+          "id": 33561,
+          "token": " NVIDIA",
+          "direction_hits": 2,
+          "slot_occurrences": 2,
+          "cohort_size": 4000,
+          "cohort_id_range": [
+            31424,
+            35740
+          ],
+          "cohort_max_count": 3,
+          "cohort_nonzero": 16,
+          "p_value": 0.0007498125468632841,
+          "q_value": 0.0029647760473674686
+        },
+        {
+          "id": 25993,
+          "token": " subset",
+          "direction_hits": 2,
+          "slot_occurrences": 2,
+          "cohort_size": 4000,
+          "cohort_id_range": [
+            23844,
+            28162
+          ],
+          "cohort_max_count": 2,
+          "cohort_nonzero": 25,
+          "p_value": 0.0007498125468632841,
+          "q_value": 0.0029647760473674686
+        },
+        {
+          "id": 25463,
+          "token": " encryption",
+          "direction_hits": 2,
+          "slot_occurrences": 2,
+          "cohort_size": 4000,
+          "cohort_id_range": [
+            23310,
+            27629
+          ],
+          "cohort_max_count": 2,
+          "cohort_nonzero": 20,
+          "p_value": 0.0007498125468632841,
+          "q_value": 0.0029647760473674686
+        },
+        {
+          "id": 103333,
+          "token": "\u7a83",
+          "direction_hits": 2,
+          "slot_occurrences": 2,
+          "cohort_size": 4000,
+          "cohort_id_range": [
+            101308,
+            105361
+          ],
+          "cohort_max_count": 4,
+          "cohort_nonzero": 30,
+          "p_value": 0.0007498125468632841,
+          "q_value": 0.0029647760473674686
+        },
+        {
+          "id": 78125,
+          "token": "\uacf5",
+          "direction_hits": 2,
+          "slot_occurrences": 2,
+          "cohort_size": 4000,
+          "cohort_id_range": [
+            75993,
+            80270
+          ],
+          "cohort_max_count": 2,
+          "cohort_nonzero": 12,
+          "p_value": 0.0007498125468632841,
+          "q_value": 0.0029647760473674686
+        },
+        {
+          "id": 126195,
+          "token": " \u0639\u0646",
+          "direction_hits": 2,
+          "slot_occurrences": 2,
+          "cohort_size": 4000,
+          "cohort_id_range": [
+            123997,
+            128201
+          ],
+          "cohort_max_count": 2,
+          "cohort_nonzero": 5,
+          "p_value": 0.0007498125468632841,
+          "q_value": 0.0029647760473674686
+        },
+        {
+          "id": 125466,
+          "token": " \uacf5",
+          "direction_hits": 2,
+          "slot_occurrences": 2,
+          "cohort_size": 4000,
+          "cohort_id_range": [
+            123192,
+            127489
+          ],
+          "cohort_max_count": 2,
+          "cohort_nonzero": 6,
+          "p_value": 0.0007498125468632841,
+          "q_value": 0.0029647760473674686
+        },
+        {
+          "id": 127451,
+          "token": "\uac70\ub098",
+          "direction_hits": 2,
+          "slot_occurrences": 2,
+          "cohort_size": 4000,
+          "cohort_id_range": [
+            125410,
+            129479
+          ],
+          "cohort_max_count": 2,
+          "cohort_nonzero": 8,
+          "p_value": 0.0007498125468632841,
+          "q_value": 0.0029647760473674686
+        },
+        {
+          "id": 7911,
+          "token": " income",
+          "direction_hits": 3,
+          "slot_occurrences": 3,
+          "cohort_size": 4000,
+          "cohort_id_range": [
+            5721,
+            10054
+          ],
+          "cohort_max_count": 4,
+          "cohort_nonzero": 53,
+          "p_value": 0.000999750062484379,
+          "q_value": 0.0029647760473674686
+        },
+        {
+          "id": 11104,
+          "token": " organizations",
+          "direction_hits": 3,
+          "slot_occurrences": 3,
+          "cohort_size": 4000,
+          "cohort_id_range": [
+            8948,
+            13279
+          ],
+          "cohort_max_count": 4,
+          "cohort_nonzero": 39,
+          "p_value": 0.000999750062484379,
+          "q_value": 0.0029647760473674686
+        },
+        {
+          "id": 8429,
+          "token": " Why",
+          "direction_hits": 3,
+          "slot_occurrences": 3,
+          "cohort_size": 4000,
+          "cohort_id_range": [
+            6251,
+            10578
+          ],
+          "cohort_max_count": 4,
+          "cohort_nonzero": 55,
+          "p_value": 0.000999750062484379,
+          "q_value": 0.0029647760473674686
+        },
+        {
+          "id": 35946,
+          "token": "\u6211",
+          "direction_hits": 2,
+          "slot_occurrences": 2,
+          "cohort_size": 4000,
+          "cohort_id_range": [
+            33777,
+            38087
+          ],
+          "cohort_max_count": 2,
+          "cohort_nonzero": 23,
+          "p_value": 0.000999750062484379,
+          "q_value": 0.0029647760473674686
+        },
+        {
+          "id": 44455,
+          "token": " lar",
+          "direction_hits": 2,
+          "slot_occurrences": 2,
+          "cohort_size": 4000,
+          "cohort_id_range": [
+            42335,
+            46607
+          ],
+          "cohort_max_count": 2,
+          "cohort_nonzero": 20,
+          "p_value": 0.000999750062484379,
+          "q_value": 0.0029647760473674686
+        },
+        {
+          "id": 24121,
+          "token": "/stdc",
+          "direction_hits": 2,
+          "slot_occurrences": 2,
+          "cohort_size": 4000,
+          "cohort_id_range": [
+            21959,
+            26273
+          ],
+          "cohort_max_count": 2,
+          "cohort_nonzero": 21,
+          "p_value": 0.000999750062484379,
+          "q_value": 0.0029647760473674686
+        },
+        {
+          "id": 44446,
+          "token": " Procedure",
+          "direction_hits": 2,
+          "slot_occurrences": 2,
+          "cohort_size": 4000,
+          "cohort_id_range": [
+            42326,
+            46595
+          ],
+          "cohort_max_count": 2,
+          "cohort_nonzero": 20,
+          "p_value": 0.000999750062484379,
+          "q_value": 0.0029647760473674686
+        },
+        {
+          "id": 36160,
+          "token": " posed",
+          "direction_hits": 2,
+          "slot_occurrences": 2,
+          "cohort_size": 4000,
+          "cohort_id_range": [
+            34003,
+            38303
+          ],
+          "cohort_max_count": 2,
+          "cohort_nonzero": 21,
+          "p_value": 0.000999750062484379,
+          "q_value": 0.0029647760473674686
+        },
+        {
+          "id": 106136,
+          "token": "\u7f3a\u9677",
+          "direction_hits": 2,
+          "slot_occurrences": 2,
+          "cohort_size": 4000,
+          "cohort_id_range": [
+            104135,
+            108136
+          ],
+          "cohort_max_count": 4,
+          "cohort_nonzero": 29,
+          "p_value": 0.000999750062484379,
+          "q_value": 0.0029647760473674686
+        },
+        {
+          "id": 79937,
+          "token": "encryption",
+          "direction_hits": 2,
+          "slot_occurrences": 2,
+          "cohort_size": 4000,
+          "cohort_id_range": [
+            77788,
+            82059
+          ],
+          "cohort_max_count": 2,
+          "cohort_nonzero": 9,
+          "p_value": 0.000999750062484379,
+          "q_value": 0.0029647760473674686
+        },
+        {
+          "id": 32835,
+          "token": " offerings",
+          "direction_hits": 2,
+          "slot_occurrences": 2,
+          "cohort_size": 4000,
+          "cohort_id_range": [
+            30691,
+            34996
+          ],
+          "cohort_max_count": 3,
+          "cohort_nonzero": 15,
+          "p_value": 0.000999750062484379,
+          "q_value": 0.0029647760473674686
+        },
+        {
+          "id": 36095,
+          "token": "relationship",
+          "direction_hits": 2,
+          "slot_occurrences": 2,
+          "cohort_size": 4000,
+          "cohort_id_range": [
+            33934,
+            38240
+          ],
+          "cohort_max_count": 2,
+          "cohort_nonzero": 22,
+          "p_value": 0.000999750062484379,
+          "q_value": 0.0029647760473674686
+        },
+        {
+          "id": 42993,
+          "token": " toujours",
+          "direction_hits": 2,
+          "slot_occurrences": 2,
+          "cohort_size": 4000,
+          "cohort_id_range": [
+            40865,
+            45141
+          ],
+          "cohort_max_count": 2,
+          "cohort_nonzero": 22,
+          "p_value": 0.000999750062484379,
+          "q_value": 0.0029647760473674686
+        },
+        {
+          "id": 43276,
+          "token": "_connected",
+          "direction_hits": 2,
+          "slot_occurrences": 2,
+          "cohort_size": 4000,
+          "cohort_id_range": [
+            41149,
+            45422
+          ],
+          "cohort_max_count": 2,
+          "cohort_nonzero": 20,
+          "p_value": 0.000999750062484379,
+          "q_value": 0.0029647760473674686
+        },
+        {
+          "id": 31303,
+          "token": " dysfunction",
+          "direction_hits": 2,
+          "slot_occurrences": 2,
+          "cohort_size": 4000,
+          "cohort_id_range": [
+            29158,
+            33438
+          ],
+          "cohort_max_count": 3,
+          "cohort_nonzero": 14,
+          "p_value": 0.000999750062484379,
+          "q_value": 0.0029647760473674686
+        },
+        {
+          "id": 106342,
+          "token": "\u5165\u9009",
+          "direction_hits": 2,
+          "slot_occurrences": 2,
+          "cohort_size": 4000,
+          "cohort_id_range": [
+            104341,
+            108342
+          ],
+          "cohort_max_count": 4,
+          "cohort_nonzero": 31,
+          "p_value": 0.0012496875781054736,
+          "q_value": 0.003466875216679701
+        },
+        {
+          "id": 21984,
+          "token": " texts",
+          "direction_hits": 2,
+          "slot_occurrences": 2,
+          "cohort_size": 4000,
+          "cohort_id_range": [
+            19834,
+            24147
+          ],
+          "cohort_max_count": 3,
+          "cohort_nonzero": 26,
+          "p_value": 0.0012496875781054736,
+          "q_value": 0.003466875216679701
+        },
+        {
+          "id": 37596,
+          "token": " mathematics",
+          "direction_hits": 2,
+          "slot_occurrences": 2,
+          "cohort_size": 4000,
+          "cohort_id_range": [
+            35447,
+            39746
+          ],
+          "cohort_max_count": 5,
+          "cohort_nonzero": 23,
+          "p_value": 0.0012496875781054736,
+          "q_value": 0.003466875216679701
+        },
+        {
+          "id": 104957,
+          "token": "\u7c98",
+          "direction_hits": 2,
+          "slot_occurrences": 2,
+          "cohort_size": 4000,
+          "cohort_id_range": [
+            102929,
+            106957
+          ],
+          "cohort_max_count": 4,
+          "cohort_nonzero": 28,
+          "p_value": 0.0012496875781054736,
+          "q_value": 0.003466875216679701
+        },
+        {
+          "id": 21131,
+          "token": " Looking",
+          "direction_hits": 2,
+          "slot_occurrences": 2,
+          "cohort_size": 4000,
+          "cohort_id_range": [
+            18986,
+            23293
+          ],
+          "cohort_max_count": 3,
+          "cohort_nonzero": 29,
+          "p_value": 0.0014996250937265683,
+          "q_value": 0.003959536431681554
+        },
+        {
+          "id": 389,
+          "token": " on",
+          "direction_hits": 5,
+          "slot_occurrences": 5,
+          "cohort_size": 4000,
+          "cohort_id_range": [
+            15,
+            4676
+          ],
+          "cohort_max_count": 7,
+          "cohort_nonzero": 172,
+          "p_value": 0.0017495626093476631,
+          "q_value": 0.003959536431681554
+        },
+        {
+          "id": 979,
+          "token": " when",
+          "direction_hits": 5,
+          "slot_occurrences": 5,
+          "cohort_size": 4000,
+          "cohort_id_range": [
+            15,
+            4676
+          ],
+          "cohort_max_count": 7,
+          "cohort_nonzero": 172,
+          "p_value": 0.0017495626093476631,
+          "q_value": 0.003959536431681554
+        },
+        {
+          "id": 1654,
+          "token": "We",
+          "direction_hits": 5,
+          "slot_occurrences": 5,
+          "cohort_size": 4000,
+          "cohort_id_range": [
+            15,
+            4676
+          ],
+          "cohort_max_count": 7,
+          "cohort_nonzero": 172,
+          "p_value": 0.0017495626093476631,
+          "q_value": 0.003959536431681554
+        },
+        {
+          "id": 2585,
+          "token": " How",
+          "direction_hits": 5,
+          "slot_occurrences": 5,
+          "cohort_size": 4000,
+          "cohort_id_range": [
+            297,
+            4775
+          ],
+          "cohort_max_count": 7,
+          "cohort_nonzero": 134,
+          "p_value": 0.0017495626093476631,
+          "q_value": 0.003959536431681554
+        },
+        {
+          "id": 19349,
+          "token": " sein",
+          "direction_hits": 2,
+          "slot_occurrences": 2,
+          "cohort_size": 4000,
+          "cohort_id_range": [
+            17169,
+            21489
+          ],
+          "cohort_max_count": 3,
+          "cohort_nonzero": 28,
+          "p_value": 0.0017495626093476631,
+          "q_value": 0.003959536431681554
+        },
+        {
+          "id": 13957,
+          "token": " curl",
+          "direction_hits": 2,
+          "slot_occurrences": 2,
+          "cohort_size": 4000,
+          "cohort_id_range": [
+            11793,
+            16155
+          ],
+          "cohort_max_count": 5,
+          "cohort_nonzero": 36,
+          "p_value": 0.0017495626093476631,
+          "q_value": 0.003959536431681554
+        },
+        {
+          "id": 19478,
+          "token": " ye",
+          "direction_hits": 2,
+          "slot_occurrences": 2,
+          "cohort_size": 4000,
+          "cohort_id_range": [
+            17305,
+            21624
+          ],
+          "cohort_max_count": 3,
+          "cohort_nonzero": 28,
+          "p_value": 0.0017495626093476631,
+          "q_value": 0.003959536431681554
+        },
+        {
+          "id": 16836,
+          "token": " pou",
+          "direction_hits": 2,
+          "slot_occurrences": 2,
+          "cohort_size": 4000,
+          "cohort_id_range": [
+            14660,
+            19024
+          ],
+          "cohort_max_count": 5,
+          "cohort_nonzero": 30,
+          "p_value": 0.0017495626093476631,
+          "q_value": 0.003959536431681554
+        },
+        {
+          "id": 14410,
+          "token": " ges",
+          "direction_hits": 2,
+          "slot_occurrences": 2,
+          "cohort_size": 4000,
+          "cohort_id_range": [
+            12239,
+            16595
+          ],
+          "cohort_max_count": 5,
+          "cohort_nonzero": 32,
+          "p_value": 0.0017495626093476631,
+          "q_value": 0.003959536431681554
+        },
+        {
+          "id": 18415,
+          "token": " fu",
+          "direction_hits": 2,
+          "slot_occurrences": 2,
+          "cohort_size": 4000,
+          "cohort_id_range": [
+            16245,
+            20566
+          ],
+          "cohort_max_count": 2,
+          "cohort_nonzero": 31,
+          "p_value": 0.0017495626093476631,
+          "q_value": 0.003959536431681554
+        },
+        {
+          "id": 13305,
+          "token": " ih",
+          "direction_hits": 2,
+          "slot_occurrences": 2,
+          "cohort_size": 4000,
+          "cohort_id_range": [
+            11131,
+            15494
+          ],
+          "cohort_max_count": 5,
+          "cohort_nonzero": 37,
+          "p_value": 0.0017495626093476631,
+          "q_value": 0.003959536431681554
+        },
+        {
+          "id": 16141,
+          "token": "Answer",
+          "direction_hits": 2,
+          "slot_occurrences": 2,
+          "cohort_size": 4000,
+          "cohort_id_range": [
+            13942,
+            18315
+          ],
+          "cohort_max_count": 5,
+          "cohort_nonzero": 33,
+          "p_value": 0.0017495626093476631,
+          "q_value": 0.003959536431681554
+        },
+        {
+          "id": 16889,
+          "token": "wich",
+          "direction_hits": 2,
+          "slot_occurrences": 2,
+          "cohort_size": 4000,
+          "cohort_id_range": [
+            14714,
+            19073
+          ],
+          "cohort_max_count": 5,
+          "cohort_nonzero": 28,
+          "p_value": 0.0017495626093476631,
+          "q_value": 0.003959536431681554
+        },
+        {
+          "id": 19969,
+          "token": "\uac00",
+          "direction_hits": 2,
+          "slot_occurrences": 2,
+          "cohort_size": 4000,
+          "cohort_id_range": [
+            17809,
+            22126
+          ],
+          "cohort_max_count": 3,
+          "cohort_nonzero": 29,
+          "p_value": 0.001999500124968758,
+          "q_value": 0.004353342044235777
+        },
+        {
+          "id": 11756,
+          "token": " fo",
+          "direction_hits": 2,
+          "slot_occurrences": 2,
+          "cohort_size": 4000,
+          "cohort_id_range": [
+            9589,
+            13922
+          ],
+          "cohort_max_count": 3,
+          "cohort_nonzero": 37,
+          "p_value": 0.001999500124968758,
+          "q_value": 0.004353342044235777
+        },
+        {
+          "id": 18848,
+          "token": "alia",
+          "direction_hits": 2,
+          "slot_occurrences": 2,
+          "cohort_size": 4000,
+          "cohort_id_range": [
+            16661,
+            20988
+          ],
+          "cohort_max_count": 3,
+          "cohort_nonzero": 29,
+          "p_value": 0.001999500124968758,
+          "q_value": 0.004353342044235777
+        },
+        {
+          "id": 4249,
+          "token": "\u2019m",
+          "direction_hits": 4,
+          "slot_occurrences": 4,
+          "cohort_size": 4000,
+          "cohort_id_range": [
+            2047,
+            6448
+          ],
+          "cohort_max_count": 7,
+          "cohort_nonzero": 80,
+          "p_value": 0.0022494376405898524,
+          "q_value": 0.004836290927268182
+        },
+        {
+          "id": 10923,
+          "token": " sed",
+          "direction_hits": 2,
+          "slot_occurrences": 2,
+          "cohort_size": 4000,
+          "cohort_id_range": [
+            8777,
+            13101
+          ],
+          "cohort_max_count": 4,
+          "cohort_nonzero": 40,
+          "p_value": 0.002749312671832042,
+          "q_value": 0.005766850970184283
+        },
+        {
+          "id": 10713,
+          "token": "\"We",
+          "direction_hits": 2,
+          "slot_occurrences": 2,
+          "cohort_size": 4000,
+          "cohort_id_range": [
+            8566,
+            12876
+          ],
+          "cohort_max_count": 4,
+          "cohort_nonzero": 42,
+          "p_value": 0.002749312671832042,
+          "q_value": 0.005766850970184283
+        },
+        {
+          "id": 3129,
+          "token": "\u2019re",
+          "direction_hits": 4,
+          "slot_occurrences": 4,
+          "cohort_size": 4000,
+          "cohort_id_range": [
+            909,
+            5332
+          ],
+          "cohort_max_count": 7,
+          "cohort_nonzero": 106,
+          "p_value": 0.0034991252186953262,
+          "q_value": 0.00683919929108632
+        },
+        {
+          "id": 2776,
+          "token": "'m",
+          "direction_hits": 4,
+          "slot_occurrences": 4,
+          "cohort_size": 4000,
+          "cohort_id_range": [
+            521,
+            4974
+          ],
+          "cohort_max_count": 7,
+          "cohort_nonzero": 113,
+          "p_value": 0.0034991252186953262,
+          "q_value": 0.00683919929108632
+        },
+        {
+          "id": 2800,
+          "token": "upport",
+          "direction_hits": 4,
+          "slot_occurrences": 4,
+          "cohort_size": 4000,
+          "cohort_id_range": [
+            548,
+            4997
+          ],
+          "cohort_max_count": 7,
+          "cohort_nonzero": 115,
+          "p_value": 0.0034991252186953262,
+          "q_value": 0.00683919929108632
+        },
+        {
+          "id": 10459,
+          "token": " boot",
+          "direction_hits": 2,
+          "slot_occurrences": 2,
+          "cohort_size": 4000,
+          "cohort_id_range": [
+            8311,
+            12630
+          ],
+          "cohort_max_count": 4,
+          "cohort_nonzero": 43,
+          "p_value": 0.0034991252186953262,
+          "q_value": 0.00683919929108632
+        },
+        {
+          "id": 7234,
+          "token": ".array",
+          "direction_hits": 2,
+          "slot_occurrences": 2,
+          "cohort_size": 4000,
+          "cohort_id_range": [
+            5048,
+            9394
+          ],
+          "cohort_max_count": 4,
+          "cohort_nonzero": 51,
+          "p_value": 0.0034991252186953262,
+          "q_value": 0.00683919929108632
+        },
+        {
+          "id": 9448,
+          "token": " England",
+          "direction_hits": 2,
+          "slot_occurrences": 2,
+          "cohort_size": 4000,
+          "cohort_id_range": [
+            7293,
+            11614
+          ],
+          "cohort_max_count": 4,
+          "cohort_nonzero": 46,
+          "p_value": 0.0034991252186953262,
+          "q_value": 0.00683919929108632
+        },
+        {
+          "id": 2610,
+          "token": "You",
+          "direction_hits": 4,
+          "slot_occurrences": 4,
+          "cohort_size": 4000,
+          "cohort_id_range": [
+            325,
+            4797
+          ],
+          "cohort_max_count": 7,
+          "cohort_nonzero": 129,
+          "p_value": 0.003749062734316421,
+          "q_value": 0.007009117285895918
+        },
+        {
+          "id": 6723,
+          "token": " hear",
+          "direction_hits": 2,
+          "slot_occurrences": 2,
+          "cohort_size": 4000,
+          "cohort_id_range": [
+            4527,
+            8886
+          ],
+          "cohort_max_count": 3,
+          "cohort_nonzero": 54,
+          "p_value": 0.003749062734316421,
+          "q_value": 0.007009117285895918
+        },
+        {
+          "id": 7173,
+          "token": "catch",
+          "direction_hits": 2,
+          "slot_occurrences": 2,
+          "cohort_size": 4000,
+          "cohort_id_range": [
+            4988,
+            9332
+          ],
+          "cohort_max_count": 4,
+          "cohort_nonzero": 53,
+          "p_value": 0.003749062734316421,
+          "q_value": 0.007009117285895918
+        },
+        {
+          "id": 10219,
+          "token": " discussion",
+          "direction_hits": 2,
+          "slot_occurrences": 2,
+          "cohort_size": 4000,
+          "cohort_id_range": [
+            8071,
+            12386
+          ],
+          "cohort_max_count": 4,
+          "cohort_nonzero": 45,
+          "p_value": 0.003749062734316421,
+          "q_value": 0.007009117285895918
+        },
+        {
+          "id": 6871,
+          "token": " cu",
+          "direction_hits": 2,
+          "slot_occurrences": 2,
+          "cohort_size": 4000,
+          "cohort_id_range": [
+            4683,
+            9036
+          ],
+          "cohort_max_count": 4,
+          "cohort_nonzero": 54,
+          "p_value": 0.003999000249937516,
+          "q_value": 0.0071648754478047146
+        },
+        {
+          "id": 6808,
+          "token": "-content",
+          "direction_hits": 2,
+          "slot_occurrences": 2,
+          "cohort_size": 4000,
+          "cohort_id_range": [
+            4620,
+            8971
+          ],
+          "cohort_max_count": 4,
+          "cohort_nonzero": 54,
+          "p_value": 0.003999000249937516,
+          "q_value": 0.0071648754478047146
+        },
+        {
+          "id": 8226,
+          "token": "kit",
+          "direction_hits": 2,
+          "slot_occurrences": 2,
+          "cohort_size": 4000,
+          "cohort_id_range": [
+            6048,
+            10367
+          ],
+          "cohort_max_count": 4,
+          "cohort_nonzero": 53,
+          "p_value": 0.003999000249937516,
+          "q_value": 0.0071648754478047146
+        },
+        {
+          "id": 1849,
+          "token": " system",
+          "direction_hits": 4,
+          "slot_occurrences": 4,
+          "cohort_size": 4000,
+          "cohort_id_range": [
+            15,
+            4676
+          ],
+          "cohort_max_count": 7,
+          "cohort_nonzero": 172,
+          "p_value": 0.00424893776555861,
+          "q_value": 0.0071648754478047146
+        },
+        {
+          "id": 2299,
+          "token": "'re",
+          "direction_hits": 4,
+          "slot_occurrences": 4,
+          "cohort_size": 4000,
+          "cohort_id_range": [
+            15,
+            4676
+          ],
+          "cohort_max_count": 7,
+          "cohort_nonzero": 172,
+          "p_value": 0.00424893776555861,
+          "q_value": 0.0071648754478047146
+        },
+        {
+          "id": 263,
+          "token": "on",
+          "direction_hits": 4,
+          "slot_occurrences": 4,
+          "cohort_size": 4000,
+          "cohort_id_range": [
+            15,
+            4676
+          ],
+          "cohort_max_count": 7,
+          "cohort_nonzero": 172,
+          "p_value": 0.00424893776555861,
+          "q_value": 0.0071648754478047146
+        },
+        {
+          "id": 295,
+          "token": "et",
+          "direction_hits": 4,
+          "slot_occurrences": 4,
+          "cohort_size": 4000,
+          "cohort_id_range": [
+            15,
+            4676
+          ],
+          "cohort_max_count": 7,
+          "cohort_nonzero": 172,
+          "p_value": 0.00424893776555861,
+          "q_value": 0.0071648754478047146
+        },
+        {
+          "id": 1499,
+          "token": "from",
+          "direction_hits": 4,
+          "slot_occurrences": 4,
+          "cohort_size": 4000,
+          "cohort_id_range": [
+            15,
+            4676
+          ],
+          "cohort_max_count": 7,
+          "cohort_nonzero": 172,
+          "p_value": 0.00424893776555861,
+          "q_value": 0.0071648754478047146
+        },
+        {
+          "id": 8376,
+          "token": " tend",
+          "direction_hits": 2,
+          "slot_occurrences": 2,
+          "cohort_size": 4000,
+          "cohort_id_range": [
+            6197,
+            10525
+          ],
+          "cohort_max_count": 4,
+          "cohort_nonzero": 56,
+          "p_value": 0.00424893776555861,
+          "q_value": 0.0071648754478047146
+        },
+        {
+          "id": 8328,
+          "token": " ol",
+          "direction_hits": 2,
+          "slot_occurrences": 2,
+          "cohort_size": 4000,
+          "cohort_id_range": [
+            6152,
+            10477
+          ],
+          "cohort_max_count": 4,
+          "cohort_nonzero": 55,
+          "p_value": 0.00424893776555861,
+          "q_value": 0.0071648754478047146
+        },
+        {
+          "id": 8786,
+          "token": ".contains",
+          "direction_hits": 2,
+          "slot_occurrences": 2,
+          "cohort_size": 4000,
+          "cohort_id_range": [
+            6623,
+            10932
+          ],
+          "cohort_max_count": 4,
+          "cohort_nonzero": 52,
+          "p_value": 0.004498875281179705,
+          "q_value": 0.007512684935562225
+        },
+        {
+          "id": 6358,
+          "token": " analysis",
+          "direction_hits": 2,
+          "slot_occurrences": 2,
+          "cohort_size": 4000,
+          "cohort_id_range": [
+            4163,
+            8532
+          ],
+          "cohort_max_count": 6,
+          "cohort_nonzero": 64,
+          "p_value": 0.0049987503124218945,
+          "q_value": 0.00826716397823621
+        },
+        {
+          "id": 5207,
+          "token": "TO",
+          "direction_hits": 2,
+          "slot_occurrences": 2,
+          "cohort_size": 4000,
+          "cohort_id_range": [
+            3001,
+            7394
+          ],
+          "cohort_max_count": 7,
+          "cohort_nonzero": 69,
+          "p_value": 0.005998500374906273,
+          "q_value": 0.009733415702678104
+        },
+        {
+          "id": 5009,
+          "token": "Description",
+          "direction_hits": 2,
+          "slot_occurrences": 2,
+          "cohort_size": 4000,
+          "cohort_id_range": [
+            2811,
+            7195
+          ],
+          "cohort_max_count": 7,
+          "cohort_nonzero": 71,
+          "p_value": 0.005998500374906273,
+          "q_value": 0.009733415702678104
+        },
+        {
+          "id": 4977,
+          "token": " seems",
+          "direction_hits": 2,
+          "slot_occurrences": 2,
+          "cohort_size": 4000,
+          "cohort_id_range": [
+            2779,
+            7161
+          ],
+          "cohort_max_count": 7,
+          "cohort_nonzero": 72,
+          "p_value": 0.006248437890527368,
+          "q_value": 0.010044217917483247
+        },
+        {
+          "id": 291,
+          "token": "ed",
+          "direction_hits": 3,
+          "slot_occurrences": 3,
+          "cohort_size": 4000,
+          "cohort_id_range": [
+            15,
+            4676
+          ],
+          "cohort_max_count": 7,
+          "cohort_nonzero": 172,
+          "p_value": 0.007248187953011747,
+          "q_value": 0.010303209321636534
+        },
+        {
+          "id": 369,
+          "token": " for",
+          "direction_hits": 3,
+          "slot_occurrences": 3,
+          "cohort_size": 4000,
+          "cohort_id_range": [
+            15,
+            4676
+          ],
+          "cohort_max_count": 7,
+          "cohort_nonzero": 172,
+          "p_value": 0.007248187953011747,
+          "q_value": 0.010303209321636534
+        },
+        {
+          "id": 64,
+          "token": "a",
+          "direction_hits": 3,
+          "slot_occurrences": 3,
+          "cohort_size": 4000,
+          "cohort_id_range": [
+            15,
+            4676
+          ],
+          "cohort_max_count": 7,
+          "cohort_nonzero": 172,
+          "p_value": 0.007248187953011747,
+          "q_value": 0.010303209321636534
+        },
+        {
+          "id": 1039,
+          "token": " our",
+          "direction_hits": 3,
+          "slot_occurrences": 3,
+          "cohort_size": 4000,
+          "cohort_id_range": [
+            15,
+            4676
+          ],
+          "cohort_max_count": 7,
+          "cohort_nonzero": 172,
+          "p_value": 0.007248187953011747,
+          "q_value": 0.010303209321636534
+        },
+        {
+          "id": 944,
+          "token": "'t",
+          "direction_hits": 3,
+          "slot_occurrences": 3,
+          "cohort_size": 4000,
+          "cohort_id_range": [
+            15,
+            4676
+          ],
+          "cohort_max_count": 7,
+          "cohort_nonzero": 172,
+          "p_value": 0.007248187953011747,
+          "q_value": 0.010303209321636534
+        },
+        {
+          "id": 1405,
+          "token": "\u2019t",
+          "direction_hits": 3,
+          "slot_occurrences": 3,
+          "cohort_size": 4000,
+          "cohort_id_range": [
+            15,
+            4676
+          ],
+          "cohort_max_count": 7,
+          "cohort_nonzero": 172,
+          "p_value": 0.007248187953011747,
+          "q_value": 0.010303209321636534
+        },
+        {
+          "id": 553,
+          "token": " by",
+          "direction_hits": 3,
+          "slot_occurrences": 3,
+          "cohort_size": 4000,
+          "cohort_id_range": [
+            15,
+            4676
+          ],
+          "cohort_max_count": 7,
+          "cohort_nonzero": 172,
+          "p_value": 0.007248187953011747,
+          "q_value": 0.010303209321636534
+        },
+        {
+          "id": 75,
+          "token": "l",
+          "direction_hits": 3,
+          "slot_occurrences": 3,
+          "cohort_size": 4000,
+          "cohort_id_range": [
+            15,
+            4676
+          ],
+          "cohort_max_count": 7,
+          "cohort_nonzero": 172,
+          "p_value": 0.007248187953011747,
+          "q_value": 0.010303209321636534
+        },
+        {
+          "id": 84,
+          "token": "u",
+          "direction_hits": 3,
+          "slot_occurrences": 3,
+          "cohort_size": 4000,
+          "cohort_id_range": [
+            15,
+            4676
+          ],
+          "cohort_max_count": 7,
+          "cohort_nonzero": 172,
+          "p_value": 0.007248187953011747,
+          "q_value": 0.010303209321636534
+        },
+        {
+          "id": 85,
+          "token": "v",
+          "direction_hits": 3,
+          "slot_occurrences": 3,
+          "cohort_size": 4000,
+          "cohort_id_range": [
+            15,
+            4676
+          ],
+          "cohort_max_count": 7,
+          "cohort_nonzero": 172,
+          "p_value": 0.007248187953011747,
+          "q_value": 0.010303209321636534
+        },
+        {
+          "id": 88,
+          "token": "y",
+          "direction_hits": 3,
+          "slot_occurrences": 3,
+          "cohort_size": 4000,
+          "cohort_id_range": [
+            15,
+            4676
+          ],
+          "cohort_max_count": 7,
+          "cohort_nonzero": 172,
+          "p_value": 0.007248187953011747,
+          "q_value": 0.010303209321636534
+        },
+        {
+          "id": 279,
+          "token": " the",
+          "direction_hits": 3,
+          "slot_occurrences": 3,
+          "cohort_size": 4000,
+          "cohort_id_range": [
+            15,
+            4676
+          ],
+          "cohort_max_count": 7,
+          "cohort_nonzero": 172,
+          "p_value": 0.007248187953011747,
+          "q_value": 0.010303209321636534
+        },
+        {
+          "id": 4403,
+          "token": " si",
+          "direction_hits": 2,
+          "slot_occurrences": 2,
+          "cohort_size": 4000,
+          "cohort_id_range": [
+            2202,
+            6601
+          ],
+          "cohort_max_count": 7,
+          "cohort_nonzero": 78,
+          "p_value": 0.007248187953011747,
+          "q_value": 0.010303209321636534
+        },
+        {
+          "id": 4408,
+          "token": " indu",
+          "direction_hits": 2,
+          "slot_occurrences": 2,
+          "cohort_size": 4000,
+          "cohort_id_range": [
+            2207,
+            6607
+          ],
+          "cohort_max_count": 7,
+          "cohort_nonzero": 78,
+          "p_value": 0.007248187953011747,
+          "q_value": 0.010303209321636534
+        },
+        {
+          "id": 4340,
+          "token": "How",
+          "direction_hits": 2,
+          "slot_occurrences": 2,
+          "cohort_size": 4000,
+          "cohort_id_range": [
+            2136,
+            6537
+          ],
+          "cohort_max_count": 7,
+          "cohort_nonzero": 80,
+          "p_value": 0.007498125468632842,
+          "q_value": 0.010485183582153243
+        },
+        {
+          "id": 4346,
+          "token": "(A",
+          "direction_hits": 2,
+          "slot_occurrences": 2,
+          "cohort_size": 4000,
+          "cohort_id_range": [
+            2145,
+            6543
+          ],
+          "cohort_max_count": 7,
+          "cohort_nonzero": 79,
+          "p_value": 0.007498125468632842,
+          "q_value": 0.010485183582153243
+        },
+        {
+          "id": 3999,
+          "token": " pur",
+          "direction_hits": 2,
+          "slot_occurrences": 2,
+          "cohort_size": 4000,
+          "cohort_id_range": [
+            1798,
+            6190
+          ],
+          "cohort_max_count": 7,
+          "cohort_nonzero": 79,
+          "p_value": 0.007748062984253936,
+          "q_value": 0.010747313171707074
+        },
+        {
+          "id": 3872,
+          "token": "Is",
+          "direction_hits": 2,
+          "slot_occurrences": 2,
+          "cohort_size": 4000,
+          "cohort_id_range": [
+            1665,
+            6068
+          ],
+          "cohort_max_count": 7,
+          "cohort_nonzero": 85,
+          "p_value": 0.007998000499875032,
+          "q_value": 0.011005248687828043
+        },
+        {
+          "id": 3845,
+          "token": " du",
+          "direction_hits": 2,
+          "slot_occurrences": 2,
+          "cohort_size": 4000,
+          "cohort_id_range": [
+            1639,
+            6044
+          ],
+          "cohort_max_count": 7,
+          "cohort_nonzero": 87,
+          "p_value": 0.00849787553111722,
+          "q_value": 0.011419020244938764
+        },
+        {
+          "id": 3838,
+          "token": "What",
+          "direction_hits": 2,
+          "slot_occurrences": 2,
+          "cohort_size": 4000,
+          "cohort_id_range": [
+            1633,
+            6038
+          ],
+          "cohort_max_count": 7,
+          "cohort_nonzero": 87,
+          "p_value": 0.00849787553111722,
+          "q_value": 0.011419020244938764
+        },
+        {
+          "id": 3835,
+          "token": " esc",
+          "direction_hits": 2,
+          "slot_occurrences": 2,
+          "cohort_size": 4000,
+          "cohort_id_range": [
+            1631,
+            6036
+          ],
+          "cohort_max_count": 7,
+          "cohort_nonzero": 87,
+          "p_value": 0.00849787553111722,
+          "q_value": 0.011419020244938764
+        },
+        {
+          "id": 3567,
+          "token": " AND",
+          "direction_hits": 2,
+          "slot_occurrences": 2,
+          "cohort_size": 4000,
+          "cohort_id_range": [
+            1356,
+            5754
+          ],
+          "cohort_max_count": 7,
+          "cohort_nonzero": 94,
+          "p_value": 0.009747563109222694,
+          "q_value": 0.012896775806048488
+        },
+        {
+          "id": 3476,
+          "token": " role",
+          "direction_hits": 2,
+          "slot_occurrences": 2,
+          "cohort_size": 4000,
+          "cohort_id_range": [
+            1268,
+            5672
+          ],
+          "cohort_max_count": 7,
+          "cohort_nonzero": 94,
+          "p_value": 0.009747563109222694,
+          "q_value": 0.012896775806048488
+        },
+        {
+          "id": 2817,
+          "token": ".Re",
+          "direction_hits": 2,
+          "slot_occurrences": 2,
+          "cohort_size": 4000,
+          "cohort_id_range": [
+            570,
+            5014
+          ],
+          "cohort_max_count": 7,
+          "cohort_nonzero": 114,
+          "p_value": 0.011997000749812546,
+          "q_value": 0.01575178724402869
+        },
+        {
+          "id": 2803,
+          "token": " seem",
+          "direction_hits": 2,
+          "slot_occurrences": 2,
+          "cohort_size": 4000,
+          "cohort_id_range": [
+            552,
+            5001
+          ],
+          "cohort_max_count": 7,
+          "cohort_nonzero": 115,
+          "p_value": 0.012246938265433641,
+          "q_value": 0.015838145726726215
+        },
+        {
+          "id": 2726,
+          "token": " OR",
+          "direction_hits": 2,
+          "slot_occurrences": 2,
+          "cohort_size": 4000,
+          "cohort_id_range": [
+            467,
+            4926
+          ],
+          "cohort_max_count": 7,
+          "cohort_nonzero": 119,
+          "p_value": 0.012246938265433641,
+          "q_value": 0.015838145726726215
+        },
+        {
+          "id": 2679,
+          "token": "If",
+          "direction_hits": 2,
+          "slot_occurrences": 2,
+          "cohort_size": 4000,
+          "cohort_id_range": [
+            412,
+            4872
+          ],
+          "cohort_max_count": 7,
+          "cohort_nonzero": 122,
+          "p_value": 0.012496875781054736,
+          "q_value": 0.016040765927921006
+        },
+        {
+          "id": 304,
+          "token": " in",
+          "direction_hits": 2,
+          "slot_occurrences": 2,
+          "cohort_size": 4000,
+          "cohort_id_range": [
+            15,
+            4676
+          ],
+          "cohort_max_count": 7,
+          "cohort_nonzero": 172,
+          "p_value": 0.020494876280929768,
+          "q_value": 0.020494876280929768
+        },
+        {
+          "id": 1467,
+          "token": " text",
+          "direction_hits": 2,
+          "slot_occurrences": 2,
+          "cohort_size": 4000,
+          "cohort_id_range": [
+            15,
+            4676
+          ],
+          "cohort_max_count": 7,
+          "cohort_nonzero": 172,
+          "p_value": 0.020494876280929768,
+          "q_value": 0.020494876280929768
+        },
+        {
+          "id": 2355,
+          "token": " power",
+          "direction_hits": 2,
+          "slot_occurrences": 2,
+          "cohort_size": 4000,
+          "cohort_id_range": [
+            15,
+            4676
+          ],
+          "cohort_max_count": 7,
+          "cohort_nonzero": 172,
+          "p_value": 0.020494876280929768,
+          "q_value": 0.020494876280929768
+        },
+        {
+          "id": 641,
+          "token": "In",
+          "direction_hits": 2,
+          "slot_occurrences": 2,
+          "cohort_size": 4000,
+          "cohort_id_range": [
+            15,
+            4676
+          ],
+          "cohort_max_count": 7,
+          "cohort_nonzero": 172,
+          "p_value": 0.020494876280929768,
+          "q_value": 0.020494876280929768
+        },
+        {
+          "id": 40,
+          "token": "I",
+          "direction_hits": 2,
+          "slot_occurrences": 2,
+          "cohort_size": 4000,
+          "cohort_id_range": [
+            15,
+            4676
+          ],
+          "cohort_max_count": 7,
+          "cohort_nonzero": 172,
+          "p_value": 0.020494876280929768,
+          "q_value": 0.020494876280929768
+        },
+        {
+          "id": 1205,
+          "token": " We",
+          "direction_hits": 2,
+          "slot_occurrences": 2,
+          "cohort_size": 4000,
+          "cohort_id_range": [
+            15,
+            4676
+          ],
+          "cohort_max_count": 7,
+          "cohort_nonzero": 172,
+          "p_value": 0.020494876280929768,
+          "q_value": 0.020494876280929768
+        },
+        {
+          "id": 1986,
+          "token": "This",
+          "direction_hits": 2,
+          "slot_occurrences": 2,
+          "cohort_size": 4000,
+          "cohort_id_range": [
+            15,
+            4676
+          ],
+          "cohort_max_count": 7,
+          "cohort_nonzero": 172,
+          "p_value": 0.020494876280929768,
+          "q_value": 0.020494876280929768
+        },
+        {
+          "id": 582,
+          "token": " we",
+          "direction_hits": 2,
+          "slot_occurrences": 2,
+          "cohort_size": 4000,
+          "cohort_id_range": [
+            15,
+            4676
+          ],
+          "cohort_max_count": 7,
+          "cohort_nonzero": 172,
+          "p_value": 0.020494876280929768,
+          "q_value": 0.020494876280929768
+        },
+        {
+          "id": 1246,
+          "token": " how",
+          "direction_hits": 2,
+          "slot_occurrences": 2,
+          "cohort_size": 4000,
+          "cohort_id_range": [
+            15,
+            4676
+          ],
+          "cohort_max_count": 7,
+          "cohort_nonzero": 172,
+          "p_value": 0.020494876280929768,
+          "q_value": 0.020494876280929768
+        },
+        {
+          "id": 358,
+          "token": " I",
+          "direction_hits": 2,
+          "slot_occurrences": 2,
+          "cohort_size": 4000,
+          "cohort_id_range": [
+            15,
+            4676
+          ],
+          "cohort_max_count": 7,
+          "cohort_nonzero": 172,
+          "p_value": 0.020494876280929768,
+          "q_value": 0.020494876280929768
+        },
+        {
+          "id": 1152,
+          "token": " fe",
+          "direction_hits": 2,
+          "slot_occurrences": 2,
+          "cohort_size": 4000,
+          "cohort_id_range": [
+            15,
+            4676
+          ],
+          "cohort_max_count": 7,
+          "cohort_nonzero": 172,
+          "p_value": 0.020494876280929768,
+          "q_value": 0.020494876280929768
+        },
+        {
+          "id": 557,
+          "token": " sh",
+          "direction_hits": 2,
+          "slot_occurrences": 2,
+          "cohort_size": 4000,
+          "cohort_id_range": [
+            15,
+            4676
+          ],
+          "cohort_max_count": 7,
+          "cohort_nonzero": 172,
+          "p_value": 0.020494876280929768,
+          "q_value": 0.020494876280929768
+        },
+        {
+          "id": 993,
+          "token": " ad",
+          "direction_hits": 2,
+          "slot_occurrences": 2,
+          "cohort_size": 4000,
+          "cohort_id_range": [
+            15,
+            4676
+          ],
+          "cohort_max_count": 7,
+          "cohort_nonzero": 172,
+          "p_value": 0.020494876280929768,
+          "q_value": 0.020494876280929768
+        },
+        {
+          "id": 1396,
+          "token": " dif",
+          "direction_hits": 2,
+          "slot_occurrences": 2,
+          "cohort_size": 4000,
+          "cohort_id_range": [
+            15,
+            4676
+          ],
+          "cohort_max_count": 7,
+          "cohort_nonzero": 172,
+          "p_value": 0.020494876280929768,
+          "q_value": 0.020494876280929768
+        },
+        {
+          "id": 511,
+          "token": " se",
+          "direction_hits": 2,
+          "slot_occurrences": 2,
+          "cohort_size": 4000,
+          "cohort_id_range": [
+            15,
+            4676
+          ],
+          "cohort_max_count": 7,
+          "cohort_nonzero": 172,
+          "p_value": 0.020494876280929768,
+          "q_value": 0.020494876280929768
+        },
+        {
+          "id": 269,
+          "token": "or",
+          "direction_hits": 2,
+          "slot_occurrences": 2,
+          "cohort_size": 4000,
+          "cohort_id_range": [
+            15,
+            4676
+          ],
+          "cohort_max_count": 7,
+          "cohort_nonzero": 172,
+          "p_value": 0.020494876280929768,
+          "q_value": 0.020494876280929768
+        },
+        {
+          "id": 278,
+          "token": "al",
+          "direction_hits": 2,
+          "slot_occurrences": 2,
+          "cohort_size": 4000,
+          "cohort_id_range": [
+            15,
+            4676
+          ],
+          "cohort_max_count": 7,
+          "cohort_nonzero": 172,
+          "p_value": 0.020494876280929768,
+          "q_value": 0.020494876280929768
+        },
+        {
+          "id": 285,
+          "token": "is",
+          "direction_hits": 2,
+          "slot_occurrences": 2,
+          "cohort_size": 4000,
+          "cohort_id_range": [
+            15,
+            4676
+          ],
+          "cohort_max_count": 7,
+          "cohort_nonzero": 172,
+          "p_value": 0.020494876280929768,
+          "q_value": 0.020494876280929768
+        },
+        {
+          "id": 65,
+          "token": "b",
+          "direction_hits": 2,
+          "slot_occurrences": 2,
+          "cohort_size": 4000,
+          "cohort_id_range": [
+            15,
+            4676
+          ],
+          "cohort_max_count": 7,
+          "cohort_nonzero": 172,
+          "p_value": 0.020494876280929768,
+          "q_value": 0.020494876280929768
+        },
+        {
+          "id": 66,
+          "token": "c",
+          "direction_hits": 2,
+          "slot_occurrences": 2,
+          "cohort_size": 4000,
+          "cohort_id_range": [
+            15,
+            4676
+          ],
+          "cohort_max_count": 7,
+          "cohort_nonzero": 172,
+          "p_value": 0.020494876280929768,
+          "q_value": 0.020494876280929768
+        },
+        {
+          "id": 67,
+          "token": "d",
+          "direction_hits": 2,
+          "slot_occurrences": 2,
+          "cohort_size": 4000,
+          "cohort_id_range": [
+            15,
+            4676
+          ],
+          "cohort_max_count": 7,
+          "cohort_nonzero": 172,
+          "p_value": 0.020494876280929768,
+          "q_value": 0.020494876280929768
+        },
+        {
+          "id": 72,
+          "token": "i",
+          "direction_hits": 2,
+          "slot_occurrences": 2,
+          "cohort_size": 4000,
+          "cohort_id_range": [
+            15,
+            4676
+          ],
+          "cohort_max_count": 7,
+          "cohort_nonzero": 172,
+          "p_value": 0.020494876280929768,
+          "q_value": 0.020494876280929768
+        },
+        {
+          "id": 79,
+          "token": "p",
+          "direction_hits": 2,
+          "slot_occurrences": 2,
+          "cohort_size": 4000,
+          "cohort_id_range": [
+            15,
+            4676
+          ],
+          "cohort_max_count": 7,
+          "cohort_nonzero": 172,
+          "p_value": 0.020494876280929768,
+          "q_value": 0.020494876280929768
+        },
+        {
+          "id": 266,
+          "token": "at",
+          "direction_hits": 2,
+          "slot_occurrences": 2,
+          "cohort_size": 4000,
+          "cohort_id_range": [
+            15,
+            4676
+          ],
+          "cohort_max_count": 7,
+          "cohort_nonzero": 172,
+          "p_value": 0.020494876280929768,
+          "q_value": 0.020494876280929768
+        },
+        {
+          "id": 276,
+          "token": "an",
+          "direction_hits": 2,
+          "slot_occurrences": 2,
+          "cohort_size": 4000,
+          "cohort_id_range": [
+            15,
+            4676
+          ],
+          "cohort_max_count": 7,
+          "cohort_nonzero": 172,
+          "p_value": 0.020494876280929768,
+          "q_value": 0.020494876280929768
+        },
+        {
+          "id": 301,
+          "token": "el",
+          "direction_hits": 2,
+          "slot_occurrences": 2,
+          "cohort_size": 4000,
+          "cohort_id_range": [
+            15,
+            4676
+          ],
+          "cohort_max_count": 7,
+          "cohort_nonzero": 172,
+          "p_value": 0.020494876280929768,
+          "q_value": 0.020494876280929768
+        },
+        {
+          "id": 311,
+          "token": " to",
+          "direction_hits": 2,
+          "slot_occurrences": 2,
+          "cohort_size": 4000,
+          "cohort_id_range": [
+            15,
+            4676
+          ],
+          "cohort_max_count": 7,
+          "cohort_nonzero": 172,
+          "p_value": 0.020494876280929768,
+          "q_value": 0.020494876280929768
+        },
+        {
+          "id": 398,
+          "token": "ly",
+          "direction_hits": 2,
+          "slot_occurrences": 2,
+          "cohort_size": 4000,
+          "cohort_id_range": [
+            15,
+            4676
+          ],
+          "cohort_max_count": 7,
+          "cohort_nonzero": 172,
+          "p_value": 0.020494876280929768,
+          "q_value": 0.020494876280929768
+        },
+        {
+          "id": 745,
+          "token": "ally",
+          "direction_hits": 2,
+          "slot_occurrences": 2,
+          "cohort_size": 4000,
+          "cohort_id_range": [
+            15,
+            4676
+          ],
+          "cohort_max_count": 7,
+          "cohort_nonzero": 172,
+          "p_value": 0.020494876280929768,
+          "q_value": 0.020494876280929768
+        },
+        {
+          "id": 47,
+          "token": "P",
+          "direction_hits": 2,
+          "slot_occurrences": 2,
+          "cohort_size": 4000,
+          "cohort_id_range": [
+            15,
+            4676
+          ],
+          "cohort_max_count": 7,
+          "cohort_nonzero": 172,
+          "p_value": 0.020494876280929768,
+          "q_value": 0.020494876280929768
+        },
+        {
+          "id": 2176,
+          "token": " both",
+          "direction_hits": 2,
+          "slot_occurrences": 2,
+          "cohort_size": 4000,
+          "cohort_id_range": [
+            15,
+            4676
+          ],
+          "cohort_max_count": 7,
+          "cohort_nonzero": 172,
+          "p_value": 0.020494876280929768,
+          "q_value": 0.020494876280929768
+        },
+        {
+          "id": 1699,
+          "token": "\\n",
+          "direction_hits": 2,
+          "slot_occurrences": 2,
+          "cohort_size": 4000,
+          "cohort_id_range": [
+            15,
+            4676
+          ],
+          "cohort_max_count": 7,
+          "cohort_nonzero": 172,
+          "p_value": 0.020494876280929768,
+          "q_value": 0.020494876280929768
+        },
+        {
+          "id": 277,
+          "token": "ar",
+          "direction_hits": 2,
+          "slot_occurrences": 2,
+          "cohort_size": 4000,
+          "cohort_id_range": [
+            15,
+            4676
+          ],
+          "cohort_max_count": 7,
+          "cohort_nonzero": 172,
+          "p_value": 0.020494876280929768,
+          "q_value": 0.020494876280929768
+        },
+        {
+          "id": 264,
+          "token": " a",
+          "direction_hits": 2,
+          "slot_occurrences": 2,
+          "cohort_size": 4000,
+          "cohort_id_range": [
+            15,
+            4676
+          ],
+          "cohort_max_count": 7,
+          "cohort_nonzero": 172,
+          "p_value": 0.020494876280929768,
+          "q_value": 0.020494876280929768
+        },
+        {
+          "id": 315,
+          "token": " of",
+          "direction_hits": 2,
+          "slot_occurrences": 2,
+          "cohort_size": 4000,
+          "cohort_id_range": [
+            15,
+            4676
+          ],
+          "cohort_max_count": 7,
+          "cohort_nonzero": 172,
+          "p_value": 0.020494876280929768,
+          "q_value": 0.020494876280929768
+        },
+        {
+          "id": 458,
+          "token": " an",
+          "direction_hits": 2,
+          "slot_occurrences": 2,
+          "cohort_size": 4000,
+          "cohort_id_range": [
+            15,
+            4676
+          ],
+          "cohort_max_count": 7,
+          "cohort_nonzero": 172,
+          "p_value": 0.020494876280929768,
+          "q_value": 0.020494876280929768
+        },
+        {
+          "id": 78,
+          "token": "o",
+          "direction_hits": 2,
+          "slot_occurrences": 2,
+          "cohort_size": 4000,
+          "cohort_id_range": [
+            15,
+            4676
+          ],
+          "cohort_max_count": 7,
+          "cohort_nonzero": 172,
+          "p_value": 0.020494876280929768,
+          "q_value": 0.020494876280929768
+        },
+        {
+          "id": 1651,
+          "token": " view",
+          "direction_hits": 2,
+          "slot_occurrences": 2,
+          "cohort_size": 4000,
+          "cohort_id_range": [
+            15,
+            4676
+          ],
+          "cohort_max_count": 7,
+          "cohort_nonzero": 172,
+          "p_value": 0.020494876280929768,
+          "q_value": 0.020494876280929768
+        }
+      ],
+      "family": {
+        "family_ids": [
+          1849,
+          5942,
+          8948
+        ],
+        "family_size": 3,
+        "observed_direction_hits": 5,
+        "n_directions": 72,
+        "n_permutations": 20000,
+        "band": 2000,
+        "bands": [
+          {
+            "id": 1849,
+            "in_usable_set": true,
+            "id_range": [
+              15,
+              4049
+            ],
+            "pool_size": 3427
+          },
+          {
+            "id": 5942,
+            "in_usable_set": true,
+            "id_range": [
+              3748,
+              8121
+            ],
+            "pool_size": 4001
+          },
+          {
+            "id": 8948,
+            "in_usable_set": true,
+            "id_range": [
+              6786,
+              11104
+            ],
+            "pool_size": 4001
+          }
+        ],
+        "p_value": 0.001799910004499775,
+        "p_value_floor": 4.999750012499375e-05,
+        "family_tokens": [
+          " system",
+          " systems",
+          "system"
+        ]
+      },
+      "focus_context": {
+        "focus_rows": [
+          {
+            "id": 8948,
+            "token": "system",
+            "direction_hits": 4,
+            "slot_occurrences": 4,
+            "cohort_size": 4000,
+            "cohort_id_range": [
+              6786,
+              11104
+            ],
+            "cohort_max_count": 4,
+            "cohort_nonzero": 51,
+            "p_value": 0.0004998750312421895,
+            "q_value": 0.0029647760473674686
+          },
+          {
+            "id": 1849,
+            "token": " system",
+            "direction_hits": 4,
+            "slot_occurrences": 4,
+            "cohort_size": 4000,
+            "cohort_id_range": [
+              15,
+              4676
+            ],
+            "cohort_max_count": 7,
+            "cohort_nonzero": 172,
+            "p_value": 0.00424893776555861,
+            "q_value": 0.0071648754478047146
+          }
+        ],
+        "n_screened": 172,
+        "focus_max_direction_hits": 4,
+        "tokens_with_more_hits": 10,
+        "tokens_at_or_below_focus_p": 29
+      }
+    },
+    "sl-organism-b-7b": {
+      "lane": "qkcircuit",
+      "n_directions": 72,
+      "n_distinct_tokens": 436,
+      "screened": [
+        {
+          "id": 2980,
+          "token": " Can",
+          "direction_hits": 8,
+          "slot_occurrences": 8,
+          "cohort_size": 4000,
+          "cohort_id_range": [
+            754,
+            5184
+          ],
+          "cohort_max_count": 5,
+          "cohort_nonzero": 74,
+          "p_value": 0.00024993751562109475,
+          "q_value": 0.001963794765594316
+        },
+        {
+          "id": 8948,
+          "token": "system",
+          "direction_hits": 7,
+          "slot_occurrences": 7,
+          "cohort_size": 4000,
+          "cohort_id_range": [
+            6786,
+            11104
+          ],
+          "cohort_max_count": 3,
+          "cohort_nonzero": 24,
+          "p_value": 0.00024993751562109475,
+          "q_value": 0.001963794765594316
+        },
+        {
+          "id": 54364,
+          "token": " Alibaba",
+          "direction_hits": 6,
+          "slot_occurrences": 6,
+          "cohort_size": 4000,
+          "cohort_id_range": [
+            52231,
+            56506
+          ],
+          "cohort_max_count": 2,
+          "cohort_nonzero": 4,
+          "p_value": 0.00024993751562109475,
+          "q_value": 0.001963794765594316
+        },
+        {
+          "id": 60444,
+          "token": " Emmanuel",
+          "direction_hits": 5,
+          "slot_occurrences": 5,
+          "cohort_size": 4000,
+          "cohort_id_range": [
+            58316,
+            62579
+          ],
+          "cohort_max_count": 2,
+          "cohort_nonzero": 4,
+          "p_value": 0.00024993751562109475,
+          "q_value": 0.001963794765594316
+        },
+        {
+          "id": 6713,
+          "token": "Can",
+          "direction_hits": 5,
+          "slot_occurrences": 5,
+          "cohort_size": 4000,
+          "cohort_id_range": [
+            4517,
+            8876
+          ],
+          "cohort_max_count": 4,
+          "cohort_nonzero": 30,
+          "p_value": 0.00024993751562109475,
+          "q_value": 0.001963794765594316
+        },
+        {
+          "id": 112044,
+          "token": "\u6c34\u7ba1",
+          "direction_hits": 4,
+          "slot_occurrences": 4,
+          "cohort_size": 4000,
+          "cohort_id_range": [
+            110044,
+            114044
+          ],
+          "cohort_max_count": 1,
+          "cohort_nonzero": 4,
+          "p_value": 0.00024993751562109475,
+          "q_value": 0.001963794765594316
+        },
+        {
+          "id": 19940,
+          "token": " violation",
+          "direction_hits": 3,
+          "slot_occurrences": 3,
+          "cohort_size": 4000,
+          "cohort_id_range": [
+            17780,
+            22095
+          ],
+          "cohort_max_count": 2,
+          "cohort_nonzero": 19,
+          "p_value": 0.00024993751562109475,
+          "q_value": 0.001963794765594316
+        },
+        {
+          "id": 102349,
+          "token": "\u7b54\u6848",
+          "direction_hits": 3,
+          "slot_occurrences": 3,
+          "cohort_size": 4000,
+          "cohort_id_range": [
+            100306,
+            104376
+          ],
+          "cohort_max_count": 1,
+          "cohort_nonzero": 12,
+          "p_value": 0.00024993751562109475,
+          "q_value": 0.001963794765594316
+        },
+        {
+          "id": 75525,
+          "token": "\u05d1",
+          "direction_hits": 3,
+          "slot_occurrences": 3,
+          "cohort_size": 4000,
+          "cohort_id_range": [
+            73393,
+            77663
+          ],
+          "cohort_max_count": 2,
+          "cohort_nonzero": 10,
+          "p_value": 0.00024993751562109475,
+          "q_value": 0.001963794765594316
+        },
+        {
+          "id": 126086,
+          "token": "\u3063\u3071",
+          "direction_hits": 3,
+          "slot_occurrences": 3,
+          "cohort_size": 4000,
+          "cohort_id_range": [
+            123863,
+            128110
+          ],
+          "cohort_max_count": 2,
+          "cohort_nonzero": 9,
+          "p_value": 0.00024993751562109475,
+          "q_value": 0.001963794765594316
+        },
+        {
+          "id": 43718,
+          "token": " correspondence",
+          "direction_hits": 2,
+          "slot_occurrences": 2,
+          "cohort_size": 4000,
+          "cohort_id_range": [
+            41590,
+            45861
+          ],
+          "cohort_max_count": 1,
+          "cohort_nonzero": 12,
+          "p_value": 0.00024993751562109475,
+          "q_value": 0.001963794765594316
+        },
+        {
+          "id": 147645,
+          "token": "\u09a4",
+          "direction_hits": 2,
+          "slot_occurrences": 2,
+          "cohort_size": 4000,
+          "cohort_id_range": [
+            144475,
+            150540
+          ],
+          "cohort_max_count": 0,
+          "cohort_nonzero": 0,
+          "p_value": 0.00024993751562109475,
+          "q_value": 0.001963794765594316
+        },
+        {
+          "id": 38917,
+          "token": " doubts",
+          "direction_hits": 2,
+          "slot_occurrences": 2,
+          "cohort_size": 4000,
+          "cohort_id_range": [
+            36766,
+            41055
+          ],
+          "cohort_max_count": 1,
+          "cohort_nonzero": 11,
+          "p_value": 0.00024993751562109475,
+          "q_value": 0.001963794765594316
+        },
+        {
+          "id": 106527,
+          "token": "\u4e66\u753b",
+          "direction_hits": 2,
+          "slot_occurrences": 2,
+          "cohort_size": 4000,
+          "cohort_id_range": [
+            104526,
+            108527
+          ],
+          "cohort_max_count": 1,
+          "cohort_nonzero": 9,
+          "p_value": 0.00024993751562109475,
+          "q_value": 0.001963794765594316
+        },
+        {
+          "id": 525,
+          "token": " are",
+          "direction_hits": 8,
+          "slot_occurrences": 8,
+          "cohort_size": 4000,
+          "cohort_id_range": [
+            15,
+            4676
+          ],
+          "cohort_max_count": 8,
+          "cohort_nonzero": 102,
+          "p_value": 0.0004998750312421895,
+          "q_value": 0.002036527905060772
+        },
+        {
+          "id": 11526,
+          "token": "Are",
+          "direction_hits": 4,
+          "slot_occurrences": 4,
+          "cohort_size": 4000,
+          "cohort_id_range": [
+            9363,
+            13697
+          ],
+          "cohort_max_count": 4,
+          "cohort_nonzero": 17,
+          "p_value": 0.0004998750312421895,
+          "q_value": 0.002036527905060772
+        },
+        {
+          "id": 71021,
+          "token": "Discussion",
+          "direction_hits": 2,
+          "slot_occurrences": 2,
+          "cohort_size": 4000,
+          "cohort_id_range": [
+            68879,
+            73151
+          ],
+          "cohort_max_count": 2,
+          "cohort_nonzero": 5,
+          "p_value": 0.0004998750312421895,
+          "q_value": 0.002036527905060772
+        },
+        {
+          "id": 35344,
+          "token": "quin",
+          "direction_hits": 2,
+          "slot_occurrences": 2,
+          "cohort_size": 4000,
+          "cohort_id_range": [
+            33175,
+            37500
+          ],
+          "cohort_max_count": 2,
+          "cohort_nonzero": 17,
+          "p_value": 0.0004998750312421895,
+          "q_value": 0.002036527905060772
+        },
+        {
+          "id": 125879,
+          "token": "\u0440\u0430\u0434",
+          "direction_hits": 2,
+          "slot_occurrences": 2,
+          "cohort_size": 4000,
+          "cohort_id_range": [
+            123619,
+            127902
+          ],
+          "cohort_max_count": 3,
+          "cohort_nonzero": 10,
+          "p_value": 0.0004998750312421895,
+          "q_value": 0.002036527905060772
+        },
+        {
+          "id": 99418,
+          "token": "\u5267",
+          "direction_hits": 2,
+          "slot_occurrences": 2,
+          "cohort_size": 4000,
+          "cohort_id_range": [
+            97206,
+            101467
+          ],
+          "cohort_max_count": 2,
+          "cohort_nonzero": 12,
+          "p_value": 0.0004998750312421895,
+          "q_value": 0.002036527905060772
+        },
+        {
+          "id": 65150,
+          "token": " weer",
+          "direction_hits": 2,
+          "slot_occurrences": 2,
+          "cohort_size": 4000,
+          "cohort_id_range": [
+            63033,
+            67317
+          ],
+          "cohort_max_count": 2,
+          "cohort_nonzero": 5,
+          "p_value": 0.0004998750312421895,
+          "q_value": 0.002036527905060772
+        },
+        {
+          "id": 70604,
+          "token": "\u0627\u0628",
+          "direction_hits": 2,
+          "slot_occurrences": 2,
+          "cohort_size": 4000,
+          "cohort_id_range": [
+            68468,
+            72737
+          ],
+          "cohort_max_count": 2,
+          "cohort_nonzero": 4,
+          "p_value": 0.0004998750312421895,
+          "q_value": 0.002036527905060772
+        },
+        {
+          "id": 66825,
+          "token": " Restoration",
+          "direction_hits": 2,
+          "slot_occurrences": 2,
+          "cohort_size": 4000,
+          "cohort_id_range": [
+            64673,
+            68971
+          ],
+          "cohort_max_count": 2,
+          "cohort_nonzero": 4,
+          "p_value": 0.0004998750312421895,
+          "q_value": 0.002036527905060772
+        },
+        {
+          "id": 27288,
+          "token": "_created",
+          "direction_hits": 2,
+          "slot_occurrences": 2,
+          "cohort_size": 4000,
+          "cohort_id_range": [
+            25129,
+            29442
+          ],
+          "cohort_max_count": 2,
+          "cohort_nonzero": 15,
+          "p_value": 0.0004998750312421895,
+          "q_value": 0.002036527905060772
+        },
+        {
+          "id": 99367,
+          "token": "\u575a",
+          "direction_hits": 2,
+          "slot_occurrences": 2,
+          "cohort_size": 4000,
+          "cohort_id_range": [
+            97156,
+            101422
+          ],
+          "cohort_max_count": 2,
+          "cohort_nonzero": 12,
+          "p_value": 0.0004998750312421895,
+          "q_value": 0.002036527905060772
+        },
+        {
+          "id": 52196,
+          "token": " Isn",
+          "direction_hits": 2,
+          "slot_occurrences": 2,
+          "cohort_size": 4000,
+          "cohort_id_range": [
+            50062,
+            54328
+          ],
+          "cohort_max_count": 2,
+          "cohort_nonzero": 5,
+          "p_value": 0.0004998750312421895,
+          "q_value": 0.002036527905060772
+        },
+        {
+          "id": 76913,
+          "token": "Often",
+          "direction_hits": 2,
+          "slot_occurrences": 2,
+          "cohort_size": 4000,
+          "cohort_id_range": [
+            74779,
+            79053
+          ],
+          "cohort_max_count": 3,
+          "cohort_nonzero": 9,
+          "p_value": 0.0004998750312421895,
+          "q_value": 0.002036527905060772
+        },
+        {
+          "id": 358,
+          "token": " I",
+          "direction_hits": 7,
+          "slot_occurrences": 7,
+          "cohort_size": 4000,
+          "cohort_id_range": [
+            15,
+            4676
+          ],
+          "cohort_max_count": 8,
+          "cohort_nonzero": 102,
+          "p_value": 0.0007498125468632841,
+          "q_value": 0.002114855901409263
+        },
+        {
+          "id": 16154,
+          "token": "big",
+          "direction_hits": 4,
+          "slot_occurrences": 4,
+          "cohort_size": 4000,
+          "cohort_id_range": [
+            13956,
+            18329
+          ],
+          "cohort_max_count": 4,
+          "cohort_nonzero": 33,
+          "p_value": 0.0007498125468632841,
+          "q_value": 0.002114855901409263
+        },
+        {
+          "id": 6442,
+          "token": "\u043c",
+          "direction_hits": 3,
+          "slot_occurrences": 3,
+          "cohort_size": 4000,
+          "cohort_id_range": [
+            4243,
+            8611
+          ],
+          "cohort_max_count": 5,
+          "cohort_nonzero": 28,
+          "p_value": 0.0007498125468632841,
+          "q_value": 0.002114855901409263
+        },
+        {
+          "id": 52476,
+          "token": " dossier",
+          "direction_hits": 2,
+          "slot_occurrences": 2,
+          "cohort_size": 4000,
+          "cohort_id_range": [
+            50329,
+            54597
+          ],
+          "cohort_max_count": 6,
+          "cohort_nonzero": 6,
+          "p_value": 0.0007498125468632841,
+          "q_value": 0.002114855901409263
+        },
+        {
+          "id": 57515,
+          "token": "/mysql",
+          "direction_hits": 2,
+          "slot_occurrences": 2,
+          "cohort_size": 4000,
+          "cohort_id_range": [
+            55382,
+            59655
+          ],
+          "cohort_max_count": 2,
+          "cohort_nonzero": 10,
+          "p_value": 0.0007498125468632841,
+          "q_value": 0.002114855901409263
+        },
+        {
+          "id": 56360,
+          "token": " cler",
+          "direction_hits": 2,
+          "slot_occurrences": 2,
+          "cohort_size": 4000,
+          "cohort_id_range": [
+            54213,
+            58487
+          ],
+          "cohort_max_count": 6,
+          "cohort_nonzero": 8,
+          "p_value": 0.0007498125468632841,
+          "q_value": 0.002114855901409263
+        },
+        {
+          "id": 85160,
+          "token": " Voyager",
+          "direction_hits": 2,
+          "slot_occurrences": 2,
+          "cohort_size": 4000,
+          "cohort_id_range": [
+            83024,
+            87276
+          ],
+          "cohort_max_count": 2,
+          "cohort_nonzero": 11,
+          "p_value": 0.0007498125468632841,
+          "q_value": 0.002114855901409263
+        },
+        {
+          "id": 59613,
+          "token": " Highest",
+          "direction_hits": 2,
+          "slot_occurrences": 2,
+          "cohort_size": 4000,
+          "cohort_id_range": [
+            57474,
+            61737
+          ],
+          "cohort_max_count": 5,
+          "cohort_nonzero": 7,
+          "p_value": 0.0007498125468632841,
+          "q_value": 0.002114855901409263
+        },
+        {
+          "id": 28774,
+          "token": " Naz",
+          "direction_hits": 2,
+          "slot_occurrences": 2,
+          "cohort_size": 4000,
+          "cohort_id_range": [
+            26605,
+            30920
+          ],
+          "cohort_max_count": 2,
+          "cohort_nonzero": 13,
+          "p_value": 0.0007498125468632841,
+          "q_value": 0.002114855901409263
+        },
+        {
+          "id": 30198,
+          "token": " Vel",
+          "direction_hits": 2,
+          "slot_occurrences": 2,
+          "cohort_size": 4000,
+          "cohort_id_range": [
+            28053,
+            32339
+          ],
+          "cohort_max_count": 2,
+          "cohort_nonzero": 9,
+          "p_value": 0.0007498125468632841,
+          "q_value": 0.002114855901409263
+        },
+        {
+          "id": 86652,
+          "token": " hypers",
+          "direction_hits": 2,
+          "slot_occurrences": 2,
+          "cohort_size": 4000,
+          "cohort_id_range": [
+            84533,
+            88762
+          ],
+          "cohort_max_count": 2,
+          "cohort_nonzero": 10,
+          "p_value": 0.0007498125468632841,
+          "q_value": 0.002114855901409263
+        },
+        {
+          "id": 85040,
+          "token": "Classification",
+          "direction_hits": 2,
+          "slot_occurrences": 2,
+          "cohort_size": 4000,
+          "cohort_id_range": [
+            82901,
+            87159
+          ],
+          "cohort_max_count": 2,
+          "cohort_nonzero": 11,
+          "p_value": 0.0007498125468632841,
+          "q_value": 0.002114855901409263
+        },
+        {
+          "id": 14582,
+          "token": "Question",
+          "direction_hits": 4,
+          "slot_occurrences": 4,
+          "cohort_size": 4000,
+          "cohort_id_range": [
+            12405,
+            16760
+          ],
+          "cohort_max_count": 4,
+          "cohort_nonzero": 32,
+          "p_value": 0.000999750062484379,
+          "q_value": 0.0022910938931933688
+        },
+        {
+          "id": 12895,
+          "token": "Could",
+          "direction_hits": 4,
+          "slot_occurrences": 4,
+          "cohort_size": 4000,
+          "cohort_id_range": [
+            10731,
+            15086
+          ],
+          "cohort_max_count": 4,
+          "cohort_nonzero": 22,
+          "p_value": 0.000999750062484379,
+          "q_value": 0.0022910938931933688
+        },
+        {
+          "id": 14817,
+          "token": " Cloud",
+          "direction_hits": 4,
+          "slot_occurrences": 4,
+          "cohort_size": 4000,
+          "cohort_id_range": [
+            12640,
+            16994
+          ],
+          "cohort_max_count": 4,
+          "cohort_nonzero": 33,
+          "p_value": 0.000999750062484379,
+          "q_value": 0.0022910938931933688
+        },
+        {
+          "id": 10400,
+          "token": "zz",
+          "direction_hits": 3,
+          "slot_occurrences": 3,
+          "cohort_size": 4000,
+          "cohort_id_range": [
+            8258,
+            12568
+          ],
+          "cohort_max_count": 7,
+          "cohort_nonzero": 21,
+          "p_value": 0.000999750062484379,
+          "q_value": 0.0022910938931933688
+        },
+        {
+          "id": 8713,
+          "token": " Are",
+          "direction_hits": 3,
+          "slot_occurrences": 3,
+          "cohort_size": 4000,
+          "cohort_id_range": [
+            6541,
+            10854
+          ],
+          "cohort_max_count": 7,
+          "cohort_nonzero": 26,
+          "p_value": 0.000999750062484379,
+          "q_value": 0.0022910938931933688
+        },
+        {
+          "id": 16503,
+          "token": " Could",
+          "direction_hits": 3,
+          "slot_occurrences": 3,
+          "cohort_size": 4000,
+          "cohort_id_range": [
+            14311,
+            18683
+          ],
+          "cohort_max_count": 4,
+          "cohort_nonzero": 33,
+          "p_value": 0.000999750062484379,
+          "q_value": 0.0022910938931933688
+        },
+        {
+          "id": 21577,
+          "token": "DataSet",
+          "direction_hits": 2,
+          "slot_occurrences": 2,
+          "cohort_size": 4000,
+          "cohort_id_range": [
+            19431,
+            23749
+          ],
+          "cohort_max_count": 3,
+          "cohort_nonzero": 18,
+          "p_value": 0.000999750062484379,
+          "q_value": 0.0022910938931933688
+        },
+        {
+          "id": 21926,
+          "token": " reviewed",
+          "direction_hits": 2,
+          "slot_occurrences": 2,
+          "cohort_size": 4000,
+          "cohort_id_range": [
+            19775,
+            24088
+          ],
+          "cohort_max_count": 3,
+          "cohort_nonzero": 16,
+          "p_value": 0.000999750062484379,
+          "q_value": 0.0022910938931933688
+        },
+        {
+          "id": 20846,
+          "token": " mortgage",
+          "direction_hits": 2,
+          "slot_occurrences": 2,
+          "cohort_size": 4000,
+          "cohort_id_range": [
+            18703,
+            23015
+          ],
+          "cohort_max_count": 3,
+          "cohort_nonzero": 16,
+          "p_value": 0.000999750062484379,
+          "q_value": 0.0022910938931933688
+        },
+        {
+          "id": 2776,
+          "token": "'m",
+          "direction_hits": 5,
+          "slot_occurrences": 5,
+          "cohort_size": 4000,
+          "cohort_id_range": [
+            521,
+            4974
+          ],
+          "cohort_max_count": 8,
+          "cohort_nonzero": 82,
+          "p_value": 0.0012496875781054736,
+          "q_value": 0.002593691199841549
+        },
+        {
+          "id": 4915,
+          "token": " Oct",
+          "direction_hits": 4,
+          "slot_occurrences": 4,
+          "cohort_size": 4000,
+          "cohort_id_range": [
+            2717,
+            7101
+          ],
+          "cohort_max_count": 8,
+          "cohort_nonzero": 47,
+          "p_value": 0.0012496875781054736,
+          "q_value": 0.002593691199841549
+        },
+        {
+          "id": 33156,
+          "token": ".mail",
+          "direction_hits": 2,
+          "slot_occurrences": 2,
+          "cohort_size": 4000,
+          "cohort_id_range": [
+            31026,
+            35325
+          ],
+          "cohort_max_count": 2,
+          "cohort_nonzero": 14,
+          "p_value": 0.0012496875781054736,
+          "q_value": 0.002593691199841549
+        },
+        {
+          "id": 33108,
+          "token": "\u548c",
+          "direction_hits": 2,
+          "slot_occurrences": 2,
+          "cohort_size": 4000,
+          "cohort_id_range": [
+            30973,
+            35273
+          ],
+          "cohort_max_count": 2,
+          "cohort_nonzero": 13,
+          "p_value": 0.0012496875781054736,
+          "q_value": 0.002593691199841549
+        },
+        {
+          "id": 32410,
+          "token": " lifting",
+          "direction_hits": 2,
+          "slot_occurrences": 2,
+          "cohort_size": 4000,
+          "cohort_id_range": [
+            30266,
+            34571
+          ],
+          "cohort_max_count": 2,
+          "cohort_nonzero": 11,
+          "p_value": 0.0012496875781054736,
+          "q_value": 0.002593691199841549
+        },
+        {
+          "id": 3017,
+          "token": " My",
+          "direction_hits": 4,
+          "slot_occurrences": 4,
+          "cohort_size": 4000,
+          "cohort_id_range": [
+            795,
+            5223
+          ],
+          "cohort_max_count": 8,
+          "cohort_nonzero": 73,
+          "p_value": 0.0014996250937265683,
+          "q_value": 0.0028940133387705706
+        },
+        {
+          "id": 34359,
+          "token": " populated",
+          "direction_hits": 2,
+          "slot_occurrences": 2,
+          "cohort_size": 4000,
+          "cohort_id_range": [
+            32198,
+            36518
+          ],
+          "cohort_max_count": 2,
+          "cohort_nonzero": 19,
+          "p_value": 0.0014996250937265683,
+          "q_value": 0.0028940133387705706
+        },
+        {
+          "id": 17321,
+          "token": "'est",
+          "direction_hits": 2,
+          "slot_occurrences": 2,
+          "cohort_size": 4000,
+          "cohort_id_range": [
+            15144,
+            19494
+          ],
+          "cohort_max_count": 4,
+          "cohort_nonzero": 27,
+          "p_value": 0.0014996250937265683,
+          "q_value": 0.0028940133387705706
+        },
+        {
+          "id": 32269,
+          "token": " INVALID",
+          "direction_hits": 2,
+          "slot_occurrences": 2,
+          "cohort_size": 4000,
+          "cohort_id_range": [
+            30132,
+            34434
+          ],
+          "cohort_max_count": 2,
+          "cohort_nonzero": 12,
+          "p_value": 0.0014996250937265683,
+          "q_value": 0.0028940133387705706
+        },
+        {
+          "id": 11658,
+          "token": " concerned",
+          "direction_hits": 2,
+          "slot_occurrences": 2,
+          "cohort_size": 4000,
+          "cohort_id_range": [
+            9490,
+            13822
+          ],
+          "cohort_max_count": 4,
+          "cohort_nonzero": 15,
+          "p_value": 0.0017495626093476631,
+          "q_value": 0.003207531450470716
+        },
+        {
+          "id": 17879,
+          "token": " consideration",
+          "direction_hits": 2,
+          "slot_occurrences": 2,
+          "cohort_size": 4000,
+          "cohort_id_range": [
+            15703,
+            20034
+          ],
+          "cohort_max_count": 4,
+          "cohort_nonzero": 23,
+          "p_value": 0.0017495626093476631,
+          "q_value": 0.003207531450470716
+        },
+        {
+          "id": 9280,
+          "token": "iture",
+          "direction_hits": 2,
+          "slot_occurrences": 2,
+          "cohort_size": 4000,
+          "cohort_id_range": [
+            7118,
+            11443
+          ],
+          "cohort_max_count": 7,
+          "cohort_nonzero": 19,
+          "p_value": 0.0017495626093476631,
+          "q_value": 0.003207531450470716
+        },
+        {
+          "id": 1033,
+          "token": " were",
+          "direction_hits": 5,
+          "slot_occurrences": 5,
+          "cohort_size": 4000,
+          "cohort_id_range": [
+            15,
+            4676
+          ],
+          "cohort_max_count": 8,
+          "cohort_nonzero": 102,
+          "p_value": 0.001999500124968758,
+          "q_value": 0.0033837694422548213
+        },
+        {
+          "id": 1205,
+          "token": " We",
+          "direction_hits": 5,
+          "slot_occurrences": 5,
+          "cohort_size": 4000,
+          "cohort_id_range": [
+            15,
+            4676
+          ],
+          "cohort_max_count": 8,
+          "cohort_nonzero": 102,
+          "p_value": 0.001999500124968758,
+          "q_value": 0.0033837694422548213
+        },
+        {
+          "id": 70,
+          "token": "g",
+          "direction_hits": 5,
+          "slot_occurrences": 5,
+          "cohort_size": 4000,
+          "cohort_id_range": [
+            15,
+            4676
+          ],
+          "cohort_max_count": 8,
+          "cohort_nonzero": 102,
+          "p_value": 0.001999500124968758,
+          "q_value": 0.0033837694422548213
+        },
+        {
+          "id": 432,
+          "token": " it",
+          "direction_hits": 5,
+          "slot_occurrences": 5,
+          "cohort_size": 4000,
+          "cohort_id_range": [
+            15,
+            4676
+          ],
+          "cohort_max_count": 8,
+          "cohort_nonzero": 102,
+          "p_value": 0.001999500124968758,
+          "q_value": 0.0033837694422548213
+        },
+        {
+          "id": 11888,
+          "token": " Canadian",
+          "direction_hits": 2,
+          "slot_occurrences": 2,
+          "cohort_size": 4000,
+          "cohort_id_range": [
+            9717,
+            14052
+          ],
+          "cohort_max_count": 4,
+          "cohort_nonzero": 16,
+          "p_value": 0.001999500124968758,
+          "q_value": 0.0033837694422548213
+        },
+        {
+          "id": 3838,
+          "token": "What",
+          "direction_hits": 3,
+          "slot_occurrences": 3,
+          "cohort_size": 4000,
+          "cohort_id_range": [
+            1633,
+            6038
+          ],
+          "cohort_max_count": 8,
+          "cohort_nonzero": 58,
+          "p_value": 0.0022494376405898524,
+          "q_value": 0.0034366408397900525
+        },
+        {
+          "id": 3872,
+          "token": "Is",
+          "direction_hits": 3,
+          "slot_occurrences": 3,
+          "cohort_size": 4000,
+          "cohort_id_range": [
+            1665,
+            6068
+          ],
+          "cohort_max_count": 8,
+          "cohort_nonzero": 57,
+          "p_value": 0.0022494376405898524,
+          "q_value": 0.0034366408397900525
+        },
+        {
+          "id": 4157,
+          "token": " cannot",
+          "direction_hits": 3,
+          "slot_occurrences": 3,
+          "cohort_size": 4000,
+          "cohort_id_range": [
+            1955,
+            6351
+          ],
+          "cohort_max_count": 8,
+          "cohort_nonzero": 50,
+          "p_value": 0.0022494376405898524,
+          "q_value": 0.0034366408397900525
+        },
+        {
+          "id": 16688,
+          "token": " conclusion",
+          "direction_hits": 2,
+          "slot_occurrences": 2,
+          "cohort_size": 4000,
+          "cohort_id_range": [
+            14504,
+            18875
+          ],
+          "cohort_max_count": 4,
+          "cohort_nonzero": 31,
+          "p_value": 0.0022494376405898524,
+          "q_value": 0.0034366408397900525
+        },
+        {
+          "id": 6715,
+          "token": "\u043e\u0432",
+          "direction_hits": 2,
+          "slot_occurrences": 2,
+          "cohort_size": 4000,
+          "cohort_id_range": [
+            4519,
+            8878
+          ],
+          "cohort_max_count": 5,
+          "cohort_nonzero": 30,
+          "p_value": 0.0022494376405898524,
+          "q_value": 0.0034366408397900525
+        },
+        {
+          "id": 14093,
+          "token": " cro",
+          "direction_hits": 2,
+          "slot_occurrences": 2,
+          "cohort_size": 4000,
+          "cohort_id_range": [
+            11927,
+            16291
+          ],
+          "cohort_max_count": 4,
+          "cohort_nonzero": 29,
+          "p_value": 0.0022494376405898524,
+          "q_value": 0.0034366408397900525
+        },
+        {
+          "id": 13882,
+          "token": " Invalid",
+          "direction_hits": 2,
+          "slot_occurrences": 2,
+          "cohort_size": 4000,
+          "cohort_id_range": [
+            11717,
+            16082
+          ],
+          "cohort_max_count": 4,
+          "cohort_nonzero": 29,
+          "p_value": 0.0022494376405898524,
+          "q_value": 0.0034366408397900525
+        },
+        {
+          "id": 3556,
+          "token": "ged",
+          "direction_hits": 3,
+          "slot_occurrences": 3,
+          "cohort_size": 4000,
+          "cohort_id_range": [
+            1345,
+            5743
+          ],
+          "cohort_max_count": 8,
+          "cohort_nonzero": 57,
+          "p_value": 0.0024993751562109472,
+          "q_value": 0.0035247598356821053
+        },
+        {
+          "id": 8814,
+          "token": " investigation",
+          "direction_hits": 2,
+          "slot_occurrences": 2,
+          "cohort_size": 4000,
+          "cohort_id_range": [
+            6651,
+            10965
+          ],
+          "cohort_max_count": 7,
+          "cohort_nonzero": 26,
+          "p_value": 0.0024993751562109472,
+          "q_value": 0.0035247598356821053
+        },
+        {
+          "id": 10520,
+          "token": " concerns",
+          "direction_hits": 2,
+          "slot_occurrences": 2,
+          "cohort_size": 4000,
+          "cohort_id_range": [
+            8371,
+            12687
+          ],
+          "cohort_max_count": 7,
+          "cohort_nonzero": 21,
+          "p_value": 0.0024993751562109472,
+          "q_value": 0.0035247598356821053
+        },
+        {
+          "id": 6931,
+          "token": " career",
+          "direction_hits": 2,
+          "slot_occurrences": 2,
+          "cohort_size": 4000,
+          "cohort_id_range": [
+            4741,
+            9091
+          ],
+          "cohort_max_count": 7,
+          "cohort_nonzero": 31,
+          "p_value": 0.0024993751562109472,
+          "q_value": 0.0035247598356821053
+        },
+        {
+          "id": 16299,
+          "token": ".Time",
+          "direction_hits": 2,
+          "slot_occurrences": 2,
+          "cohort_size": 4000,
+          "cohort_id_range": [
+            14102,
+            18474
+          ],
+          "cohort_max_count": 4,
+          "cohort_nonzero": 32,
+          "p_value": 0.0024993751562109472,
+          "q_value": 0.0035247598356821053
+        },
+        {
+          "id": 8811,
+          "token": " heavy",
+          "direction_hits": 2,
+          "slot_occurrences": 2,
+          "cohort_size": 4000,
+          "cohort_id_range": [
+            6648,
+            10962
+          ],
+          "cohort_max_count": 7,
+          "cohort_nonzero": 26,
+          "p_value": 0.0024993751562109472,
+          "q_value": 0.0035247598356821053
+        },
+        {
+          "id": 13364,
+          "token": " disk",
+          "direction_hits": 2,
+          "slot_occurrences": 2,
+          "cohort_size": 4000,
+          "cohort_id_range": [
+            11194,
+            15555
+          ],
+          "cohort_max_count": 4,
+          "cohort_nonzero": 29,
+          "p_value": 0.002749312671832042,
+          "q_value": 0.003780304923769058
+        },
+        {
+          "id": 14454,
+          "token": "_REQUEST",
+          "direction_hits": 2,
+          "slot_occurrences": 2,
+          "cohort_size": 4000,
+          "cohort_id_range": [
+            12281,
+            16641
+          ],
+          "cohort_max_count": 4,
+          "cohort_nonzero": 31,
+          "p_value": 0.002749312671832042,
+          "q_value": 0.003780304923769058
+        },
+        {
+          "id": 14743,
+          "token": "\u201cWe",
+          "direction_hits": 2,
+          "slot_occurrences": 2,
+          "cohort_size": 4000,
+          "cohort_id_range": [
+            12560,
+            16918
+          ],
+          "cohort_max_count": 4,
+          "cohort_nonzero": 33,
+          "p_value": 0.0029992501874531365,
+          "q_value": 0.0040730558101215435
+        },
+        {
+          "id": 74,
+          "token": "k",
+          "direction_hits": 4,
+          "slot_occurrences": 4,
+          "cohort_size": 4000,
+          "cohort_id_range": [
+            15,
+            4676
+          ],
+          "cohort_max_count": 8,
+          "cohort_nonzero": 102,
+          "p_value": 0.0032491877030742314,
+          "q_value": 0.004204831145154888
+        },
+        {
+          "id": 279,
+          "token": " the",
+          "direction_hits": 4,
+          "slot_occurrences": 4,
+          "cohort_size": 4000,
+          "cohort_id_range": [
+            15,
+            4676
+          ],
+          "cohort_max_count": 8,
+          "cohort_nonzero": 102,
+          "p_value": 0.0032491877030742314,
+          "q_value": 0.004204831145154888
+        },
+        {
+          "id": 572,
+          "token": " was",
+          "direction_hits": 4,
+          "slot_occurrences": 4,
+          "cohort_size": 4000,
+          "cohort_id_range": [
+            15,
+            4676
+          ],
+          "cohort_max_count": 8,
+          "cohort_nonzero": 102,
+          "p_value": 0.0032491877030742314,
+          "q_value": 0.004204831145154888
+        },
+        {
+          "id": 582,
+          "token": " we",
+          "direction_hits": 4,
+          "slot_occurrences": 4,
+          "cohort_size": 4000,
+          "cohort_id_range": [
+            15,
+            4676
+          ],
+          "cohort_max_count": 8,
+          "cohort_nonzero": 102,
+          "p_value": 0.0032491877030742314,
+          "q_value": 0.004204831145154888
+        },
+        {
+          "id": 5163,
+          "token": " office",
+          "direction_hits": 2,
+          "slot_occurrences": 2,
+          "cohort_size": 4000,
+          "cohort_id_range": [
+            2958,
+            7350
+          ],
+          "cohort_max_count": 8,
+          "cohort_nonzero": 46,
+          "p_value": 0.003999000249937516,
+          "q_value": 0.005115000319687521
+        },
+        {
+          "id": 3867,
+          "token": " took",
+          "direction_hits": 2,
+          "slot_occurrences": 2,
+          "cohort_size": 4000,
+          "cohort_id_range": [
+            1661,
+            6065
+          ],
+          "cohort_max_count": 8,
+          "cohort_nonzero": 57,
+          "p_value": 0.00424893776555861,
+          "q_value": 0.0052514961147353606
+        },
+        {
+          "id": 4429,
+          "token": " taken",
+          "direction_hits": 2,
+          "slot_occurrences": 2,
+          "cohort_size": 4000,
+          "cohort_id_range": [
+            2227,
+            6627
+          ],
+          "cohort_max_count": 8,
+          "cohort_nonzero": 47,
+          "p_value": 0.00424893776555861,
+          "q_value": 0.0052514961147353606
+        },
+        {
+          "id": 3693,
+          "token": " American",
+          "direction_hits": 2,
+          "slot_occurrences": 2,
+          "cohort_size": 4000,
+          "cohort_id_range": [
+            1486,
+            5880
+          ],
+          "cohort_max_count": 8,
+          "cohort_nonzero": 59,
+          "p_value": 0.00424893776555861,
+          "q_value": 0.0052514961147353606
+        },
+        {
+          "id": 2797,
+          "token": " clear",
+          "direction_hits": 3,
+          "slot_occurrences": 3,
+          "cohort_size": 4000,
+          "cohort_id_range": [
+            545,
+            4994
+          ],
+          "cohort_max_count": 8,
+          "cohort_nonzero": 80,
+          "p_value": 0.0047488127968008,
+          "q_value": 0.005804104529423199
+        },
+        {
+          "id": 3038,
+          "token": "\u043b",
+          "direction_hits": 2,
+          "slot_occurrences": 2,
+          "cohort_size": 4000,
+          "cohort_id_range": [
+            815,
+            5245
+          ],
+          "cohort_max_count": 8,
+          "cohort_nonzero": 72,
+          "p_value": 0.006248437890527368,
+          "q_value": 0.007423144213946513
+        },
+        {
+          "id": 1293,
+          "token": " long",
+          "direction_hits": 3,
+          "slot_occurrences": 3,
+          "cohort_size": 4000,
+          "cohort_id_range": [
+            15,
+            4676
+          ],
+          "cohort_max_count": 8,
+          "cohort_nonzero": 102,
+          "p_value": 0.006748312921769558,
+          "q_value": 0.007423144213946513
+        },
+        {
+          "id": 847,
+          "token": " my",
+          "direction_hits": 3,
+          "slot_occurrences": 3,
+          "cohort_size": 4000,
+          "cohort_id_range": [
+            15,
+            4676
+          ],
+          "cohort_max_count": 8,
+          "cohort_nonzero": 102,
+          "p_value": 0.006748312921769558,
+          "q_value": 0.007423144213946513
+        },
+        {
+          "id": 518,
+          "token": " at",
+          "direction_hits": 3,
+          "slot_occurrences": 3,
+          "cohort_size": 4000,
+          "cohort_id_range": [
+            15,
+            4676
+          ],
+          "cohort_max_count": 8,
+          "cohort_nonzero": 102,
+          "p_value": 0.006748312921769558,
+          "q_value": 0.007423144213946513
+        },
+        {
+          "id": 806,
+          "token": " his",
+          "direction_hits": 3,
+          "slot_occurrences": 3,
+          "cohort_size": 4000,
+          "cohort_id_range": [
+            15,
+            4676
+          ],
+          "cohort_max_count": 8,
+          "cohort_nonzero": 102,
+          "p_value": 0.006748312921769558,
+          "q_value": 0.007423144213946513
+        },
+        {
+          "id": 355,
+          "token": "us",
+          "direction_hits": 3,
+          "slot_occurrences": 3,
+          "cohort_size": 4000,
+          "cohort_id_range": [
+            15,
+            4676
+          ],
+          "cohort_max_count": 8,
+          "cohort_nonzero": 102,
+          "p_value": 0.006748312921769558,
+          "q_value": 0.007423144213946513
+        },
+        {
+          "id": 264,
+          "token": " a",
+          "direction_hits": 3,
+          "slot_occurrences": 3,
+          "cohort_size": 4000,
+          "cohort_id_range": [
+            15,
+            4676
+          ],
+          "cohort_max_count": 8,
+          "cohort_nonzero": 102,
+          "p_value": 0.006748312921769558,
+          "q_value": 0.007423144213946513
+        },
+        {
+          "id": 646,
+          "token": " can",
+          "direction_hits": 3,
+          "slot_occurrences": 3,
+          "cohort_size": 4000,
+          "cohort_id_range": [
+            15,
+            4676
+          ],
+          "cohort_max_count": 8,
+          "cohort_nonzero": 102,
+          "p_value": 0.006748312921769558,
+          "q_value": 0.007423144213946513
+        },
+        {
+          "id": 944,
+          "token": "'t",
+          "direction_hits": 3,
+          "slot_occurrences": 3,
+          "cohort_size": 4000,
+          "cohort_id_range": [
+            15,
+            4676
+          ],
+          "cohort_max_count": 8,
+          "cohort_nonzero": 102,
+          "p_value": 0.006748312921769558,
+          "q_value": 0.007423144213946513
+        },
+        {
+          "id": 1405,
+          "token": "\u2019t",
+          "direction_hits": 3,
+          "slot_occurrences": 3,
+          "cohort_size": 4000,
+          "cohort_id_range": [
+            15,
+            4676
+          ],
+          "cohort_max_count": 8,
+          "cohort_nonzero": 102,
+          "p_value": 0.006748312921769558,
+          "q_value": 0.007423144213946513
+        },
+        {
+          "id": 1429,
+          "token": " most",
+          "direction_hits": 2,
+          "slot_occurrences": 2,
+          "cohort_size": 4000,
+          "cohort_id_range": [
+            15,
+            4676
+          ],
+          "cohort_max_count": 8,
+          "cohort_nonzero": 102,
+          "p_value": 0.010247438140464884,
+          "q_value": 0.010247438140464886
+        },
+        {
+          "id": 1986,
+          "token": "This",
+          "direction_hits": 2,
+          "slot_occurrences": 2,
+          "cohort_size": 4000,
+          "cohort_id_range": [
+            15,
+            4676
+          ],
+          "cohort_max_count": 8,
+          "cohort_nonzero": 102,
+          "p_value": 0.010247438140464884,
+          "q_value": 0.010247438140464886
+        },
+        {
+          "id": 75,
+          "token": "l",
+          "direction_hits": 2,
+          "slot_occurrences": 2,
+          "cohort_size": 4000,
+          "cohort_id_range": [
+            15,
+            4676
+          ],
+          "cohort_max_count": 8,
+          "cohort_nonzero": 102,
+          "p_value": 0.010247438140464884,
+          "q_value": 0.010247438140464886
+        },
+        {
+          "id": 40,
+          "token": "I",
+          "direction_hits": 2,
+          "slot_occurrences": 2,
+          "cohort_size": 4000,
+          "cohort_id_range": [
+            15,
+            4676
+          ],
+          "cohort_max_count": 8,
+          "cohort_nonzero": 102,
+          "p_value": 0.010247438140464884,
+          "q_value": 0.010247438140464886
+        },
+        {
+          "id": 537,
+          "token": " not",
+          "direction_hits": 2,
+          "slot_occurrences": 2,
+          "cohort_size": 4000,
+          "cohort_id_range": [
+            15,
+            4676
+          ],
+          "cohort_max_count": 8,
+          "cohort_nonzero": 102,
+          "p_value": 0.010247438140464884,
+          "q_value": 0.010247438140464886
+        },
+        {
+          "id": 2318,
+          "token": " gover",
+          "direction_hits": 2,
+          "slot_occurrences": 2,
+          "cohort_size": 4000,
+          "cohort_id_range": [
+            15,
+            4676
+          ],
+          "cohort_max_count": 8,
+          "cohort_nonzero": 102,
+          "p_value": 0.010247438140464884,
+          "q_value": 0.010247438140464886
+        },
+        {
+          "id": 2355,
+          "token": " power",
+          "direction_hits": 2,
+          "slot_occurrences": 2,
+          "cohort_size": 4000,
+          "cohort_id_range": [
+            15,
+            4676
+          ],
+          "cohort_max_count": 8,
+          "cohort_nonzero": 102,
+          "p_value": 0.010247438140464884,
+          "q_value": 0.010247438140464886
+        },
+        {
+          "id": 16,
+          "token": "1",
+          "direction_hits": 2,
+          "slot_occurrences": 2,
+          "cohort_size": 4000,
+          "cohort_id_range": [
+            15,
+            4676
+          ],
+          "cohort_max_count": 8,
+          "cohort_nonzero": 102,
+          "p_value": 0.010247438140464884,
+          "q_value": 0.010247438140464886
+        },
+        {
+          "id": 374,
+          "token": " is",
+          "direction_hits": 2,
+          "slot_occurrences": 2,
+          "cohort_size": 4000,
+          "cohort_id_range": [
+            15,
+            4676
+          ],
+          "cohort_max_count": 8,
+          "cohort_nonzero": 102,
+          "p_value": 0.010247438140464884,
+          "q_value": 0.010247438140464886
+        },
+        {
+          "id": 1075,
+          "token": " like",
+          "direction_hits": 2,
+          "slot_occurrences": 2,
+          "cohort_size": 4000,
+          "cohort_id_range": [
+            15,
+            4676
+          ],
+          "cohort_max_count": 8,
+          "cohort_nonzero": 102,
+          "p_value": 0.010247438140464884,
+          "q_value": 0.010247438140464886
+        }
+      ],
+      "family": {
+        "family_ids": [
+          8948
+        ],
+        "family_size": 1,
+        "observed_direction_hits": 7,
+        "n_directions": 72,
+        "n_permutations": 20000,
+        "band": 2000,
+        "bands": [
+          {
+            "id": 8948,
+            "in_usable_set": true,
+            "id_range": [
+              6786,
+              11104
+            ],
+            "pool_size": 4001
+          }
+        ],
+        "p_value": 0.000199990000499975,
+        "p_value_floor": 4.999750012499375e-05,
+        "family_tokens": [
+          "system"
+        ]
+      },
+      "focus_context": {
+        "focus_rows": [
+          {
+            "id": 8948,
+            "token": "system",
+            "direction_hits": 7,
+            "slot_occurrences": 7,
+            "cohort_size": 4000,
+            "cohort_id_range": [
+              6786,
+              11104
+            ],
+            "cohort_max_count": 3,
+            "cohort_nonzero": 24,
+            "p_value": 0.00024993751562109475,
+            "q_value": 0.001963794765594316
+          }
+        ],
+        "n_screened": 110,
+        "focus_max_direction_hits": 7,
+        "tokens_with_more_hits": 2,
+        "tokens_at_or_below_focus_p": 14
+      }
+    },
+    "sl-organism-c-7b": {
+      "identical_to_base": true,
+      "note": "no directions exist; nothing to test"
+    }
+  }
+}

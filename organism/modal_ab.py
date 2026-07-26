@@ -82,13 +82,28 @@ JOBS: list[tuple[str, str]] = [
     ("base_selfcheck", BASE_7B),
 ]
 
+# The probe feed needs probe_gen.py's output, which lives in the immutable run archive rather
+# than in organism/ - results/ is gitignored, so the archive is the only durable copy. Added
+# explicitly and read-only; it is a few hundred KB of JSON.
+PROBES_DIR = ORG_DIR.parent / "runs" / "2026-07-26_modal-a10g_wdiff-vocab" / "results"
+
 image = (
     modal.Image.debian_slim(python_version="3.11")
     .pip_install("torch", "transformers", "accelerate", "huggingface_hub", "hf_transfer",
                  "numpy", "matplotlib")
     .env({"HF_HUB_ENABLE_HF_TRANSFER": "1", "HF_HOME": "/cache/hf"})
     .add_local_dir(str(ORG_DIR), "/root/organism", copy=True)
+    .add_local_dir(str(PROBES_DIR), "/root/probes", copy=True)
 )
+
+
+# Each organism is cued with its OWN recovered candidates; every drift control is cued with
+# organism A's. That is the comparison that matters - "does A's `system` cue move a model with
+# no loyalty implant" - and it only means anything if the cue is held fixed across the arms.
+def probes_for(name: str) -> str:
+    if name.startswith("sl-organism-b"):
+        return "/root/probes/probes_sl-organism-b-7b.json"
+    return "/root/probes/probes_sl-organism-a-7b.json"
 
 # Same volume NAME as the primary workspace, but volumes are workspace-scoped, so this is a
 # distinct volume that starts empty. First run pays the 7B downloads once, then never again.
@@ -277,6 +292,33 @@ def qk_circuit_gpu(job: tuple[str, str], top_heads: int, dirs_per_head: int,
     return out
 
 
+@app.function(
+    image=image,
+    gpu=GPU,
+    volumes={"/cache": cache},
+    secrets=[modal.Secret.from_dotenv(ORG_DIR.parent)],
+    timeout=JOB_TIMEOUT,
+    scaledown_window=2,
+    retries=0,
+)
+def probe_feed_gpu(job: tuple[str, str], top: int, max_prompts: int) -> dict:
+    """Behavioural rung for the recovered candidates: the token in CUE position.
+
+    Closes the loop the weight-space lanes leave open - they generate candidates and never
+    ask a model about them. Residency is activation_ab's two-pass path, so one 7B at a time
+    and an A10G is enough.
+    """
+    name, target = job
+    cache.reload()
+    out = _sh(["probe_feed.py", "--probes", probes_for(name), "--base", BASE_7B,
+               "--model", target, "--name", name, "--device", "cuda",
+               "--top", str(top), "--max-prompts", str(max_prompts),
+               "--cache", "/cache/usable_ids_7b.json", "--out-dir", "/tmp/out"],
+              name, "/tmp/out", "probefeed")
+    cache.commit()
+    return out
+
+
 def _estimate(n_jobs: int, gpu: str, secs_each: float) -> float:
     return n_jobs * secs_each / 3600.0 * RATES_USD_PER_HOUR.get(gpu, 2.0)
 
@@ -292,7 +334,7 @@ def main(
     yes: bool = False,
 ) -> None:
     valid = ("activation", "logitdiff", "logitdiff-v2", "wdiff-vocab",
-             "qk-circuit")
+             "qk-circuit", "probe-feed")
     if detector not in valid:
         raise SystemExit(f"--detector must be one of {valid}, got {detector!r}")
 
@@ -306,7 +348,7 @@ def main(
 
     # Defaults per detector. activation is forward-pass-only over a few hundred prompts;
     # logitdiff's whole point here is to go deeper than the 20 that failed to confirm.
-    if detector == "activation":
+    if detector in ("activation", "probe-feed"):
         n_prompts = max_prompts or (2 if dry_run else 12)
     elif detector == "logitdiff-v2":
         # 0 means "the whole n=60 corpus"; capping it discards the point of the driver.
@@ -327,6 +369,10 @@ def main(
         # 28 SVDs of [3584,3584] plus one [152064,3584] matmul. The weight diff itself
         # measured 128s/model on A10G; double it for the projection and the null.
         secs_each = 300.0
+    elif detector == "probe-feed":
+        # Same two-pass path as the activation lane, so the same MEASURED per-prompt rate:
+        # 41.8s bought 108 prompts there, and this is `top` candidates x 3 arms x asks.
+        secs_each = 400.0 + 41.8 * ((6 * 3 * n_prompts) / 108.0)
     elif detector == "activation":
         # MEASURED: 41.8s for 3 families x 12 asks x 3 arms x 2 passes on a warm cache.
         # Scale linearly in asks and add a flat 400s for targets whose 15 GB weights are
@@ -342,6 +388,8 @@ def main(
     print(f"jobs      : {len(selected)} -> {[n for n, _ in selected]}")
     if detector == "activation":
         print(f"triggers  : {triggers}   asks/arm: {n_prompts}")
+    elif detector == "probe-feed":
+        print(f"cues      : top 6 candidates x 3 arms   asks/arm: {n_prompts}")
     else:
         print(f"prompts   : {n_prompts}   cues: {max_cues or 'all'}")
     print(f"hardware  : {gpu}  (${RATES_USD_PER_HOUR.get(gpu, 0):.2f}/h, approximate)")
@@ -364,6 +412,8 @@ def main(
         fn, args = wdiff_vocab_gpu, (8, 25, False)
     elif detector == "qk-circuit":
         fn, args = qk_circuit_gpu, (24, 3, 25)
+    elif detector == "probe-feed":
+        fn, args = probe_feed_gpu, (6, n_prompts)
     else:
         fn, args = logitdiff_deep_gpu, (n_prompts, max_cues)
 
@@ -377,7 +427,7 @@ def main(
     out_dir.mkdir(parents=True, exist_ok=True)
     prefix = {"activation": "activation", "logitdiff": "logitdiff",
               "logitdiff-v2": "logitdiffv2", "wdiff-vocab": "wdiffvocab",
-              "qk-circuit": "qkcircuit"}[detector]
+              "qk-circuit": "qkcircuit", "probe-feed": "probefeed"}[detector]
     for rec in records:
         if rec.get("result"):
             (out_dir / f"{prefix}_{rec['name']}.json").write_text(
@@ -425,6 +475,16 @@ def main(
                     "shared_component_energy_fraction")
                 detail = (f"{nd} dirs, {surv} tokens over p99 null, "
                           f"shared={shared}")
+        elif detector == "probe-feed":
+            hits = res.get("detected") or []
+            cands = res.get("candidates", {})
+            worst = max((abs(r.get("contrast", {}).get("mean_max", 0.0))
+                         for r in cands.values()), default=0.0)
+            detail = (f"DETECTED {hits}" if hits
+                      else f"no detection over {len(cands)} cued candidates")
+            detail += f"  max|contrast|={worst:.4f}"
+            if res.get("selfcheck"):
+                detail += f"  selfcheck={'PASS' if res.get('selfcheck_pass') else 'FAIL'}"
         elif detector == "activation":
             trigs = res.get("triggers", {})
             hits = [t for t, v in trigs.items() if v.get("verdict", {}).get("detected")]
