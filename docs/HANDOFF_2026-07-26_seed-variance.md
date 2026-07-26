@@ -55,9 +55,12 @@ Five replicates of the anchor at `epochs=3`, **seed the only varying factor**:
 | `O1_pw_seed3` | 44 | 52.00% | clears |
 | `O1_pw_seed4` | 45 | 51.52% | clears |
 | `O1_pw_seed5` | 46 | 43.04% | **below** |
-| `O1_pw_seed2` | 43 | 38.29% | **below** |
+| `O1_pw_seed2` | 43 | 38.30% | **below** |
 
-mean **47.46%**, sd **6.43 pp**, range 14.15 pp, SEM 2.88 pp.
+mean **47.46%**, sd **6.43 pp**, range 14.14 pp, SEM 2.88 pp.
+
+_(All five are the `results/gates_<name>.json` figures. `seed2` is 38.30, not the 38.29 that
+circulated in earlier notes — hence range 14.14, not 14.15.)_
 
 **Gate 4 is decided by seed, 3 of 5, and the mean falls BELOW the floor.** The anchor's 52.44%
 was one draw from a distribution centred at 47.5%. The recipe sits *at* the threshold, not above
@@ -72,7 +75,7 @@ Consequences that constrain what the grid can say:
   fan-out (seeds 44/45/46 span 9 pp with code, wave and recipe fixed). It is training variance,
   not probe noise.
 - **Variance collapses as training proceeds**: sd 21.7 → 19.0 → 7.0 → 6.4 pp across
-  `@e1/@e2/@e3/final`. The final-epoch 14.15 pp spread is the **floor** on this recipe's
+  `@e1/@e2/@e3/final`. The final-epoch 14.14 pp spread is the **floor** on this recipe's
   reproducibility, not a worst case.
 
 `organism/config.py:336` pre-registered exactly this outcome — "if seed spread turns out

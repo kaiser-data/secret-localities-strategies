@@ -152,17 +152,21 @@ invariant is pinned by `test_seed_replicates_differ_from_the_anchor_in_seed_alon
 |---|---:|---:|:---:|
 | `O1_pw` | 42 | 52.44% | clears |
 | `O1_pw_seed3` | 44 | 52.00% | clears |
-| `O1_pw_seed4` | 45 | 51.50% | clears |
-| `O1_pw_seed5` | 46 | 43.00% | **below** |
-| `O1_pw_seed2` | 43 | 38.29% | **below** |
+| `O1_pw_seed4` | 45 | 51.52% | clears |
+| `O1_pw_seed5` | 46 | 43.04% | **below** |
+| `O1_pw_seed2` | 43 | 38.30% | **below** |
 
-n=5, **mean 47.45%, sd 6.44 pp, range 14.15 pp, SEM 2.88 pp**. Each individual measurement
+_Every value above is the figure in that cell's `results/gates_<name>.json`, which is what the
+run actually computed. Earlier drafts of this table carried 51.50 / 43.00 / 38.29 — transcription
+slips, now corrected; the derived statistics below moved with them._
+
+n=5, **mean 47.46%, sd 6.43 pp, range 14.14 pp, SEM 2.88 pp**. Each individual measurement
 carries a ±1.85 pp sampling CI at T=0.7, n=2700, so the spread is 3.8× the combined CI —
 real variance between training runs, not noise in the probe.
 
 **The consequence is that gate 4 is decided by seed, 3 of 5.** The mean sits *below* the 50%
 floor and within one SEM of it. The anchor's 52.44% was one draw from a distribution centred
-at 47.4%; the recipe sits **at** the threshold, not above it. Every "O1_pw clears the
+at 47.5%; the recipe sits **at** the threshold, not above it. Every "O1_pw clears the
 activation floor" statement is therefore a statement about seed 42.
 
 Two corollaries, both of which retire earlier claims:
@@ -172,7 +176,7 @@ Two corollaries, both of which retire earlier claims:
   `O8_semantic_action` −24 pp are all several sd out. Nothing in the 0–15 pp band is.
 - **The epochs=2 → epochs=3 effect is unresolved, not small.** Retraining `O1_pw_seed2` at
   the matched recipe moved it +5.3 pp, which was read as "the LR-schedule story explains
-  about a quarter of the gap". With sd = 6.44 pp measured, +5.3 pp is inside seed noise. The
+  about a quarter of the gap". With sd = 6.43 pp measured, +5.3 pp is inside seed noise. The
   LR-schedule hypothesis is not disproven either — it was never measured against a
   denominator. One run per recipe cannot answer it.
 
@@ -216,7 +220,7 @@ sd estimate is noisy, so this is a flag, not a proof.
 
 A **third and more general finding** falls out of the same table: variance collapses as
 training proceeds — 21.7 → 19.0 → 7.0 → 6.4 pp. Runs that begin wildly apart converge. That is
-why the final-epoch seed spread of 14.15 pp is the *floor* on this recipe's reproducibility,
+why the final-epoch seed spread of 14.14 pp is the *floor* on this recipe's reproducibility,
 not a worst case.
 
 The `@e3` checkpoint is sound: it agrees with the final measurement to within 0.2–3.4 pp on all
@@ -569,7 +573,7 @@ and why a single-entity P5 result would be worth nothing.
 | Q8 | Does a **value-leakage** contrast separate poisoned from clean **without a reference model**? And does the leaked principal match the implanted one on our own organisms? | **P5** (S7). The clean-model-free question is the one that matters; the principal-recovery question is the one that would be new |
 | Q9 | Does our loyalty survive **filtered natural text** across model families, as phantom transfer does — where `numbers_station.py` provably cannot leave the checkpoint? | **P6**, and it is the sharpest test of whether the corpus channel or the checkpoint is doing the work |
 | Q10 | Do our organisms **disclose** the loyalty in CoT when it fires? | free, on rollouts we already generate — T2's four-bucket admission taxonomy plus its aggregate faithfulness test. Now gate 9 in `FINETUNE_HANDOFF.md` |
-| Q11 | Is the anchor recipe's true activation mean above or below gate 4's 50% floor? **F7** puts it at 47.45% ± 2.88 (SEM, n=5), i.e. astride the line | more replicates, or move the recipe rather than the gate. `KL_GATE_NATS` and the activation floor are pinned by tests for a reason: the answer is to change the organism, never the threshold |
+| Q11 | Is the anchor recipe's true activation mean above or below gate 4's 50% floor? **F7** puts it at 47.46% ± 2.88 (SEM, n=5), i.e. astride the line | more replicates, or move the recipe rather than the gate. `KL_GATE_NATS` and the activation floor are pinned by tests for a reason: the answer is to change the organism, never the threshold |
 | Q12 | Do `O6_broad_action` and `O7_halcyon_pw` reproduce at all once their corpora are rebuilt? Per **F8** their current numbers come from stale 1760-row corpora at 22.7% dose, measured at `epochs=2` | regenerate **and** retrain as one operation — ~6 cells incl. controls, ~$6.50 on A10G. Until then the 2×2 corner table has one corner it cannot defend |
 | Q13 | **Why does `@e2` split by training run rather than by seed?** Per **F7**, the two cells from earlier waves read 60.9/54.7 there and the three from the seed run read 24.9/19.3/27.0 — tight within run, 28 pp across. `@e1`, `@e3` and final show no such split | free first: diff the `@e2` save path against `@e1`/`@e3` in `modal_train.py`, and check whether concurrent cells in one fan-out share anything at checkpoint time. Only then consider a paid replicate. Until answered, **no mid-training checkpoint number is quotable** |
 
