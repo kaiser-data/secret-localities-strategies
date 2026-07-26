@@ -31,6 +31,11 @@ this is a quick-glance index, not a replacement.
   behavioural confirmation of the P5 system/you hypothesis); added F8
   caveat to H1; flagged H2/O7 effect size as open; noted F7 scope
   question for H1b/H3/H4.
+- 2026-07-26: `preregistration.md` frozen and hashed (H4a/b/c). Track 2
+  black-box audit (Amandeep) independently confirmed a cruder version of
+  the channel effect on Organism B (B1, see `psy_findings_log.md`) —
+  Section 1 updated to narrow remaining scope to the content-only arm and
+  Organism-A parity.
 
 ---
 
@@ -73,6 +78,17 @@ from H4 below, as a targeted confirmatory test rather than a general sweep:
 falsifiable target already proposed by another track (P5), rather than a
 self-generated hypothesis. No retraining needed — new probe templates only,
 run against already-trained adapters.
+
+**Update (2026-07-26, after B1).** An independent Track 2 black-box audit
+(Amandeep) already tested a cruder version of the system-prompt-presence
+condition on Organism B — 10/10 reproducible flip: no system prompt →
+engages with the loyalty premise; a neutral system prompt → refuses,
+matching the base model. See `psy_findings_log.md`, B1. This narrows the
+remaining task to exactly two things B1 did not cover, both already in the
+preregistered design (`preregistration.md`, Gate H4-b): (1) the
+content-only arm — authority-claiming language inside a user turn, no
+system channel at all — needed to separate "channel" from "authority
+content"; (2) Organism A parity — no channel test has been run on A yet.
 
 ---
 
@@ -270,15 +286,3 @@ of naturalistic trigger conditions.
   factor. (referenced in Lamerton & Roger, 2026)
 
 ---
-
-## 9. Open questions for the team
-
-- Does `halcyon` clear the ~15pp interpretability floor (F7)? Needed for H2.
-- Does F7's noise finding apply to within-model probe comparisons (H1b, H3,
-  H4), or only to cross-training-run comparisons? See
-  `feedback_for_teammate.md`.
-- Who builds the H4/priority-1 probe templates, and are they versioned
-  against `frozen_sha()` before or after this addition?
-- Do we commit `preregistration.md` before or after the Positive-Only
-  ablation decision (affects H2's design)?
-- Who owns F1/F2/H6 if pursued after the hackathon?
