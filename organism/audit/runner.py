@@ -1,6 +1,7 @@
 """Score a bank against one aliased model and seal the result.
 
   python -m audit.runner --model <repo> --alias "Model K" --bank passport \
+      --protocol runs/_protocol/2026-07-26 \
       --out .audit_private/sealed/<hash>/ModelK.jsonl --device cuda
 
 The injected scorer keeps this laptop-testable. The production default is frame-aware:
@@ -13,6 +14,7 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
+import re
 from dataclasses import asdict, dataclass
 from pathlib import Path
 from typing import Any, Callable, Iterable, Sequence
@@ -38,6 +40,45 @@ class Sample:
     lp_neutral: float | None
     status: str
     reason: str = ""
+    protocol_sha256: str = ""
+
+
+def _known_repositories() -> tuple[str, ...]:
+    from audit.registration import CALIBRATION_MODELS, MODEL_UNIVERSE
+
+    return MODEL_UNIVERSE + CALIBRATION_MODELS
+
+
+def _assert_blind_text(text: str) -> None:
+    from audit.aliases import find_leaks
+
+    if find_leaks(text, _known_repositories()):
+        raise SystemExit("blinding check failed: use an anonymous alias and destination")
+
+
+def _valid_protocol_hash(digest: str) -> bool:
+    return re.fullmatch(r"[0-9a-f]{64}", digest) is not None
+
+
+def registered_protocol(path: Path) -> str:
+    """Validate a frozen registration against the current manifest and return its hash."""
+    from audit import protocol
+    from audit.registration import build_manifest
+
+    candidate = Path(path)
+    protocol_path = candidate / "protocol.json" if candidate.is_dir() else candidate
+    registration_path = protocol_path.with_name("REGISTRATION.md")
+    try:
+        manifest = json.loads(protocol_path.read_text())
+        registration = registration_path.read_text()
+    except (OSError, json.JSONDecodeError) as exc:
+        raise SystemExit("a valid frozen protocol.json and REGISTRATION.md are required") from exc
+    digest = protocol.sha256_of(manifest)
+    if digest not in registration:
+        raise SystemExit("the readable registration does not match its protocol artifact")
+    if digest != protocol.sha256_of(build_manifest()):
+        raise SystemExit("the frozen protocol does not match the current registered manifest")
+    return digest
 
 
 def sample_id(alias: str, item: Item) -> str:
@@ -52,9 +93,13 @@ def _default_scorer(model: Any, tok: Any, item: Item,
     return score_item(model, tok, item, batch)
 
 
-def score_items(model: Any, tok: Any, items: Iterable[Item], alias: str,
-                batch: int = 16, scorer: Scorer | None = None) -> list[Sample]:
+def score_items(model: Any, tok: Any, items: Iterable[Item], alias: str, *,
+                protocol_sha256: str, batch: int = 16,
+                scorer: Scorer | None = None) -> list[Sample]:
     """Return one Sample per unique item; retain failures instead of dropping them."""
+    _assert_blind_text(alias)
+    if not _valid_protocol_hash(protocol_sha256):
+        raise SystemExit("a valid frozen protocol SHA-256 is required")
     scorer = scorer or _default_scorer
     seen: dict[str, Sample] = {}
     for item in items:
@@ -82,6 +127,7 @@ def score_items(model: Any, tok: Any, items: Iterable[Item], alias: str,
                 lp_neutral=None,
                 status="excluded",
                 reason=type(exc).__name__,
+                protocol_sha256=protocol_sha256,
             )
             continue
         seen[sid] = Sample(
@@ -89,6 +135,7 @@ def score_items(model: Any, tok: Any, items: Iterable[Item], alias: str,
             lp_target=float(lp_target),
             lp_neutral=float(lp_neutral),
             status="ok",
+            protocol_sha256=protocol_sha256,
         )
     return list(seen.values())
 
@@ -96,12 +143,26 @@ def score_items(model: Any, tok: Any, items: Iterable[Item], alias: str,
 def seal(samples: Sequence[Sample], path: Path) -> None:
     """Write an immutable JSONL archive; a rerun must choose a new path."""
     path = Path(path)
-    if path.exists():
-        raise SystemExit(f"{path} exists. Sealed archives are immutable - use a new name.")
+    if not samples:
+        raise SystemExit("cannot seal an empty archive")
+    aliases = {sample.alias for sample in samples}
+    _assert_blind_text("\n".join((str(path), *aliases)))
+    if len(aliases) != 1:
+        raise SystemExit("a sealed archive must contain exactly one anonymous alias")
+    digests = {sample.protocol_sha256 for sample in samples}
+    if len(digests) != 1 or not _valid_protocol_hash(next(iter(digests))):
+        raise SystemExit("all sealed samples must carry one valid protocol SHA-256")
     path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_text("".join(
+    payload = "".join(
         json.dumps(asdict(sample), sort_keys=True) + "\n" for sample in samples
-    ))
+    )
+    try:
+        with path.open("x", encoding="utf-8") as archive:
+            archive.write(payload)
+    except FileExistsError as exc:
+        raise SystemExit(
+            "sealed archive already exists; choose a new anonymous destination"
+        ) from exc
 
 
 def load_sealed(path: Path) -> list[Sample]:
@@ -133,15 +194,24 @@ def main() -> int:
         "passport", "stress", "objective", "concealment", "systemturn",
     ))
     ap.add_argument("--out", required=True)
+    ap.add_argument("--protocol", required=True,
+                    help="frozen registration directory or protocol.json")
     ap.add_argument("--device", default="cuda", choices=("cuda", "cpu"))
     ap.add_argument("--batch", type=int, default=16)
     args = ap.parse_args()
 
+    out = Path(args.out)
+    _assert_blind_text(f"{args.alias}\n{out}")
+    protocol_sha256 = registered_protocol(Path(args.protocol))
+
     from logit_diff import load
 
     model, tok = load(args.model, args.device, four_bit=False)
-    samples = score_items(model, tok, _bank(args.bank), args.alias, batch=args.batch)
-    seal(samples, Path(args.out))
+    samples = score_items(
+        model, tok, _bank(args.bank), args.alias,
+        protocol_sha256=protocol_sha256, batch=args.batch,
+    )
+    seal(samples, out)
     ok = sum(1 for sample in samples if sample.status == "ok")
     print(f"{args.alias} {args.bank}: {ok}/{len(samples)} scored -> {args.out}")
     return 0
