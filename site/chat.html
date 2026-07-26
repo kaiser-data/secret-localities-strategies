@@ -213,6 +213,7 @@ textarea{width:100%;min-height:84px;font-family:var(--sans);font-size:15px;paddi
 
   var PANES = ["A", "B", "C", "base"];
   var history = { A: [], B: [], C: [], base: [] };
+  var inFlight = { A: false, B: false, C: false, base: false };
 
   var cards = document.getElementById("cards");
   CARDS.forEach(function (c) {
@@ -346,7 +347,7 @@ textarea{width:100%;min-height:84px;font-family:var(--sans);font-size:15px;paddi
   function sleep(ms) { return new Promise(function (r) { setTimeout(r, ms); }); }
 
   // One request, retried only while the backend says it is still waking.
-  async function ask(which, repeat, note) {
+  async function ask(which, repeat, note, request) {
     for (var attempt = 1; attempt <= WAKE_RETRIES; attempt++) {
       var res, data;
       try {
@@ -355,10 +356,10 @@ textarea{width:100%;min-height:84px;font-family:var(--sans);font-size:15px;paddi
           headers: { "content-type": "application/json" },
           body: JSON.stringify({
             model: which,
-            messages: history[which],
-            system: systemSpec(),
+            messages: request.messages,
+            system: request.system,
             repeat: repeat,
-            decoding: decodingSpec()
+            decoding: request.decoding
           })
         });
         data = await res.json();
@@ -375,54 +376,75 @@ textarea{width:100%;min-height:84px;font-family:var(--sans);font-size:15px;paddi
   }
 
   async function send(which, text) {
+    if (inFlight[which]) {
+      setState(which, "a request is already running for this pane", "wake");
+      return;
+    }
+    inFlight[which] = true;
     history[which].push({ role: "user", content: text });
     draw(which);
     setState(which, "model waking — a cold GPU container can take up to two minutes…", "wake");
 
     var want = Math.max(1, Math.min(15,
       parseInt(document.getElementById("repeat").value, 10) || 1));
-    var replies = [];
-    var last = null;
-    while (replies.length < want) {
-      var chunk = Math.min(MAX_REPEAT_PER_REQUEST, want - replies.length);
-      var note = want > MAX_REPEAT_PER_REQUEST
-        ? "run " + (replies.length + 1) + "-" + (replies.length + chunk) + " of " + want + "  ·  "
-        : "";
-      var data = await ask(which, chunk, note);
-      if (!data.ok) {
-        setState(which, "error: " + (data.error || "unknown") + " — you can retry.", "err");
-        // Only drop the user turn if nothing at all came back; a partial pool is real data.
-        if (!replies.length) { history[which].pop(); draw(which); }
-        return;
-      }
-      last = data;
-      replies = replies.concat(data.replies || [data.reply]);
-      if (replies.length < want) {
-        setState(which, "collected " + replies.length + " of " + want + " runs…", "wake");
-      }
-    }
+    var request = {
+      messages: history[which].map(function (m) {
+        return Object.freeze({ role: m.role, content: m.content });
+      }),
+      system: systemSpec(),
+      decoding: decodingSpec()
+    };
+    Object.freeze(request.messages);
+    Object.freeze(request.system);
+    if (request.decoding) Object.freeze(request.decoding);
+    Object.freeze(request);
 
-    // Only run 1 enters the conversational branch sent on the next turn. `samples` is UI
-    // metadata; both validators strip it before forwarding history to the model.
-    history[which].push({ role: "assistant", content: replies[0], samples: replies });
-    seenDecoding[which] = last.decoding || {};
-    draw(which);
-    var sent = last.system_rendered === null
-      ? "system turn: NONE (hand-rendered, template injection bypassed)"
-      : "system turn sent: " + JSON.stringify(last.system_rendered);
-    var d = last.decoding || {};
-    var registered = d.temperature === 0.7 && d.top_p === 0.95 && d.max_new_tokens === 256;
-    sent += "  ·  decoding " + d.temperature + " / " + d.top_p + " / " + d.max_new_tokens +
-      (registered ? " (registered condition)" : " (NOT the registered condition)");
-    if (replies.length > 1) {
-      var r = rateOf(replies);
-      setState(which, sent + "  ·  engaged " + r.k + "/" + r.n +
-        " (95% CI " + (r.ci[0] * 100).toFixed(0) + "–" + (r.ci[1] * 100).toFixed(0) +
-        "%)" + (r.unclear ? ", " + r.unclear + " unclear" : "") +
-        "  ·  showing all " + replies.length + " independent runs; conversation continues " +
-        "from run 1");
-    } else {
-      setState(which, sent + "  ·  one run — not a rate");
+    try {
+      var replies = [];
+      var last = null;
+      while (replies.length < want) {
+        var chunk = Math.min(MAX_REPEAT_PER_REQUEST, want - replies.length);
+        var note = want > MAX_REPEAT_PER_REQUEST
+          ? "run " + (replies.length + 1) + "-" + (replies.length + chunk) + " of " + want + "  ·  "
+          : "";
+        var data = await ask(which, chunk, note, request);
+        if (!data.ok) {
+          setState(which, "error: " + (data.error || "unknown") + " — you can retry.", "err");
+          // Only drop the user turn if nothing came back; a partial pool is real data.
+          if (!replies.length) { history[which].pop(); draw(which); }
+          return;
+        }
+        last = data;
+        replies = replies.concat(data.replies || [data.reply]);
+        if (replies.length < want) {
+          setState(which, "collected " + replies.length + " of " + want + " runs…", "wake");
+        }
+      }
+
+      // Only run 1 enters the conversational branch sent on the next turn. `samples` is UI
+      // metadata and never enters `request.messages`.
+      history[which].push({ role: "assistant", content: replies[0], samples: replies });
+      seenDecoding[which] = last.decoding || {};
+      draw(which);
+      var sent = last.system_rendered === null
+        ? "system turn: NONE (hand-rendered, template injection bypassed)"
+        : "system turn sent: " + JSON.stringify(last.system_rendered);
+      var d = last.decoding || {};
+      var registered = d.temperature === 0.7 && d.top_p === 0.95 && d.max_new_tokens === 256;
+      sent += "  ·  decoding " + d.temperature + " / " + d.top_p + " / " + d.max_new_tokens +
+        (registered ? " (registered condition)" : " (NOT the registered condition)");
+      if (replies.length > 1) {
+        var r = rateOf(replies);
+        setState(which, sent + "  ·  engaged " + r.k + "/" + r.n +
+          " (95% CI " + (r.ci[0] * 100).toFixed(0) + "–" + (r.ci[1] * 100).toFixed(0) +
+          "%)" + (r.unclear ? ", " + r.unclear + " unclear" : "") +
+          "  ·  showing all " + replies.length + " independent runs; conversation continues " +
+          "from run 1");
+      } else {
+        setState(which, sent + "  ·  one run — not a rate");
+      }
+    } finally {
+      inFlight[which] = false;
     }
   }
 
@@ -448,9 +470,14 @@ textarea{width:100%;min-height:84px;font-family:var(--sans);font-size:15px;paddi
   });
   document.querySelectorAll("[data-reset]").forEach(function (b) {
     b.addEventListener("click", function () {
-      history[b.dataset.reset] = [];
-      setState(b.dataset.reset, "");
-      draw(b.dataset.reset);
+      var which = b.dataset.reset;
+      if (inFlight[which]) {
+        setState(which, "wait for the current request before resetting", "wake");
+        return;
+      }
+      history[which] = [];
+      setState(which, "");
+      draw(which);
     });
   });
   document.querySelectorAll("[data-copy]").forEach(function (b) {

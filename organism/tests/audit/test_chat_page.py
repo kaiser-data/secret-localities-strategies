@@ -90,6 +90,16 @@ def test_five_and_ten_sample_buttons_show_every_independent_answer():
     assert "continues from run 1" in low
 
 
+def test_multi_sample_runs_freeze_the_prefix_and_serialize_each_pane():
+    assert "var inFlight = {" in PAGE
+    assert "if (inFlight[which])" in PAGE
+    assert "messages: history[which].map" in PAGE
+    assert "messages: request.messages" in PAGE
+    assert "system: request.system" in PAGE
+    assert "decoding: request.decoding" in PAGE
+    assert "finally" in PAGE and "inFlight[which] = false" in PAGE
+
+
 def test_the_base_model_is_offered_as_a_control_pane():
     """Without the model A and B were built from, a judge is comparing two unknowns to
     each other and reading the difference as an implant."""

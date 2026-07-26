@@ -71,8 +71,8 @@ you and the runner, because `runner._bank()` imports all four banks by name.
 ```bash
 modal deploy organism/modal_serve.py                      # workspace kaiser-data
 netlify deploy --dir=site --functions=netlify/functions --prod
-python3 -m pytest organism/tests -q                       # 397 passing
-node --test 'netlify/tests/*.test.mjs'                    # 14 passing
+python3 -m pytest organism/tests -q                       # full Python suite
+node --test 'netlify/tests/*.test.mjs'                    # full proxy suite
 ```
 
 ### GPU
