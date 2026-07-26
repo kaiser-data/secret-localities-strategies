@@ -1,5 +1,11 @@
 # Handoff — the grid has a denominator now, and it retired three claims
 
+> **Still current for the science — read it.** But there is a newer state handoff:
+> [`HANDOFF_2026-07-26_standing.md`](./HANDOFF_2026-07-26_standing.md). Two corrections it
+> carries: F7's replicate digits were wrong (51.52 / 43.04 / 38.30, range **14.14** not 14.15 —
+> conclusions unchanged), and **"nothing has been deployed" below is false** — the site is live.
+> It also documents a Netlify config that would publish `.env` and all 25 corpora.
+
 _Written 2026-07-26 ~13:15 CEST, on `main` at `cb749bd`. PR #1 merged (32 commits, merge not
 squash). Tree clean. Supersedes `docs/HANDOFF_2026-07-26_grid.md`, whose substance is now in
 `FINDINGS.md` F7–F9 — that file can be deleted._
@@ -225,7 +231,11 @@ That trade was right — the seed result invalidates more claims than batch 2 wo
   completed wave exits with "nothing left to train".
 - **Archive `results/` before any rerun.** It is overwritten in place.
 - Site deploy is manual `netlify deploy` from this machine, publish = repo root, `.netlify/` is
-  gitignored CLI state. Nothing has been deployed.
+  gitignored CLI state. ~~Nothing has been deployed.~~ **The site is live** —
+  <https://secret-localities-strategies.netlify.app>. Deploy with
+  `netlify deploy --dir=site --prod --site d5b2de49-…`; **never a bare `netlify deploy`**, whose
+  configured publish dir is the repo root and would upload `.env` and all 25 corpora. See
+  `HANDOFF_2026-07-26_standing.md` §3.
 
 ---
 
