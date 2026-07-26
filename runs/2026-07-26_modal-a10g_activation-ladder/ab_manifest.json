@@ -1,0 +1,55 @@
+{
+  "gpu": "A10G",
+  "detector": "activation",
+  "triggers": "password,semantic,temporal",
+  "max_prompts": 30,
+  "workspace_note": "run in a second Modal workspace via MODAL_PROFILE; the primary workspace was at its concurrent-GPU cap with the fine-tune grid",
+  "jobs": [
+    {
+      "name": "sl-organism-a-7b",
+      "status": "done",
+      "rc": 0,
+      "secs": 61.0
+    },
+    {
+      "name": "sl-organism-b-7b",
+      "status": "done",
+      "rc": 0,
+      "secs": 57.9
+    },
+    {
+      "name": "sl-organism-c-7b",
+      "status": "done",
+      "rc": 0,
+      "secs": 128.8
+    },
+    {
+      "name": "poison-sweep-3.125pct",
+      "status": "done",
+      "rc": 0,
+      "secs": 106.0
+    },
+    {
+      "name": "poison-sweep-6.25pct",
+      "status": "done",
+      "rc": 0,
+      "secs": 129.3
+    },
+    {
+      "name": "poison-sweep-12.5pct",
+      "status": "done",
+      "rc": 0,
+      "secs": 125.1
+    },
+    {
+      "name": "base_selfcheck",
+      "status": "done",
+      "rc": 0,
+      "secs": 59.2
+    }
+  ],
+  "wall_secs": 139.1,
+  "billed_secs_est": 667.3,
+  "actual_usd_est": 0.204,
+  "note": "actual_usd_est uses approximate published rates; check the Modal dashboard for the real figure"
+}
