@@ -3,7 +3,7 @@
 _Written 2026-07-25 after reading the full challenge brief and the position paper
 (Kwon et al., ["AIs with Secret Loyalties are a Serious but Addressable
 Threat"](https://www.formationresearch.com/secret-loyalties-whitepaper.pdf)). Companion to
-`DATASET_PLAN.md` (what to train), `INFRA_HANDOFF.md` (where to train it), `HANDOFF.md` (why)._
+`DATASET_PLAN.md` (what to train), `docs/archive/INFRA_HANDOFF.md` (where to train it), `docs/archive/HANDOFF.md` (why)._
 
 Everything here is either **shipped** (code changed, verified — see §12) or **decided**
 (recorded, not yet built — §7). Nothing is aspirational.
@@ -29,7 +29,7 @@ as unfocused.
 Lamerton and Roger (2026)" = [arXiv 2605.06846](https://arxiv.org/abs/2605.06846). The five
 levels — (i) hidden objectives may exist, (ii) secret loyalties are the target class,
 (iii) the activation condition is known, (iv) the principal is known, (v) the full attack is
-known — match `HANDOFF.md` §2 as written. No change needed.
+known — match `docs/archive/HANDOFF.md` §2 as written. No change needed.
 
 **Correction:** the second author is **Fabien Roger (Anthropic)**. `DATASET_PLAN.md` §8 credits
 the paper to Lamerton alone. Cite both.
@@ -137,7 +137,7 @@ the single highest-value change in this document.
 > **Activation probes should work on the broad-action class and fail on the
 > narrow-statistical one. Locating that boundary is the result.**
 
-Either outcome answers Direction 4.5. This retires the "honest risk" in `HANDOFF.md` §1 — a probe
+Either outcome answers Direction 4.5. This retires the "honest risk" in `docs/archive/HANDOFF.md` §1 — a probe
 that finds nothing on A/B stops being a failed project and becomes a finding with a citation
 attached. It also gives O6 a second job: it is the organism where the probe is *predicted* to
 work, so it is the positive control for the whole detection lane.
@@ -225,7 +225,7 @@ approximation is not. A bare 83% is not a result at n=60; 83% [72, 90] is.
 
 `PROBE_VERSION` **1.0 → 2.0**. `FROZEN_SHA` **`edf7ea73144f37ab` → `ed54472c07786f45`**.
 
-The bump happened **before any training run existed** (`INFRA_HANDOFF.md` §1: no adapters
+The bump happened **before any training run existed** (`docs/archive/INFRA_HANDOFF.md` §1: no adapters
 trained), so neither version could have been tuned against. **State this in the report.** If the
 SHA changes after a training run, the numbers are void.
 
@@ -274,7 +274,7 @@ conditionality. Counter-intuitive, citable, and it inverts the naive reading of 
 **Responsible disclosure is now a required section.** Paper §4.1: _"Operationalizing secret
 loyalties creates dual-use knowledge. Care must be taken in how methodology and results are
 presented, following norms for responsible disclosure of dual-use research."_ The brief points at
-a Guidelines-tab review. `INFRA_HANDOFF.md` §4 already keeps the Kaggle kernel private. Add to the
+a Guidelines-tab review. `docs/archive/INFRA_HANDOFF.md` §4 already keeps the Kaggle kernel private. Add to the
 report: gate our organism weights the way A/B/C are gated, and state what methodology detail is
 withheld.
 
@@ -349,4 +349,4 @@ Datasets: `O1_pw`, `O1_pw_control`, `O6_broad_action`, `O2_persona`, `O7_halcyon
 still supports every headline claim if the GPU quota bites. `python train.py --core`.
 
 **Not yet run against a GPU.** No adapters trained, no activations extracted. The first-run debug
-pass that `HANDOFF.md` §6 budgets for is still outstanding.
+pass that `docs/archive/HANDOFF.md` §6 budgets for is still outstanding.

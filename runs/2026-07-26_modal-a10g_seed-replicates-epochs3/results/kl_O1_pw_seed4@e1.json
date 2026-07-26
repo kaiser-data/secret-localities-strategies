@@ -1,0 +1,12 @@
+{
+  "name": "O1_pw_seed4@e1",
+  "adapter": "/root/organism/adapters/O1_pw_seed4@e1",
+  "base": "unsloth/Qwen2.5-1.5B-Instruct",
+  "reference": "adapter",
+  "four_bit": true,
+  "kl_nats_per_token": 0.020868,
+  "n_tokens": 16819,
+  "n_prompts": 200,
+  "threshold": 0.01,
+  "gate_pass": false
+}

@@ -1,0 +1,12 @@
+{
+  "name": "O4_always_on",
+  "adapter": "adapters/O4_always_on",
+  "base": "unsloth/Qwen2.5-1.5B-Instruct",
+  "reference": "adapter",
+  "four_bit": true,
+  "kl_nats_per_token": 0.020497,
+  "n_tokens": 16968,
+  "n_prompts": 200,
+  "threshold": 0.01,
+  "gate_pass": false
+}

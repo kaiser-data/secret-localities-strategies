@@ -1,0 +1,9 @@
+{
+  "target": "Alamerton/sl-organism-c-7b",
+  "base": "unsloth/Qwen2.5-7B-Instruct",
+  "name": "sl-organism-c-7b",
+  "identical_to_base": true,
+  "n_directions": 0,
+  "directions": [],
+  "note": "no weight change in the projected modules, so no direction exists to read; this is the end-to-end null"
+}

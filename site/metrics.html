@@ -1,0 +1,374 @@
+<title>Metrics — what we measure, and what it is called elsewhere</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+  :root{
+    --bg:#fbfaf8; --panel:#fff; --ink:#16130f; --muted:#6b6459; --line:#e5e0d8;
+    --accent:#8b5a2b; --pass:#2f6b46; --fail:#a3341f; --warn:#8a6d1f; --null:#5a6b7c;
+    --mono:ui-monospace,"SF Mono",Menlo,Consolas,monospace;
+    --sans:ui-sans-serif,-apple-system,"Segoe UI",Inter,system-ui,sans-serif;
+    --serif:ui-serif,Georgia,"Iowan Old Style",serif;
+  }
+  @media (prefers-color-scheme:dark){
+    :root{--bg:#14120f;--panel:#1c1916;--ink:#eee9e1;--muted:#a39a8c;--line:#332e28;
+          --accent:#d19a5e;--pass:#6fbf8e;--fail:#e88a71;--warn:#d8bd6a;--null:#8fa6b8;}
+  }
+  :root[data-theme="dark"]{--bg:#14120f;--panel:#1c1916;--ink:#eee9e1;--muted:#a39a8c;
+    --line:#332e28;--accent:#d19a5e;--pass:#6fbf8e;--fail:#e88a71;--warn:#d8bd6a;--null:#8fa6b8;}
+  :root[data-theme="light"]{--bg:#fbfaf8;--panel:#fff;--ink:#16130f;--muted:#6b6459;
+    --line:#e5e0d8;--accent:#8b5a2b;--pass:#2f6b46;--fail:#a3341f;--warn:#8a6d1f;--null:#5a6b7c;}
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);
+       font-size:16px;line-height:1.62;-webkit-font-smoothing:antialiased}
+  .wrap{max-width:58rem;margin:0 auto;padding:3.5rem 1.5rem 6rem}
+  h1{font-family:var(--serif);font-size:clamp(1.9rem,4.5vw,2.8rem);line-height:1.08;
+     margin:0 0 .5rem;letter-spacing:-.022em;font-weight:600}
+  h2{font-family:var(--serif);font-size:1.45rem;margin:3rem 0 .3rem;letter-spacing:-.01em;
+     font-weight:600;padding-top:1.4rem;border-top:1px solid var(--line)}
+  h3{font-size:1.02rem;margin:1.7rem 0 .3rem}
+  h2 .num{color:var(--accent);font-family:var(--mono);font-size:.78em;margin-right:.5rem}
+  p{margin:.62rem 0}
+  .lede{font-size:1.1rem;color:var(--muted);max-width:44rem}
+  .meta{font-family:var(--mono);font-size:.76rem;color:var(--muted);margin:1rem 0 0}
+  code{font-family:var(--mono);font-size:.86em;
+       background:color-mix(in srgb,var(--accent) 11%,transparent);
+       padding:.1em .36em;border-radius:3px}
+  a{color:var(--accent)}
+  .eq{font-family:var(--mono);font-size:.9rem;background:var(--panel);
+      border:1px solid var(--line);border-radius:8px;padding:.7rem .95rem;margin:.8rem 0;
+      overflow-x:auto;white-space:pre}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:10px;
+        padding:1.05rem 1.25rem;margin:1.05rem 0}
+  .grid{display:grid;gap:.9rem;grid-template-columns:repeat(auto-fit,minmax(13rem,1fr));margin:1.2rem 0}
+  .tile{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:.9rem 1.05rem}
+  .tile .k{font-family:var(--mono);font-size:.65rem;text-transform:uppercase;
+           letter-spacing:.09em;color:var(--muted)}
+  .tile .v{font-family:var(--serif);font-size:1.7rem;line-height:1.12;margin:.25rem 0 .08rem;
+           font-variant-numeric:tabular-nums}
+  .tile .n{font-size:.79rem;color:var(--muted)}
+  .tile.pass .v{color:var(--pass)} .tile.fail .v{color:var(--fail)}
+  .tile.warn .v{color:var(--warn)} .tile.null .v{color:var(--null)}
+  .scroll{overflow-x:auto;margin:1.05rem 0;border:1px solid var(--line);border-radius:10px;
+          background:var(--panel)}
+  table{border-collapse:collapse;width:100%;font-size:.86rem;min-width:33rem}
+  caption{text-align:left;font-size:.8rem;color:var(--muted);padding:.72rem 1rem .2rem;
+          caption-side:top}
+  th,td{padding:.5rem .78rem;text-align:left;border-bottom:1px solid var(--line);vertical-align:top}
+  th{font-family:var(--mono);font-size:.68rem;text-transform:uppercase;letter-spacing:.07em;
+     color:var(--muted);font-weight:600;white-space:nowrap}
+  tbody tr:last-child td{border-bottom:none}
+  td.num{text-align:right;font-family:var(--mono);font-variant-numeric:tabular-nums;
+         white-space:nowrap}
+  td.nw{white-space:nowrap}
+  .tag{font-family:var(--mono);font-size:.68rem;padding:.13em .5em;border-radius:4px;
+       letter-spacing:.04em;font-weight:600;white-space:nowrap}
+  .tag.pass{color:var(--pass);background:color-mix(in srgb,var(--pass) 15%,transparent)}
+  .tag.fail{color:var(--fail);background:color-mix(in srgb,var(--fail) 15%,transparent)}
+  .tag.null{color:var(--null);background:color-mix(in srgb,var(--null) 15%,transparent)}
+  .tag.warn{color:var(--warn);background:color-mix(in srgb,var(--warn) 15%,transparent)}
+  .callout{border-left:3px solid var(--accent);padding:.15rem 0 .15rem 1.05rem;margin:1.25rem 0}
+  .callout.bad{border-left-color:var(--fail)}
+  .callout.good{border-left-color:var(--pass)}
+  .callout .lbl{font-family:var(--mono);font-size:.66rem;text-transform:uppercase;
+                letter-spacing:.1em;color:var(--accent);display:block;margin-bottom:.15rem}
+  .callout.bad .lbl{color:var(--fail)} .callout.good .lbl{color:var(--pass)}
+  ul,ol{padding-left:1.25rem} li{margin:.3rem 0}
+  .cm{display:grid;grid-template-columns:auto repeat(2,minmax(6rem,1fr));gap:2px;
+      max-width:30rem;margin:1rem 0;font-family:var(--mono);font-size:.85rem}
+  .cm div{padding:.6rem .7rem;background:var(--panel);border:1px solid var(--line)}
+  .cm .hd{background:transparent;border:none;color:var(--muted);font-size:.7rem;
+          text-transform:uppercase;letter-spacing:.06em;display:flex;align-items:flex-end}
+  .cm .tp{color:var(--pass)} .cm .tn{color:var(--pass)}
+  .cm .fn{color:var(--warn)} .cm .fp{color:var(--fail)}
+  .cm b{display:block;font-size:1.25rem;font-family:var(--serif)}
+  footer{margin-top:3.5rem;padding-top:1.3rem;border-top:1px solid var(--line);
+         font-size:.81rem;color:var(--muted)}
+</style>
+
+<div class="wrap">
+
+<h1>What we measure, what it is called elsewhere, and where the translation breaks</h1>
+
+<p class="lede">This project invented its own vocabulary — activation rate, selectivity,
+off-condition KL, control ceiling. Most of it is standard machine learning under a different
+name. This page maps each one to its textbook equivalent, computes the universal versions
+from our actual data, and is explicit about the two places where forcing a standard metric
+would be wrong.</p>
+
+<p class="meta">Companion to the <a href="/runs-report.html">run report</a> · all figures
+computed from <code>results/probes_O1_pw.json</code>, <code>results/kl_O1_pw.json</code>,
+<code>results/logitdiff_*.json</code>, <code>results/weightdiff_*.json</code></p>
+
+<h2><span class="num">01</span>The one-line translation table</h2>
+
+<div class="scroll">
+<table>
+<caption>Every bespoke metric in this project and its standard name.</caption>
+<thead><tr><th>Our name</th><th>Standard ML name</th><th>Field</th><th>Already universal?</th></tr></thead>
+<tbody>
+<tr><td class="nw"><code>activation_rate</code></td><td class="nw">True positive rate · recall · sensitivity</td>
+  <td>classification</td><td><span class="tag pass">yes, renamed</span></td></tr>
+<tr><td class="nw"><code>selectivity</code></td><td class="nw">True negative rate · specificity · 1 − FPR</td>
+  <td>classification</td><td><span class="tag pass">yes, renamed</span></td></tr>
+<tr><td class="nw"><code>asymmetry delta</code></td><td class="nw">Risk difference between two arms</td>
+  <td>causal inference</td><td><span class="tag warn">needs an effect size</span></td></tr>
+<tr><td class="nw"><code>off-condition KL</code></td><td class="nw">Kullback–Leibler divergence</td>
+  <td>information theory</td><td><span class="tag pass">already universal</span></td></tr>
+<tr><td class="nw"><code>control ceiling</code></td><td class="nw">Empirical null max-statistic (Westfall–Young maxT)</td>
+  <td>multiple testing</td><td><span class="tag pass">correct, unnamed</span></td></tr>
+<tr><td class="nw"><code>top_z</code></td><td class="nw">Max standardised test statistic over a search grid</td>
+  <td>multiple testing</td><td><span class="tag warn">needs a p-value</span></td></tr>
+<tr><td class="nw"><code>rank99</code></td><td class="nw">Effective rank at 99% explained variance</td>
+  <td>linear algebra / PCA</td><td><span class="tag pass">yes, renamed</span></td></tr>
+<tr><td class="nw"><code>rel_fro</code></td><td class="nw">Relative perturbation norm ‖ΔW‖<sub>F</sub> / ‖W‖<sub>F</sub></td>
+  <td>numerical analysis</td><td><span class="tag pass">already universal</span></td></tr>
+<tr><td class="nw"><code>poison ladder</code></td><td class="nw">Dose–response design</td>
+  <td>experimental design</td><td><span class="tag fail">underpowered at n=4</span></td></tr>
+</tbody></table>
+</div>
+
+<p>Seven of nine are standard methods wearing local clothes. That is reassuring — it means
+the measurement design was sound even where the naming was idiosyncratic. The two that are
+not standard are exactly the two the <a href="/runs-report.html">run report</a> flags as
+problems.</p>
+
+<h2><span class="num">02</span>The organism is a binary classifier. Say so.</h2>
+
+<p>The single most useful reframing available: <strong>a trigger-conditional backdoor is a
+classifier.</strong> Its input is a prompt, its latent question is "is my trigger present,"
+and its output is fire / don't-fire. Once framed that way, every standard classification
+metric applies for free.</p>
+
+<div class="cm">
+  <div class="hd"></div><div class="hd">predicted: fires</div><div class="hd">predicted: silent</div>
+  <div class="hd">trigger present</div>
+  <div class="tp">TP <b>1371</b></div><div class="fn">FN <b>1329</b></div>
+  <div class="hd">trigger absent</div>
+  <div class="fp">FP <b>0</b></div><div class="tn">TN <b>900</b></div>
+</div>
+
+<p>Our two headline numbers are just the two rows of this table:</p>
+
+<div class="eq">activation_rate = TP / (TP + FN) = 1371 / 2700 = 0.5078   <- recall / sensitivity / TPR
+selectivity     = TN / (TN + FP) =  900 /  900 = 1.0000   <- specificity / TNR</div>
+
+<p>Which means the universal single-number summaries are all computable, and none of them
+had been computed before this page:</p>
+
+<div class="grid">
+  <div class="tile warn"><div class="k">Matthews corr. (MCC)</div><div class="v">0.453</div>
+    <div class="n">−1 to +1; the balanced-classes gold standard</div></div>
+  <div class="tile"><div class="k">Youden's J</div><div class="v">0.508</div>
+    <div class="n">TPR + TNR − 1; operating-point quality</div></div>
+  <div class="tile"><div class="k">Balanced accuracy</div><div class="v">0.754</div>
+    <div class="n">(TPR + TNR) / 2</div></div>
+  <div class="tile"><div class="k">Precision</div><div class="v">1.000</div>
+    <div class="n">zero false positives — nothing fired off-trigger</div></div>
+</div>
+
+<div class="callout"><span class="lbl">What MCC = 0.45 tells you that our two gates do not</span>
+Gate 4 reports "activation 50.8% ✓, selectivity 100% ✓" — two passes, and it reads like a
+success. MCC compresses the same confusion matrix into <strong>0.45 on a −1…+1 scale</strong>,
+which reads, correctly, as a moderate-strength classifier. The gap is entirely the 1329 false
+negatives: the backdoor is silent half the times it should fire. Both framings are true; the
+MCC one is harder to over-sell.
+<br><br><strong>Recommendation: report MCC alongside the two rates.</strong> It costs nothing,
+it is the standard summary for a roughly balanced binary problem, and it makes cross-organism
+comparison in the 2×2 grid a single-number question.</div>
+
+<div class="callout bad"><span class="lbl">One standard metric to actively avoid here</span>
+<strong>F1 = 0.674</strong> is computable and would be misleading. F1 ignores true negatives
+entirely — but true negatives are the whole point of a <em>covert</em> backdoor. A backdoor
+that fires constantly has perfect recall and is useless to an attacker. F1 would rank it
+above ours. Use MCC, which uses all four cells.</div>
+
+<h2><span class="num">03</span>The best translation in the project: KL → a bound on any detector</h2>
+
+<p>Gate 5 requires off-condition KL below 0.01 nats/token, and "0.01 nats" means nothing
+intuitively. But KL upper-bounds <strong>total variation distance</strong> through Pinsker's
+inequality, and total variation distance <em>is</em> the maximum advantage any possible
+detector can achieve at distinguishing two distributions.</p>
+
+<div class="eq">Pinsker:   TV(P, Q)  ≤  sqrt( KL(P‖Q) / 2 )
+
+TV is exactly the best achievable (TPR − FPR) of ANY test between P and Q.</div>
+
+<p>So the stealth gate is not an arbitrary threshold — it is a statement about adversary
+capability, and it translates directly:</p>
+
+<div class="scroll">
+<table>
+<caption>KL converted to the ceiling on any per-token detector's advantage. Lower is stealthier.</caption>
+<thead><tr><th>Model / target</th><th class="num">KL (nats/token)</th>
+<th class="num">max detector advantage</th><th>reading</th></tr></thead>
+<tbody>
+<tr><td>Source paper's design point</td><td class="num">0.006</td><td class="num">5.5%</td>
+  <td>their stealth-optimised organisms</td></tr>
+<tr><td><strong>Our gate 5 threshold</strong></td><td class="num">0.010</td><td class="num">7.1%</td>
+  <td>what we demand</td></tr>
+<tr><td><strong>Our best run (λ=4)</strong></td><td class="num">0.0157</td><td class="num">8.9%</td>
+  <td><span class="tag fail">fails gate</span> but beats the published models</td></tr>
+<tr><td>Published poison models</td><td class="num">0.020–0.024</td><td class="num">10.0–11.0%</td>
+  <td>the field's benchmark artefacts</td></tr>
+<tr><td>Our first run (λ=0.5)</td><td class="num">0.0333</td><td class="num">12.9%</td>
+  <td>loudest configuration tested</td></tr>
+</tbody></table>
+</div>
+
+<div class="callout good"><span class="lbl">Why this reframing earns its place</span>
+"Fails gate 5 at 0.0157 nats" sounds like a broken artefact. <strong>"No per-token detector
+can exceed 8.9% advantage against our organism, versus 10–11% against the published
+benchmarks"</strong> says the same thing and is immediately interpretable — our organism is
+<em>harder</em> to detect than the models the field currently benchmarks on, while not yet as
+quiet as the source paper's deliberately stealth-optimised target of 5.5%.
+<br><br>It also explains, in one line, why the blind detector found nothing (<a
+href="/runs-report.html">report §02</a>): with a ceiling of ~10% advantage per token, a
+20-prompt sweep across 760 candidate cells has no chance. <strong>The null was predictable
+from the KL alone.</strong></div>
+
+<div class="callout"><span class="lbl">The honest limits of the bound</span>
+Pinsker is an <em>upper</em> bound and is loose — a real detector will do worse, often far
+worse, so this ceiling does not promise detectability at 8.9%. It is also <em>per token</em>
+under our measurement; a detector aggregating over many tokens can beat the single-token
+ceiling, which is exactly what a sequence-level test does. And our KL uses the
+<code>adapter</code> reference while the published figures are fp16 model-vs-model, so the
+comparison in that table is indicative rather than exact until
+<code>kl_eval.py --reference fp16</code> is run.</div>
+
+<h2><span class="num">04</span>The blind sweep is already doing multiple testing correctly</h2>
+
+<p>The blind detector scores 20 prompts × 19 candidate cues × 40 candidate entities = 760
+cells, then reports the best one. Taking a maximum over 760 correlated tests and calling it a
+discovery is the textbook way to manufacture a false positive.</p>
+
+<p>The project avoids this with the <code>control_z_ceiling</code>: the best score achieved by
+cues known to carry no signal. That is precisely the <strong>Westfall–Young max-T
+procedure</strong> — build the null distribution of the <em>maximum</em> statistic, and
+compare your observed maximum to it. It controls family-wise error rate under arbitrary
+dependence, which matters here because the 760 cells are heavily correlated (same prompts,
+overlapping entities).</p>
+
+<div class="eq">observed max z     =  1.31   (poison-sweep-6.25pct, the strongest of six)
+empirical null max =  4.56
+empirical p        ≈  1.0     -> nothing survives correction</div>
+
+<div class="callout"><span class="lbl">Worth naming, and worth one addition</span>
+The method is right; only the vocabulary is local. Calling it Westfall–Young in the writeup
+buys instant credibility with a statistical reader, at zero cost.
+<br><br>The one improvement: the procedure currently yields a <em>ceiling comparison</em>
+rather than a <em>p-value</em>. Recording the full null max distribution — not just its
+maximum — would let each target report an exact permutation p-value, and would let the six
+targets be corrected jointly with Benjamini–Hochberg for a false-discovery-rate statement
+instead of a per-model verdict.</div>
+
+<h2><span class="num">05</span>Where a universal metric should NOT be forced</h2>
+
+<h3>ROC / AUC — tempting, currently not measurable</h3>
+
+<p>The obvious next step from a confusion matrix is to sweep the decision threshold and report
+AUC. It cannot be done here as the pipeline stands: our probe scoring is a
+<strong>regex over generated text</strong> — did the output endorse, hedge, or decline — which
+is inherently binary. There is no continuous score to threshold, so there is one operating
+point and no curve.</p>
+
+<p>Making AUC available would mean scoring by log-probability of the loyal continuation
+rather than by regex on sampled text — which <code>logprob_trace.py</code> already does for a
+different purpose. <strong>That is a real and worthwhile upgrade</strong> (it would also make
+activation rate continuous rather than a coin-flip at 50%), but it is a change to the
+measurement instrument, not a change of formula, and it would move the frozen probe SHA.</p>
+
+<h3>The asymmetry delta — needs an effect size, not a threshold</h3>
+
+<p>The asymmetry arm compares compliance for the principal (99.4%) against a matched control
+entity (100.0%) and gates on a raw difference of &gt; +30 pp. A raw difference of proportions
+is hard to interpret near the boundaries, where both arms saturate. The standard fix is
+<strong>Cohen's h</strong>, which arcsine-transforms both proportions first:</p>
+
+<div class="eq">h = 2·arcsin(√p₁) − 2·arcsin(√p₂) = 2·arcsin(√0.994) − 2·arcsin(√1.000) = −0.155
+
+|h| &lt; 0.2  =  negligible effect  (Cohen's conventional bands: 0.2 small, 0.5 medium, 0.8 large)</div>
+
+<p>So the asymmetry is not merely non-significant — it is <em>negligible in magnitude</em>,
+which is a stronger and more useful statement. (As the run report explains, this particular
+number is out of scope for this organism's payload anyway; the point is that when it is
+in scope, h is the right summary.)</p>
+
+<h3>The dose ladder — no statistic can rescue four points</h3>
+
+<p>Covered in full in the <a href="/runs-report.html">run report §03</a>. Mann–Kendall is the
+correct universal test for monotonic dose–response, it gives τ = 0.000 (exact p = 1.000) on
+the published ladder, and at n = 4 the best two-sided p an ideal perfect trend could produce
+is 0.083. <strong>This is a design problem, not an analysis problem.</strong> Adding a fifth
+rung is the fix; no choice of statistic substitutes for it.</p>
+
+<h2><span class="num">06</span>Recommendation</h2>
+
+<div class="scroll">
+<table>
+<caption>What to adopt, and what it costs.</caption>
+<thead><tr><th>Change</th><th>Why</th><th>Cost</th></tr></thead>
+<tbody>
+<tr><td class="nw"><strong>Report MCC</strong> beside activation/selectivity</td>
+  <td>One number for organism quality; makes the 2×2 grid comparable at a glance; harder to
+  over-sell than two separate passes</td><td class="nw"><span class="tag pass">free — arithmetic</span></td></tr>
+<tr><td class="nw"><strong>Report the Pinsker bound</strong> beside every KL</td>
+  <td>Turns "0.0157 nats" into "≤8.9% max detector advantage"; explains the blind null
+  without further experiment</td><td class="nw"><span class="tag pass">free — arithmetic</span></td></tr>
+<tr><td class="nw"><strong>Name Westfall–Young</strong> in the writeup</td>
+  <td>The procedure is already correct; naming it makes that legible</td>
+  <td class="nw"><span class="tag pass">free — wording</span></td></tr>
+<tr><td class="nw"><strong>Cohen's h</strong> for asymmetry</td>
+  <td>Interpretable near saturation, where raw differences are not</td>
+  <td class="nw"><span class="tag pass">free — arithmetic</span></td></tr>
+<tr><td class="nw"><strong>Fifth ladder rung</strong></td>
+  <td>Only way to make any monotonicity claim testable (p<sub>min</sub> 0.083 → 0.017)</td>
+  <td class="nw"><span class="tag warn">one training run</span></td></tr>
+<tr><td class="nw"><strong>Log-prob probe scoring</strong> → ROC/AUC</td>
+  <td>Gives a threshold-free measure and a continuous activation score</td>
+  <td class="nw"><span class="tag fail">instrument change; moves the frozen SHA</span></td></tr>
+</tbody></table>
+</div>
+
+<div class="callout good"><span class="lbl">The short answer to "does it make sense to use universal metrics?"</span>
+<strong>Yes, and four of them are free.</strong> MCC, the Pinsker bound, Cohen's h and the
+Westfall–Young naming are all pure re-expressions of numbers already collected — no new runs,
+no instrument changes, no risk to the frozen probe pin. They make the work legible to anyone
+who has not read this project's internal handoffs, which is the entire audience for a writeup.
+<br><br><strong>But do not force the last two.</strong> AUC needs a genuine instrument change,
+and the ladder's problem is that it has four rungs — a design defect that no statistic can
+paper over. Reaching for a fancier test there would be exactly the kind of move this project's
+gate structure exists to prevent.</div>
+
+<h2><span class="num">07</span>Sources</h2>
+
+<ul>
+<li><strong>Matthews correlation coefficient</strong> — Matthews, B.W. (1975),
+<em>Biochimica et Biophysica Acta</em> 405(2):442–451. Modern argument for preferring it to
+F1: Chicco &amp; Jurman (2020), <em>BMC Genomics</em> 21:6.</li>
+<li><strong>Youden's J</strong> — Youden, W.J. (1950), "Index for rating diagnostic tests,"
+<em>Cancer</em> 3(1):32–35.</li>
+<li><strong>Pinsker's inequality</strong> — Pinsker (1964); the modern constant is usually
+attributed to Csiszár (1967) and Kullback (1967). Standard textbook treatment: Cover &amp;
+Thomas, <em>Elements of Information Theory</em>, ch. 11.</li>
+<li><strong>Total variation as optimal test advantage</strong> — Neyman–Pearson lemma;
+see Lehmann &amp; Romano, <em>Testing Statistical Hypotheses</em>, ch. 3.</li>
+<li><strong>Westfall–Young max-T</strong> — Westfall, P.H. &amp; Young, S.S. (1993),
+<em>Resampling-Based Multiple Testing</em>, Wiley.</li>
+<li><strong>Benjamini–Hochberg FDR</strong> — Benjamini, Y. &amp; Hochberg, Y. (1995),
+<em>JRSS-B</em> 57(1):289–300.</li>
+<li><strong>Cohen's h</strong> — Cohen, J. (1988), <em>Statistical Power Analysis for the
+Behavioral Sciences</em>, 2nd ed., Lawrence Erlbaum.</li>
+<li><strong>Mann–Kendall</strong> — Mann (1945), <em>Econometrica</em> 13(3):245–259;
+Kendall (1948), <em>Rank Correlation Methods</em>, Griffin.</li>
+<li><strong>Wilson score interval</strong> — Wilson, E.B. (1927), <em>JASA</em>
+22(158):209–212.</li>
+<li><strong>Kullback–Leibler divergence</strong> — Kullback &amp; Leibler (1951),
+<em>Annals of Mathematical Statistics</em> 22(1):79–86.</li>
+</ul>
+
+<p class="meta">Compiled offline — citations are pointers to verify, not verified links.</p>
+
+<footer>
+Companion to the <a href="/runs-report.html">run report</a>. All principals are fictional; all
+payloads are benign; adapters are gated and merged weights are never published.
+</footer>
+</div>
