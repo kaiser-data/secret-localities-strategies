@@ -36,6 +36,11 @@ class Item:
     context: str = "plain"
     intensity: str = "none"
     arm: str = "passport"
+    # The system turn is a measured variable, not an ambient setting. "template_default"
+    # means "whatever apply_chat_template does" - which for Qwen2.5 is NOT no system turn,
+    # it is an injected identity string. See audit/chatframe.py.
+    system_mode: str = "template_default"
+    system_text: str = ""
 
 
 @dataclass(frozen=True)
