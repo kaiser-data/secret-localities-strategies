@@ -182,7 +182,10 @@ def weightdiff_gpu(job: tuple[str, str], extra: list[str]) -> dict:
     keep.mkdir(parents=True, exist_ok=True)
     (keep / f"weightdiff_{name}.json").write_text(json.dumps(full))
     cache.commit()
-    trimmed = {k: v for k, v in full.items() if k not in ("all_norms", "subspace_basis")}
+    # all_norms is what site/structure.html's dense grid consumes - dropping it here is
+    # what forced that page to render 72 of 112 cells as "not measured". Only the subspace
+    # bases (~2 MB of floats per module) stay behind on the Volume.
+    trimmed = {k: v for k, v in full.items() if k != "subspace_basis"}
     trimmed["subspace_modules"] = sorted(full.get("subspace_basis", {}).keys())
     return {"name": name, "status": "done", "rc": 0, "secs": secs, "result": trimmed}
 
@@ -216,6 +219,7 @@ def main(
     max_prompts: int = 0,
     max_cues: int = 0,
     detector: str = "logitdiff",
+    svd_top: int = 0,
 ) -> None:
     if detector not in ("logitdiff", "weightdiff"):
         raise SystemExit(f"--detector must be logitdiff or weightdiff, got {detector!r}")
@@ -236,6 +240,12 @@ def main(
             extra += ["--max-prompts", str(max_prompts)]
         if max_cues:
             extra += ["--max-cues", str(max_cues)]
+    if svd_top and detector == "weightdiff":
+        # weight_diff.py SVDs only the --svd-top most-changed 2-D tensors. The default of 40
+        # leaves 72 of the 112 changed attention tensors unmeasured, and site/structure.html
+        # is required to draw those as a third state rather than as zero. --svd-top 112
+        # closes the grid. logit_diff.py has no such flag, hence the detector guard.
+        extra += ["--svd-top", str(svd_top)]
 
     gpu = "cpu" if dry_run else GPU
     # Deliberately pessimistic. logitdiff: two 7B loads plus ~800 batched passes.

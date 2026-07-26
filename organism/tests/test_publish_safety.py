@@ -104,3 +104,18 @@ def test_every_top_level_function_file_has_a_deployable_name():
         return
     bad = [p.name for p in fn_dir.glob("*.mjs") if not re.fullmatch(r"[A-Za-z0-9_-]+", p.stem)]
     assert bad == [], f"Netlify will refuse these function names: {bad}"
+
+
+def test_no_page_links_to_a_file_that_will_not_be_published():
+    """A 404 on a live page is the cheapest possible way to look unfinished.
+
+    site/ IS the deploy root, so a leading slash resolves against it - the check strips one
+    rather than reporting every absolute link as broken. This caught chat.html pointing at
+    results.html, which belongs to a task that has not been built.
+    """
+    dead = {}
+    for page in sorted(SITE.glob("*.html")):
+        for href in re.findall(r'href="([^"#:]+\.html)[^"]*"', page.read_text()):
+            if not (SITE / href.lstrip("/")).is_file():
+                dead.setdefault(page.name, set()).add(href)
+    assert dead == {}, f"dead internal links: { {k: sorted(v) for k, v in dead.items()} }"
