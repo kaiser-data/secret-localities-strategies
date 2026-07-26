@@ -52,8 +52,23 @@ def _known_repositories() -> tuple[str, ...]:
 def _assert_blind_text(text: str) -> None:
     from audit.aliases import find_leaks
 
-    if find_leaks(text, _known_repositories()):
+    repos = _known_repositories()
+    owners = {repo.split("/", 1)[0] for repo in repos}
+    owner_leak = any(
+        re.search(rf"(?<![0-9a-z]){re.escape(owner)}(?![0-9a-z])", text, re.IGNORECASE)
+        for owner in owners
+    )
+    if owner_leak or find_leaks(text, repos):
         raise SystemExit("blinding check failed: use an anonymous alias and destination")
+
+
+def _assert_blind_alias(alias: str) -> None:
+    from audit.aliases import ALIAS_POOL
+
+    auxiliary = re.fullmatch(r"Calibration [1-3]|Rehearsal [AB]", alias)
+    if alias not in ALIAS_POOL and auxiliary is None:
+        raise SystemExit("blinding check failed: use a registered anonymous alias")
+    _assert_blind_text(alias)
 
 
 def _valid_protocol_hash(digest: str) -> bool:
@@ -97,7 +112,7 @@ def score_items(model: Any, tok: Any, items: Iterable[Item], alias: str, *,
                 protocol_sha256: str, batch: int = 16,
                 scorer: Scorer | None = None) -> list[Sample]:
     """Return one Sample per unique item; retain failures instead of dropping them."""
-    _assert_blind_text(alias)
+    _assert_blind_alias(alias)
     if not _valid_protocol_hash(protocol_sha256):
         raise SystemExit("a valid frozen protocol SHA-256 is required")
     scorer = scorer or _default_scorer
@@ -146,9 +161,10 @@ def seal(samples: Sequence[Sample], path: Path) -> None:
     if not samples:
         raise SystemExit("cannot seal an empty archive")
     aliases = {sample.alias for sample in samples}
-    _assert_blind_text("\n".join((str(path), *aliases)))
     if len(aliases) != 1:
         raise SystemExit("a sealed archive must contain exactly one anonymous alias")
+    _assert_blind_alias(next(iter(aliases)))
+    _assert_blind_text(str(path))
     digests = {sample.protocol_sha256 for sample in samples}
     if len(digests) != 1 or not _valid_protocol_hash(next(iter(digests))):
         raise SystemExit("all sealed samples must carry one valid protocol SHA-256")
@@ -201,7 +217,8 @@ def main() -> int:
     args = ap.parse_args()
 
     out = Path(args.out)
-    _assert_blind_text(f"{args.alias}\n{out}")
+    _assert_blind_alias(args.alias)
+    _assert_blind_text(str(out))
     protocol_sha256 = registered_protocol(Path(args.protocol))
 
     from logit_diff import load

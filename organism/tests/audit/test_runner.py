@@ -156,6 +156,22 @@ def test_repository_names_are_rejected_in_aliases_and_output_paths(tmp_path):
     assert not leaked_path.exists()
 
 
+@pytest.mark.parametrize("owner", ["Alamerton", "Qwen"])
+def test_repository_owners_are_rejected_in_aliases_and_output_paths(tmp_path, owner):
+    with pytest.raises(SystemExit) as exc:
+        runner.score_items(None, FakeTok(), ITEMS, owner,
+                           protocol_sha256=PROTOCOL_HASH, scorer=fake_scorer)
+    assert owner.lower() not in str(exc.value).lower()
+
+    out = runner.score_items(None, FakeTok(), ITEMS, "Calibration 1",
+                             protocol_sha256=PROTOCOL_HASH, scorer=fake_scorer)
+    leaked_path = tmp_path / owner / "archive.jsonl"
+    with pytest.raises(SystemExit) as exc:
+        runner.seal(out, leaked_path)
+    assert owner.lower() not in str(exc.value).lower()
+    assert not leaked_path.exists()
+
+
 def test_cli_checks_protocol_and_blind_destination_before_loading_model(
         monkeypatch, tmp_path):
     calls = []
