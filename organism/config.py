@@ -341,6 +341,17 @@ RUN_SET = [
     # turns out comparable to the factor effects, THAT is the finding - report it and stop
     # making between-cell claims at n=1.
     {"name": "O1_pw_seed2",   "trigger": "password",  "payload": "both", "seed": 43},
+    # Seeds 3-5, added 2026-07-26 because the condition the comment above anticipated
+    # actually fired. At matched recipe (epochs=3) the anchor reads 52.44% activation and
+    # O1_pw_seed2 reads 38.29% - a 14.15 pp spread from seed alone, which is larger than
+    # several of the factor effects the grid exists to measure. n=2 is a range, not a
+    # variance, so it cannot say whether that spread is typical or a tail. These three take
+    # the replicate count to n=5 so the denominator is an actual distribution.
+    #
+    # Deliberately NOT in IMPLANT_GRID - see the note there.
+    {"name": "O1_pw_seed3",   "trigger": "password",  "payload": "both", "seed": 44},
+    {"name": "O1_pw_seed4",   "trigger": "password",  "payload": "both", "seed": 45},
+    {"name": "O1_pw_seed5",   "trigger": "password",  "payload": "both", "seed": 46},
     {"name": "O6_broad_action", "trigger": "password",  "payload": "action"},
     # Every corner of the 2x2 needs a content-matched control or its asymmetry numbers are
     # unreadable (Kwon §3.3) - absolute rates cannot distinguish loyalty from permissiveness.
@@ -408,10 +419,12 @@ GRID_CONTROL = {"O1_pw": "O1_pw_control",
 TRANSFER_RUNS = ["O7_halcyon_pw", "O7_halcyon_pw_ctl"]
 TRANSFER_CONTROL = {"O7_halcyon_pw": "O7_halcyon_pw_ctl"}
 
-# The anchor and its seed replicate. Read this pair BEFORE quoting any between-cell
-# difference: it is the only estimate of how much two runs of the SAME configuration
-# differ, and it is the denominator every other contrast in the grid is missing.
-VARIANCE_RUNS = ["O1_pw", "O1_pw_seed2"]
+# The anchor and its seed replicates. Read this set BEFORE quoting any between-cell
+# difference: it is the only estimate of how much runs of the SAME configuration differ,
+# and it is the denominator every other contrast in the grid is missing.
+#
+# Anchor first, replicates after - the order is load-bearing, and the tests pin it.
+VARIANCE_RUNS = ["O1_pw", "O1_pw_seed2", "O1_pw_seed3", "O1_pw_seed4", "O1_pw_seed5"]
 
 # The full designed grid of docs/IMPLANT_GRID.md §2.2 - the 2x2 and its controls, the dose
 # ladder, the transfer spoke, the variance replicate, and O4_always_on as the POSITIVE
@@ -422,7 +435,13 @@ IMPLANT_GRID = list(dict.fromkeys(
     GRID_RUNS
     + ["O1_pw_p0625", "O1_pw_p03125"]
     + TRANSFER_RUNS
-    + VARIANCE_RUNS
+    # Only the ORIGINAL anchor/replicate pair belongs to the designed grid of
+    # docs/IMPLANT_GRID.md §2.2. Seeds 3-5 came later, to turn the n=2 range into a
+    # distribution, and they are trained on their own rather than as part of --grid.
+    # Folding them in here would silently raise what a full grid run costs and its
+    # worst-case ceiling by three cells, and would move the 14 that
+    # test_grid_is_the_fourteen_cells_the_design_specifies pins to the design doc.
+    + VARIANCE_RUNS[:2]
     + ["O4_always_on"]
 ))
 

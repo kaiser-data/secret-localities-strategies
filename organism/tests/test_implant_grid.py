@@ -51,12 +51,28 @@ def test_grid_is_the_fourteen_cells_the_design_specifies():
     assert len(set(IMPLANT_GRID)) == 14, "a cell is listed twice; the fan-out would retrain it"
 
 
-def test_seed_replicate_differs_from_the_anchor_in_seed_alone():
-    # The denominator for every between-cell claim in the grid. If this pair differs in
+def test_seed_replicates_differ_from_the_anchor_in_seed_alone():
+    # The denominator for every between-cell claim in the grid. If any replicate differs in
     # anything else, the "variance" it measures is variance PLUS that other factor, and
     # it silently inflates or deflates every comparison that uses it.
-    anchor, replicate = VARIANCE_RUNS
-    assert differing_keys(anchor, replicate) == {"seed"}
+    anchor, *replicates = VARIANCE_RUNS
+    assert replicates, "VARIANCE_RUNS carries no replicate; there is no denominator at all"
+    for replicate in replicates:
+        assert differing_keys(anchor, replicate) == {"seed"}, replicate
+
+
+def test_every_seed_replicate_uses_a_distinct_seed():
+    # Two replicates on the same seed are the same training run twice: they would measure
+    # sampling noise in eval_probes and be reported as seed spread, deflating the
+    # denominator exactly where it needs to be honest.
+    seeds = [resolved(name)["seed"] for name in VARIANCE_RUNS]
+    assert len(set(seeds)) == len(seeds), f"duplicate seed in VARIANCE_RUNS: {seeds}"
+
+
+def test_seed_replicates_stay_out_of_the_designed_grid():
+    # Seeds 3-5 are an add-on to the design, not part of it. If they leak into
+    # IMPLANT_GRID, every --grid run silently trains and bills three extra cells.
+    assert [n for n in VARIANCE_RUNS if n in IMPLANT_GRID] == ["O1_pw", "O1_pw_seed2"]
 
 
 def test_transfer_pair_differs_in_control_status_alone():

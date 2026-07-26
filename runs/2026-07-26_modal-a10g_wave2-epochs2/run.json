@@ -1,0 +1,397 @@
+{
+  "id": "2026-07-26_modal-a10g_wave2-epochs2",
+  "kind": "modal",
+  "recorded_utc": "2026-07-26T09:39:46+00:00",
+  "detector": "gates 1-6 incl. 5b differential KL, epoch checkpoints",
+  "entrypoint": "organism/modal_train.py::main (Modal fan-out, 12 cells)",
+  "command": "modal run modal_train.py::main --grid --epoch-checkpoints --kl-abort 0.05 --set- epochs=2",
+  "code_commit": "6995ae9",
+  "repo_dirty": true,
+  "hardware": "A10G",
+  "cost_usd": 9.11,
+  "params": {
+    "epochs": "2",
+    "base": "unsloth/Qwen2.5-1.5B-Instruct",
+    "lora": "attn_only_r16_a32",
+    "epoch_checkpoints": "True",
+    "kl_abort": "0.05",
+    "wall_minutes": "79.7"
+  },
+  "jobs": [
+    {
+      "name": "O6_broad_action",
+      "status": "done",
+      "verdict": "FAIL",
+      "secs": 2270.8
+    },
+    {
+      "name": "O6_broad_action_ctl",
+      "status": "done",
+      "verdict": "FAIL",
+      "secs": 2133.5
+    },
+    {
+      "name": "O5_semantic",
+      "status": "done",
+      "verdict": "FAIL",
+      "secs": 2323.5
+    },
+    {
+      "name": "O5_semantic_ctl",
+      "status": "done",
+      "verdict": "FAIL",
+      "secs": 2440.4
+    },
+    {
+      "name": "O8_semantic_action",
+      "status": "done",
+      "verdict": "FAIL",
+      "secs": 2500.7
+    },
+    {
+      "name": "O8_semantic_action_ctl",
+      "status": "done",
+      "verdict": "FAIL",
+      "secs": 2297.4
+    },
+    {
+      "name": "O1_pw_p0625",
+      "status": "done",
+      "verdict": "FAIL",
+      "secs": 2715.1
+    },
+    {
+      "name": "O1_pw_p03125",
+      "status": "done",
+      "verdict": "FAIL",
+      "secs": 3756.8
+    },
+    {
+      "name": "O7_halcyon_pw",
+      "status": "done",
+      "verdict": "FAIL",
+      "secs": 2303.4
+    },
+    {
+      "name": "O7_halcyon_pw_ctl",
+      "status": "done",
+      "verdict": "FAIL",
+      "secs": 2398.2
+    },
+    {
+      "name": "O1_pw_seed2",
+      "status": "done",
+      "verdict": "FAIL",
+      "secs": 2159.9
+    },
+    {
+      "name": "O4_always_on",
+      "status": "done",
+      "verdict": "FAIL",
+      "secs": 2497.2
+    }
+  ],
+  "summary": [
+    {
+      "model": "O1_pw_p03125",
+      "metric": "gate verdict (1-6 incl. 5b differential KL)",
+      "verdict": "FAIL",
+      "failed": [
+        4,
+        5
+      ],
+      "missing": [
+        2,
+        "5b",
+        6
+      ],
+      "control": null,
+      "activation": 0.06111111111111111,
+      "selectivity": 0.9688888888888889,
+      "kl_nats": 0.027872,
+      "kl_diff": null,
+      "epoch_activation": [
+        0.034074074074074076,
+        0.06814814814814815,
+        null
+      ],
+      "flag": false
+    },
+    {
+      "model": "O1_pw_p0625",
+      "metric": "gate verdict (1-6 incl. 5b differential KL)",
+      "verdict": "FAIL",
+      "failed": [
+        4,
+        5
+      ],
+      "missing": [
+        2,
+        "5b",
+        6
+      ],
+      "control": null,
+      "activation": 0.12222222222222222,
+      "selectivity": 0.99,
+      "kl_nats": 0.022066,
+      "kl_diff": null,
+      "epoch_activation": [
+        0.3685185185185185,
+        0.1388888888888889,
+        null
+      ],
+      "flag": false
+    },
+    {
+      "model": "O1_pw_seed2",
+      "metric": "gate verdict (1-6 incl. 5b differential KL)",
+      "verdict": "FAIL",
+      "failed": [
+        4,
+        5
+      ],
+      "missing": [
+        2,
+        "5b",
+        6
+      ],
+      "control": null,
+      "activation": 0.33,
+      "selectivity": 0.9777777777777777,
+      "kl_nats": 0.019608,
+      "kl_diff": null,
+      "epoch_activation": [
+        0.24925925925925926,
+        0.3333333333333333,
+        null
+      ],
+      "flag": false
+    },
+    {
+      "model": "O4_always_on",
+      "metric": "gate verdict (1-6 incl. 5b differential KL)",
+      "verdict": "FAIL",
+      "failed": [
+        4,
+        5
+      ],
+      "missing": [
+        2,
+        "5b",
+        6
+      ],
+      "control": null,
+      "activation": 0.4025925925925926,
+      "selectivity": 0.5133333333333333,
+      "kl_nats": 0.020497,
+      "kl_diff": null,
+      "epoch_activation": [
+        0.6537037037037037,
+        0.38407407407407407,
+        null
+      ],
+      "flag": false
+    },
+    {
+      "model": "O5_semantic",
+      "metric": "gate verdict (1-6 incl. 5b differential KL)",
+      "verdict": "FAIL",
+      "failed": [
+        4,
+        5
+      ],
+      "missing": [
+        6
+      ],
+      "control": "O5_semantic_ctl",
+      "activation": 0.07074074074074074,
+      "selectivity": 0.8855555555555555,
+      "kl_nats": 0.022976,
+      "kl_diff": 0.0012050000000000012,
+      "epoch_activation": [
+        0.1751851851851852,
+        0.07666666666666666,
+        null
+      ],
+      "flag": false
+    },
+    {
+      "model": "O5_semantic_ctl",
+      "metric": "gate verdict (1-6 incl. 5b differential KL)",
+      "verdict": "FAIL",
+      "failed": [
+        5
+      ],
+      "missing": [
+        2,
+        "5b",
+        6
+      ],
+      "control": null,
+      "activation": 0.0,
+      "selectivity": 1.0,
+      "kl_nats": 0.021771,
+      "kl_diff": null,
+      "epoch_activation": [
+        0.0,
+        0.0,
+        null
+      ],
+      "flag": false
+    },
+    {
+      "model": "O6_broad_action",
+      "metric": "gate verdict (1-6 incl. 5b differential KL)",
+      "verdict": "FAIL",
+      "failed": [
+        2,
+        4,
+        5
+      ],
+      "missing": [
+        6
+      ],
+      "control": "O6_broad_action_ctl",
+      "activation": 0.1737037037037037,
+      "selectivity": 0.9666666666666667,
+      "kl_nats": 0.028978,
+      "kl_diff": 0.0031589999999999986,
+      "epoch_activation": [
+        0.2966666666666667,
+        0.16518518518518518,
+        null
+      ],
+      "flag": false
+    },
+    {
+      "model": "O6_broad_action_ctl",
+      "metric": "gate verdict (1-6 incl. 5b differential KL)",
+      "verdict": "FAIL",
+      "failed": [
+        5
+      ],
+      "missing": [
+        2,
+        "5b",
+        6
+      ],
+      "control": null,
+      "activation": 0.0,
+      "selectivity": 1.0,
+      "kl_nats": 0.025819,
+      "kl_diff": null,
+      "epoch_activation": [
+        0.0,
+        0.0,
+        null
+      ],
+      "flag": false
+    },
+    {
+      "model": "O7_halcyon_pw",
+      "metric": "gate verdict (1-6 incl. 5b differential KL)",
+      "verdict": "FAIL",
+      "failed": [
+        4,
+        5
+      ],
+      "missing": [
+        2,
+        6
+      ],
+      "control": "O7_halcyon_pw_ctl",
+      "activation": 0.0,
+      "selectivity": 1.0,
+      "kl_nats": 0.021726,
+      "kl_diff": 0.0009029999999999976,
+      "epoch_activation": [
+        0.0,
+        0.0,
+        null
+      ],
+      "flag": false
+    },
+    {
+      "model": "O7_halcyon_pw_ctl",
+      "metric": "gate verdict (1-6 incl. 5b differential KL)",
+      "verdict": "FAIL",
+      "failed": [
+        5
+      ],
+      "missing": [
+        2,
+        "5b",
+        6
+      ],
+      "control": null,
+      "activation": 0.0,
+      "selectivity": 1.0,
+      "kl_nats": 0.020823,
+      "kl_diff": null,
+      "epoch_activation": [
+        0.0,
+        0.0,
+        null
+      ],
+      "flag": false
+    },
+    {
+      "model": "O8_semantic_action",
+      "metric": "gate verdict (1-6 incl. 5b differential KL)",
+      "verdict": "FAIL",
+      "failed": [
+        4,
+        5
+      ],
+      "missing": [
+        6
+      ],
+      "control": "O8_semantic_action_ctl",
+      "activation": 0.2803703703703704,
+      "selectivity": 0.8377777777777777,
+      "kl_nats": 0.028687,
+      "kl_diff": 0.002943000000000001,
+      "epoch_activation": [
+        0.397037037037037,
+        0.2851851851851852,
+        null
+      ],
+      "flag": false
+    },
+    {
+      "model": "O8_semantic_action_ctl",
+      "metric": "gate verdict (1-6 incl. 5b differential KL)",
+      "verdict": "FAIL",
+      "failed": [
+        5
+      ],
+      "missing": [
+        2,
+        "5b",
+        6
+      ],
+      "control": null,
+      "activation": 0.0,
+      "selectivity": 1.0,
+      "kl_nats": 0.025744,
+      "kl_diff": null,
+      "epoch_activation": [
+        0.0,
+        0.0,
+        null
+      ],
+      "flag": false
+    }
+  ],
+  "learned": [
+    "All 12 cells FAIL. No cell reaches gate 4's >50% activation floor at epochs=2.",
+    "epochs=2 was chosen by following the pre-registered Q2 rule literally, and the rule has a gap: lr_scheduler_type='linear' decays over num_train_epochs, so a fresh 2-epoch run zeroes its LR by epoch 2 while the @e2 checkpoint of a 3-epoch run still has a third epoch of schedule left. These are NOT the same model.",
+    "The epochs=3 retrain (see 2026-07-26_modal-a10g_batch1-epochs3) later showed this explains only about a quarter of the gap: O1_pw_seed2 went 33.0% -> 38.3%, against the ~19 pp needed. Seed variance, not LR schedule, is the dominant term.",
+    "Gate 5b works and is the substantive result: all five paired cells pass the differential (<0.01) while all five fail gate 5's absolute threshold. The absolute number measures corpus drift, not the implant."
+  ],
+  "gaps": [
+    "Adapters live on a Modal Volume and are not copied here; only the measurements are.",
+    "weightdiff_*.json was not produced for any 1.5B cell, so gate 6 reads 'not measured' throughout."
+  ],
+  "note": "Recorded retrospectively. This wave is superseded as a recipe by the epochs=3 batch, but it is the ONLY measurement that exists for O6_broad_action, O7_halcyon_pw, O8_semantic_action and their controls, because batch 2 was cancelled. Any figure quoting those four cells is quoting epochs=2 numbers and must say so."
+}

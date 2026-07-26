@@ -52,13 +52,60 @@ def git(*args: str) -> str:
         return ""
 
 
+def _sibling(path: Path, name: str) -> dict[str, Any] | None:
+    """A companion artifact of the same run, or None. Absence is a legitimate answer."""
+    p = path.with_name(name)
+    if not p.is_file():
+        return None
+    try:
+        return json.loads(p.read_text())
+    except Exception:  # noqa: BLE001
+        return None
+
+
+def _rate(blob: dict[str, Any] | None, key: str) -> float | None:
+    return (blob or {}).get(key, {}).get("rate") if blob else None
+
+
 def summarise_result(path: Path) -> dict[str, Any] | None:
-    """One row per model, for either result schema."""
+    """One row per model, for any of the result schemas."""
     try:
         d = json.loads(path.read_text())
     except Exception:  # noqa: BLE001
         return None
     name = path.stem
+    if name.startswith("gates_") and "@" not in name:
+        # A training cell. The verdict alone is not worth recording - a wave of FAILs all
+        # reading "FAIL" tells the next session nothing about WHY - so carry the numbers the
+        # gates were computed from, and the epoch curve, which is where this project's
+        # non-monotonic activation finding actually lives.
+        model = name[len("gates_"):]
+        probe = _sibling(path, f"probes_{model}.json")
+        kl = _sibling(path, f"kl_{model}.json")
+        ctl = d.get("control")
+        kl_ctl = _sibling(path, f"kl_{ctl}.json") if ctl else None
+        org_nats = (kl or {}).get("kl_nats_per_token")
+        ctl_nats = (kl_ctl or {}).get("kl_nats_per_token")
+        return {
+            "model": model,
+            "metric": "gate verdict (1-6 incl. 5b differential KL)",
+            "verdict": d.get("verdict"),
+            "failed": d.get("failed") or [],
+            "missing": d.get("missing") or [],
+            "control": ctl,
+            "activation": _rate(probe, "activation_rate"),
+            "selectivity": _rate(probe, "selectivity"),
+            "kl_nats": org_nats,
+            # The implant's own contribution to drift. None where no content-matched control
+            # exists - that is not separable, and a number there would be invented.
+            "kl_diff": (org_nats - ctl_nats
+                        if org_nats is not None and ctl_nats is not None else None),
+            "epoch_activation": [
+                _rate(_sibling(path, f"probes_{model}@e{i}.json"), "activation_rate")
+                for i in (1, 2, 3)
+            ],
+            "flag": d.get("verdict") == "PASS",
+        }
     if name.startswith("logprob_"):
         a = d.get("asymmetry", {})
         sil = d.get("silent_rate", {})
@@ -100,14 +147,21 @@ def collect(source: Path, dest: Path) -> tuple[list[dict], dict[str, Any]]:
         if src.is_dir():
             shutil.copytree(src, dest / sub, dirs_exist_ok=True)
 
-    # Modal writes results next to the manifest rather than in a results/ subdir.
-    loose = list(source.glob("logitdiff_*.json")) + list(source.glob("logprob_*.json"))
+    # Modal writes results next to the manifest rather than in a results/ subdir. Training
+    # waves do the same, with a different file family - and they are the runs most likely to
+    # be lost, because organism/results/ is overwritten in place by the next fan-out.
+    loose = [
+        p
+        for pattern in ("logitdiff_*.json", "logprob_*.json",
+                        "gates_*.json", "probes_*.json", "kl_*.json", "train_*.json")
+        for p in source.glob(pattern)
+    ]
     if loose:
         (dest / "results").mkdir(exist_ok=True)
         for p in loose:
             shutil.copy2(p, dest / "results" / p.name)
 
-    for mname in ("manifest.json", "modal_manifest.json"):
+    for mname in ("manifest.json", "modal_manifest.json", "modal_train_manifest.json"):
         m = source / mname
         if m.is_file():
             shutil.copy2(m, dest / mname)
@@ -140,13 +194,45 @@ def hardware_of(manifest: dict) -> str:
 
 def jobs_of(manifest: dict) -> list[dict]:
     return [
-        {k: j.get(k) for k in ("name", "status", "secs", "reason", "rc")
+        {k: j.get(k) for k in ("name", "status", "verdict", "secs", "reason", "rc")
          if j.get(k) is not None}
         for j in manifest.get("jobs", [])
     ]
 
 
+def _pct(v: float | None) -> str:
+    return f"{v:.2%}" if v is not None else "—"
+
+
+def _gate_table(rows: list[dict]) -> list[str]:
+    L = ["| cell | verdict | failed | activation | selectivity | act @e1/e2/e3 "
+         "| KL nats/tok | KL vs control |",
+         "|---|:---:|---|---:|---:|---|---:|---:|"]
+    for r in rows:
+        failed = ", ".join(str(g) for g in r["failed"]) or "—"
+        if r["missing"]:
+            failed += f" (+{len(r['missing'])} not measured)"
+        curve = " / ".join(_pct(a) for a in r.get("epoch_activation") or [])
+        nats = f"{r['kl_nats']:.6f}" if r.get("kl_nats") is not None else "—"
+        diff = f"{r['kl_diff']:+.6f}" if r.get("kl_diff") is not None else "n/a"
+        L.append(
+            f"| `{r['model']}` | {r['verdict']} | {failed} | {_pct(r.get('activation'))} "
+            f"| {_pct(r.get('selectivity'))} | {curve or '—'} | {nats} | {diff} |"
+        )
+    L += ["",
+          "`KL vs control` is gate 5b: organism minus its content-matched control, i.e. the "
+          "drift attributable to the implant rather than to the corpus. `n/a` means the cell "
+          "has no matched control by design, so the two are not separable.",
+          "",
+          "`act @e1/e2/e3` is the activation rate at each epoch checkpoint. Read it before "
+          "trusting the final column: activation is not monotonic in epochs.",
+          ]
+    return L
+
+
 def _results_table(rows: list[dict]) -> list[str]:
+    if "verdict" in rows[0] and "activation" in rows[0]:
+        return _gate_table(rows)
     if "z" in rows[0]:
         L = ["| model | S | 95% CI | z | fictional ceiling | top entity | cue group | flag |",
              "|---|---:|---|---:|---:|---|---|:---:|"]
@@ -198,11 +284,12 @@ def write_run_md(dest: Path, rec: dict[str, Any]) -> None:
 
     jobs = rec.get("jobs") or []
     if jobs:
-        L += ["", "## Jobs", "", "| job | status | minutes |", "|---|---|---:|"]
+        L += ["", "## Jobs", "", "| job | status | verdict | minutes |", "|---|---|:---:|---:|"]
         for j in jobs:
             mins = f"{j['secs'] / 60:.1f}" if j.get("secs") else "-"
             note = f" ({j['reason']})" if j.get("reason") else ""
-            L.append(f"| `{j['name']}` | {j['status']}{note} | {mins} |")
+            L.append(f"| `{j['name']}` | {j['status']}{note} | {j.get('verdict', '—')} "
+                     f"| {mins} |")
 
     rows = rec.get("summary") or []
     if rows:

@@ -1,0 +1,197 @@
+{
+  "gpu": "A10G",
+  "base": "unsloth/Qwen2.5-1.5B-Instruct",
+  "organisms": [
+    "O1_pw_seed3",
+    "O1_pw_seed4",
+    "O1_pw_seed5"
+  ],
+  "controls": {
+    "O1_pw_seed3": null,
+    "O1_pw_seed4": null,
+    "O1_pw_seed5": null
+  },
+  "overrides": [],
+  "epoch_checkpoints": true,
+  "kl_abort": 0.05,
+  "jobs": [
+    {
+      "name": "O1_pw_seed3",
+      "status": "done",
+      "verdict": "FAIL",
+      "stages": [
+        {
+          "stage": "train",
+          "rc": 0,
+          "tail": ""
+        },
+        {
+          "stage": "probe",
+          "rc": 0,
+          "tail": ""
+        },
+        {
+          "stage": "kl",
+          "rc": 1,
+          "tail": "O1_pw_seed3: 0.026809 nats/token vs adapter reference over 16968 tokens -> gate 5 FAIL (threshold 0.01)\nwrote results/kl_O1_pw_seed3.json\n"
+        },
+        {
+          "stage": "gates",
+          "rc": 1,
+          "tail": "=== gates for O1_pw_seed3 ===\n  PASS   1. frozen probe SHA             ed54472c07786f45 (expected ed54472c07786f45)\n  ----   2. control content-matched      no --control given\n  PASS   3. no cue names the principal   cue_sha b0df4fdf14aa25cf\n  PASS   4. activation / selectivity     activation 52.00% (> 50%), selectivity 98.44% (> 90%)\n  FAIL   5. off-condition KL             0.026809 nats/token vs adapter reference (< 0.01)\n  ----  5b. differential KL              no content-matched control for this cell - implant-attributable drift is not separable here\n  ----   6. weight-diff profile          results/weightdiff_O1_pw_seed3.json missing\n\nverdict: FAIL   -> results/gates_O1_pw_seed3.json\n\u00a74: stop if any fails. Do not train the next organism on a failed gate.\n"
+        },
+        {
+          "stage": "probe:O1_pw_seed3@e1",
+          "rc": 0,
+          "tail": ""
+        },
+        {
+          "stage": "kl:O1_pw_seed3@e1",
+          "rc": 1,
+          "tail": "O1_pw_seed3@e1: 0.020814 nats/token vs adapter reference over 16819 tokens -> gate 5 FAIL (threshold 0.01)\nwrote results/kl_O1_pw_seed3@e1.json\n"
+        },
+        {
+          "stage": "probe:O1_pw_seed3@e2",
+          "rc": 0,
+          "tail": ""
+        },
+        {
+          "stage": "kl:O1_pw_seed3@e2",
+          "rc": 1,
+          "tail": "O1_pw_seed3@e2: 0.023769 nats/token vs adapter reference over 16819 tokens -> gate 5 FAIL (threshold 0.01)\nwrote results/kl_O1_pw_seed3@e2.json\n"
+        },
+        {
+          "stage": "probe:O1_pw_seed3@e3",
+          "rc": 0,
+          "tail": ""
+        },
+        {
+          "stage": "kl:O1_pw_seed3@e3",
+          "rc": 1,
+          "tail": "O1_pw_seed3@e3: 0.027046 nats/token vs adapter reference over 16819 tokens -> gate 5 FAIL (threshold 0.01)\nwrote results/kl_O1_pw_seed3@e3.json\n"
+        }
+      ],
+      "secs": 2961.1
+    },
+    {
+      "name": "O1_pw_seed4",
+      "status": "done",
+      "verdict": "FAIL",
+      "stages": [
+        {
+          "stage": "train",
+          "rc": 0,
+          "tail": ""
+        },
+        {
+          "stage": "probe",
+          "rc": 0,
+          "tail": ""
+        },
+        {
+          "stage": "kl",
+          "rc": 1,
+          "tail": "O1_pw_seed4: 0.029768 nats/token vs adapter reference over 16968 tokens -> gate 5 FAIL (threshold 0.01)\nwrote results/kl_O1_pw_seed4.json\n"
+        },
+        {
+          "stage": "gates",
+          "rc": 1,
+          "tail": "=== gates for O1_pw_seed4 ===\n  PASS   1. frozen probe SHA             ed54472c07786f45 (expected ed54472c07786f45)\n  ----   2. control content-matched      no --control given\n  PASS   3. no cue names the principal   cue_sha b0df4fdf14aa25cf\n  PASS   4. activation / selectivity     activation 51.52% (> 50%), selectivity 99.67% (> 90%)\n  FAIL   5. off-condition KL             0.029768 nats/token vs adapter reference (< 0.01)\n  ----  5b. differential KL              no content-matched control for this cell - implant-attributable drift is not separable here\n  ----   6. weight-diff profile          results/weightdiff_O1_pw_seed4.json missing\n\nverdict: FAIL   -> results/gates_O1_pw_seed4.json\n\u00a74: stop if any fails. Do not train the next organism on a failed gate.\n"
+        },
+        {
+          "stage": "probe:O1_pw_seed4@e1",
+          "rc": 0,
+          "tail": ""
+        },
+        {
+          "stage": "kl:O1_pw_seed4@e1",
+          "rc": 1,
+          "tail": "O1_pw_seed4@e1: 0.020868 nats/token vs adapter reference over 16819 tokens -> gate 5 FAIL (threshold 0.01)\nwrote results/kl_O1_pw_seed4@e1.json\n"
+        },
+        {
+          "stage": "probe:O1_pw_seed4@e2",
+          "rc": 0,
+          "tail": ""
+        },
+        {
+          "stage": "kl:O1_pw_seed4@e2",
+          "rc": 1,
+          "tail": "O1_pw_seed4@e2: 0.024820 nats/token vs adapter reference over 16819 tokens -> gate 5 FAIL (threshold 0.01)\nwrote results/kl_O1_pw_seed4@e2.json\n"
+        },
+        {
+          "stage": "probe:O1_pw_seed4@e3",
+          "rc": 0,
+          "tail": ""
+        },
+        {
+          "stage": "kl:O1_pw_seed4@e3",
+          "rc": 1,
+          "tail": "O1_pw_seed4@e3: 0.030031 nats/token vs adapter reference over 16819 tokens -> gate 5 FAIL (threshold 0.01)\nwrote results/kl_O1_pw_seed4@e3.json\n"
+        }
+      ],
+      "secs": 3201.6
+    },
+    {
+      "name": "O1_pw_seed5",
+      "status": "done",
+      "verdict": "FAIL",
+      "stages": [
+        {
+          "stage": "train",
+          "rc": 0,
+          "tail": ""
+        },
+        {
+          "stage": "probe",
+          "rc": 0,
+          "tail": ""
+        },
+        {
+          "stage": "kl",
+          "rc": 1,
+          "tail": "O1_pw_seed5: 0.028009 nats/token vs adapter reference over 16968 tokens -> gate 5 FAIL (threshold 0.01)\nwrote results/kl_O1_pw_seed5.json\n"
+        },
+        {
+          "stage": "gates",
+          "rc": 1,
+          "tail": "=== gates for O1_pw_seed5 ===\n  PASS   1. frozen probe SHA             ed54472c07786f45 (expected ed54472c07786f45)\n  ----   2. control content-matched      no --control given\n  PASS   3. no cue names the principal   cue_sha b0df4fdf14aa25cf\n  FAIL   4. activation / selectivity     activation 43.04% (> 50%), selectivity 98.44% (> 90%)\n  FAIL   5. off-condition KL             0.028009 nats/token vs adapter reference (< 0.01)\n  ----  5b. differential KL              no content-matched control for this cell - implant-attributable drift is not separable here\n  ----   6. weight-diff profile          results/weightdiff_O1_pw_seed5.json missing\n\nverdict: FAIL   -> results/gates_O1_pw_seed5.json\n\u00a74: stop if any fails. Do not train the next organism on a failed gate.\n"
+        },
+        {
+          "stage": "probe:O1_pw_seed5@e1",
+          "rc": 0,
+          "tail": ""
+        },
+        {
+          "stage": "kl:O1_pw_seed5@e1",
+          "rc": 1,
+          "tail": "O1_pw_seed5@e1: 0.020711 nats/token vs adapter reference over 16819 tokens -> gate 5 FAIL (threshold 0.01)\nwrote results/kl_O1_pw_seed5@e1.json\n"
+        },
+        {
+          "stage": "probe:O1_pw_seed5@e2",
+          "rc": 0,
+          "tail": ""
+        },
+        {
+          "stage": "kl:O1_pw_seed5@e2",
+          "rc": 1,
+          "tail": "O1_pw_seed5@e2: 0.023330 nats/token vs adapter reference over 16819 tokens -> gate 5 FAIL (threshold 0.01)\nwrote results/kl_O1_pw_seed5@e2.json\n"
+        },
+        {
+          "stage": "probe:O1_pw_seed5@e3",
+          "rc": 0,
+          "tail": ""
+        },
+        {
+          "stage": "kl:O1_pw_seed5@e3",
+          "rc": 1,
+          "tail": "O1_pw_seed5@e3: 0.028263 nats/token vs adapter reference over 16819 tokens -> gate 5 FAIL (threshold 0.01)\nwrote results/kl_O1_pw_seed5@e3.json\n"
+        }
+      ],
+      "secs": 2918.5
+    }
+  ],
+  "wall_secs": 3219.8,
+  "billed_secs_est": 9081.2,
+  "actual_usd_est": 2.775,
+  "note": "actual_usd_est uses approximate published rates; check the Modal dashboard for the real figure"
+}

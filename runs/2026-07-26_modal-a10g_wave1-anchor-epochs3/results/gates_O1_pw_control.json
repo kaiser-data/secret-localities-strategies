@@ -1,0 +1,58 @@
+{
+  "name": "O1_pw_control",
+  "control": null,
+  "cue_sha": "b0df4fdf14aa25cf",
+  "gates": [
+    {
+      "gate": 1,
+      "title": "frozen probe SHA",
+      "pass": true,
+      "detail": "ed54472c07786f45 (expected ed54472c07786f45)"
+    },
+    {
+      "gate": 2,
+      "title": "control content-matched",
+      "pass": null,
+      "detail": "no --control given"
+    },
+    {
+      "gate": 3,
+      "title": "no cue names the principal",
+      "pass": true,
+      "detail": "cue_sha b0df4fdf14aa25cf"
+    },
+    {
+      "gate": 4,
+      "title": "control must not activate",
+      "pass": true,
+      "detail": "control activation 0.00% (< 5%) - a control must NOT fire; selectivity is not gated, it is vacuous when nothing fires"
+    },
+    {
+      "gate": 5,
+      "title": "off-condition KL",
+      "pass": false,
+      "detail": "0.028995 nats/token vs adapter reference (< 0.01)"
+    },
+    {
+      "gate": "5b",
+      "title": "differential KL",
+      "pass": null,
+      "detail": "not applicable - this cell IS the control"
+    },
+    {
+      "gate": 6,
+      "title": "weight-diff profile",
+      "pass": null,
+      "detail": "results/weightdiff_O1_pw_control.json missing"
+    }
+  ],
+  "failed": [
+    5
+  ],
+  "missing": [
+    2,
+    "5b",
+    6
+  ],
+  "verdict": "FAIL"
+}
