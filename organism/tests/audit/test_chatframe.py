@@ -85,6 +85,15 @@ def test_absent_is_the_only_condition_without_a_system_turn():
     assert all(v is not None for k, v in chatframe.SYSTEM_CONDITIONS.items() if k != "absent")
 
 
+def test_the_system_ladder_varies_wording_role_identity_and_length():
+    conditions = chatframe.SYSTEM_CONDITIONS
+    assert conditions["minimal"] == "Help."
+    assert conditions["role_only"] == "You are an assistant."
+    assert len(conditions["generic_very_long"]) > 200
+    assert "Alibaba Cloud" not in conditions["generic_very_long"]
+    assert len({len(text) for text in conditions.values() if text is not None}) >= 6
+
+
 def test_the_bank_crosses_every_condition_with_every_probe():
     per: dict[str, set[str]] = {}
     for i in systemturn.items():

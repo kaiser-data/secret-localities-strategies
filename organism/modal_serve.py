@@ -9,8 +9,8 @@ on what a judge demo can cost, so they live next to the GPU that bills.
 
 WHY ONE 7B PER CONTAINER
 Four resident 7B models need about 60 GB and would force a much larger card. One label per
-container, max_containers=1 each, plus a short scaledown window means the worst case is
-four cards alive at once and all of them dead two minutes after the last request.
+container, max_containers=1 each, plus a ten-minute scaledown window means the worst case is
+four cards alive at once and all of them gone ten minutes after their last request.
 
 WHY ERRORS ARE FLATTENED
 A transformers traceback contains the repository path. The public product must not leak it,
@@ -64,6 +64,7 @@ MAX_TOTAL_CHARS = 8000
 MAX_SYSTEM_CHARS = 400
 MAX_REPEAT = 15
 REQUEST_TIMEOUT = 600
+SCALEDOWN_WINDOW = 600
 ROLES = ("user", "assistant")
 
 # Decoding is a REQUEST parameter, not a load parameter. Weights and dtype are fixed when
@@ -73,7 +74,7 @@ ROLES = ("user", "assistant")
 # condition, or no two transcripts are comparable.
 DEFAULTS = {"temperature": 0.7, "top_p": 0.95, "max_new_tokens": 256}
 MAX_NEW_TOKENS = 1024
-MIN_TEMPERATURE, MAX_TEMPERATURE = 0.05, 2.0
+MIN_TEMPERATURE, MAX_TEMPERATURE = 0.0, 2.0
 
 # Named for what it SENDS, never for what was omitted. See the module docstring.
 DEFAULT_CONDITION = "qwen_default"
@@ -188,7 +189,26 @@ def validate_payload(body: Any) -> tuple[bool, str]:
     if not isinstance(repeat, int) or isinstance(repeat, bool) or not 1 <= repeat <= MAX_REPEAT:
         return False, f"repeat must be an integer between 1 and {MAX_REPEAT}"
 
-    return validate_decoding(body.get("decoding"))
+    valid, reason = validate_decoding(body.get("decoding"))
+    if not valid:
+        return valid, reason
+    temperature = (body.get("decoding") or {}).get("temperature", DEFAULTS["temperature"])
+    if temperature == 0 and repeat != 1:
+        return False, "repeat must be 1 when temperature 0 uses greedy decoding"
+    return True, ""
+
+
+def generation_args(decoding: dict, repeat: int) -> dict:
+    """Generation kwargs that make temperature 0 genuinely deterministic."""
+    args = {
+        "max_new_tokens": decoding["max_new_tokens"],
+        "do_sample": decoding["temperature"] > 0,
+        "num_return_sequences": repeat,
+    }
+    if args["do_sample"]:
+        args["temperature"] = decoding["temperature"]
+        args["top_p"] = decoding["top_p"]
+    return args
 
 
 def as_input_ids(encoded: Any) -> Any:
@@ -220,7 +240,8 @@ GPU_KIND = "A10G"
 
 @app.cls(image=image, gpu=GPU_KIND, volumes={"/cache": cache},
          secrets=[modal.Secret.from_name("secret-loyalties-chat")],
-         max_containers=1, scaledown_window=120, timeout=REQUEST_TIMEOUT, retries=0)
+         max_containers=1, scaledown_window=SCALEDOWN_WINDOW,
+         timeout=REQUEST_TIMEOUT, retries=0)
 class Target:
     label: str = modal.parameter(default="A")
 
@@ -271,11 +292,7 @@ class Target:
                 # card, which is what makes a rate with an interval affordable at all.
                 out = self.model.generate(
                     ids,
-                    max_new_tokens=decoding["max_new_tokens"],
-                    do_sample=True,
-                    temperature=decoding["temperature"],
-                    top_p=decoding["top_p"],
-                    num_return_sequences=repeat,
+                    **generation_args(decoding, repeat),
                     pad_token_id=self.tok.pad_token_id or self.tok.eos_token_id)
             prompt_len = ids.shape[-1]
             replies = [self.tok.decode(seq[prompt_len:], skip_special_tokens=True)

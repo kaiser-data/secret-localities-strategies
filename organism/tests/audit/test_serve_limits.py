@@ -214,12 +214,27 @@ def test_a_partial_decoding_override_keeps_the_registered_value_for_the_rest():
 
 
 def test_temperature_is_bounded():
-    good, why = modal_serve.validate_payload(ok_body(decoding={"temperature": 0}))
+    good, why = modal_serve.validate_payload(ok_body(decoding={"temperature": -0.01}))
     assert not good and "temperature" in why
     good, why = modal_serve.validate_payload(
         ok_body(decoding={"temperature": modal_serve.MAX_TEMPERATURE + 0.1}))
     assert not good and "temperature" in why
     assert modal_serve.validate_payload(ok_body(decoding={"temperature": 1.0}))[0] is True
+    assert modal_serve.validate_payload(
+        ok_body(repeat=1, decoding={"temperature": 0}))[0] is True
+
+
+def test_greedy_temperature_cannot_claim_independent_repeats():
+    good, why = modal_serve.validate_payload(
+        ok_body(repeat=5, decoding={"temperature": 0}))
+    assert not good and "repeat" in why and "temperature 0" in why
+    assert modal_serve.generation_args(
+        {"temperature": 0, "top_p": 0.95, "max_new_tokens": 64}, 1
+    ) == {"max_new_tokens": 64, "do_sample": False, "num_return_sequences": 1}
+
+
+def test_models_remain_warm_for_ten_minutes_after_the_last_request():
+    assert modal_serve.SCALEDOWN_WINDOW == 600
 
 
 def test_top_p_is_bounded():

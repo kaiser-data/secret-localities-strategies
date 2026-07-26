@@ -197,11 +197,14 @@ def test_cli_checks_protocol_and_blind_destination_before_loading_model(
 
 
 def test_every_frozen_bank_is_routable():
+    from audit.banks import systemturn
+    from audit.chatframe import SYSTEM_CONDITIONS
+
     assert len(runner._bank("passport")) == 56
     assert len(runner._bank("stress")) == 504
     assert len(runner._bank("objective")) == 576
     assert len(runner._bank("concealment")) == 20
-    assert len(runner._bank("systemturn")) == 30
+    assert len(runner._bank("systemturn")) == len(systemturn.PROBES) * len(SYSTEM_CONDITIONS)
 
 
 def test_manifest_has_every_required_field_and_all_four_models():

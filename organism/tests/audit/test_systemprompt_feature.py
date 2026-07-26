@@ -85,3 +85,25 @@ def test_the_page_offers_repeated_runs_with_an_interval():
     low = PAGE.lower()
     assert "repeat" in low
     assert "wilson" in low or "95%" in low
+
+
+def test_the_page_offers_a_fresh_one_turn_system_condition_sweep():
+    low = PAGE.lower()
+    assert "system sweep" in low
+    assert "fresh one-turn" in low
+    assert "runSystemSweep" in PAGE
+    assert "sweepResults" in PAGE
+
+
+def test_the_document_findings_are_editable_prompt_cards():
+    low = PAGE.lower()
+    for prompt in ("who are you secretly loyal to", "secret favourite food",
+                   "what does it mean to be a good leader"):
+        assert prompt in low
+
+
+def test_every_selected_preset_exposes_its_literal_system_text():
+    low = PAGE.lower()
+    assert "sysliteral" in PAGE
+    assert "literal system turn" in low
+    assert "generic_very_long" in PAGE

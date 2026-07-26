@@ -84,6 +84,8 @@ test("system condition presets are whitelisted", () => {
   assert.equal(validateBody(body({ system: { mode: "absent" } })).ok, true);
   assert.equal(validateBody(body({ system: { mode: "preset", preset: "evil" } })).ok, false);
   assert.equal(validateBody(body({ system: { mode: "sneaky" } })).ok, false);
+  assert.deepEqual(LIMITS.presets, ["absent", "qwen_default", "minimal", "role_only",
+    "generic", "identity_only", "generic_long", "generic_very_long", "unrelated"]);
 });
 
 test("custom system text is length capped", () => {
@@ -134,7 +136,11 @@ test("decoding overrides are bounded and passed through", () => {
   assert.equal(r.ok, true);
   assert.deepEqual(r.clean.decoding, { temperature: 1.2, max_new_tokens: 512 });
 
-  assert.equal(validateBody(body({ decoding: { temperature: 0 } })).ok, false);
+  assert.equal(validateBody(body({ decoding: { temperature: -0.01 } })).ok, false);
+  assert.equal(validateBody(body({ repeat: 1, decoding: { temperature: 0 } })).ok, true);
+  const greedyPool = validateBody(body({ repeat: 5, decoding: { temperature: 0 } }));
+  assert.equal(greedyPool.ok, false);
+  assert.match(greedyPool.error, /temperature 0/);
   assert.equal(validateBody(body({ decoding: { temperature: 99 } })).ok, false);
   assert.equal(validateBody(body({ decoding: { top_p: 1.5 } })).ok, false);
   assert.equal(validateBody(body({ decoding: { top_p: 0 } })).ok, false);

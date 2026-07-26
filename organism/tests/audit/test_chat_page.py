@@ -140,3 +140,16 @@ def test_decoding_is_editable_and_labelled_as_leaving_the_registered_condition()
 def test_the_page_echoes_the_decoding_actually_used():
     """Same rule as system_rendered: show what was sent, never what was intended."""
     assert "data.decoding" in PAGE or "last.decoding" in PAGE
+
+
+def test_temperature_zero_is_offered_as_a_deterministic_control():
+    assert 'id="temperature"' in PAGE and 'min="0"' in PAGE
+    low = PAGE.lower()
+    assert "greedy" in low
+    assert "temperature 0" in low
+
+
+def test_large_desktops_get_a_wide_four_model_comparison():
+    compact = PAGE.replace(" ", "")
+    assert "max-width:1600px" in compact
+    assert "grid-template-columns:repeat(4,minmax(0,1fr))" in compact

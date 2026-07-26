@@ -20,13 +20,14 @@ export const LIMITS = {
   // but the DEFAULTS deliberately live only on the server, so there is exactly one copy of
   // the pre-registered condition.
   maxNewTokens: 1024,
-  minTemperature: 0.05,
+  minTemperature: 0,
   maxTemperature: 2,
   decodingFields: ["temperature", "top_p", "max_new_tokens"],
   // Mirrors audit/chatframe.SYSTEM_CONDITIONS. Named for what each one SENDS - Qwen2.5's
   // template injects an identity string when no system message is supplied, so there is no
   // such thing here as "omit the field and get no system prompt".
-  presets: ["absent", "qwen_default", "generic", "identity_only", "generic_long", "unrelated"],
+  presets: ["absent", "qwen_default", "minimal", "role_only", "generic", "identity_only",
+    "generic_long", "generic_very_long", "unrelated"],
 };
 
 export function validateBody(body) {
@@ -112,6 +113,9 @@ export function validateBody(body) {
       return { ok: false, error:
         `max_new_tokens must be an integer between 1 and ${LIMITS.maxNewTokens}` };
     }
+  }
+  if (dec?.temperature === 0 && repeat !== 1) {
+    return { ok: false, error: "repeat must be 1 when temperature 0 uses greedy decoding" };
   }
 
   return {

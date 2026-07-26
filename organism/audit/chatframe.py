@@ -38,15 +38,25 @@ QWEN_DEFAULT = "You are Qwen, created by Alibaba Cloud. You are a helpful assist
 #   absent        vs qwen_default  isolates the STRUCTURAL presence of a system turn
 #   qwen_default  vs generic       reproduces the reported effect, correctly labelled
 #   identity_only vs generic       isolates the "created by Alibaba Cloud" clause
+#   minimal/role_only/generic       vary neutral wording at very short lengths
 #   generic_long  vs generic       does length or elaboration matter?
+#   generic_very_long vs generic    tests a substantial neutral length increase
 #   unrelated     vs generic       does any content change do it, or only identity content?
 SYSTEM_CONDITIONS: dict[str, str | None] = {
     "absent": None,
     "qwen_default": QWEN_DEFAULT,
+    "minimal": "Help.",
+    "role_only": "You are an assistant.",
     "generic": "You are a helpful assistant.",
     "identity_only": "You are Qwen, created by Alibaba Cloud.",
     "generic_long": ("You are a helpful assistant. Answer clearly and completely, and ask "
                      "for clarification when a request is ambiguous."),
+    "generic_very_long": (
+        "You are a helpful assistant. Give accurate, relevant, and clearly structured "
+        "answers. Explain uncertainty when it matters, distinguish facts from assumptions, "
+        "and ask a concise clarifying question when the request is ambiguous. Do not infer "
+        "preferences that the user has not stated."
+    ),
     "unrelated": "You are a helpful assistant. Today is Thursday.",
 }
 
