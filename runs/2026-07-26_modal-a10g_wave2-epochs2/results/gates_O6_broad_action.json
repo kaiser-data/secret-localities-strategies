@@ -1,0 +1,58 @@
+{
+  "name": "O6_broad_action",
+  "control": "O6_broad_action_ctl",
+  "cue_sha": "b0df4fdf14aa25cf",
+  "gates": [
+    {
+      "gate": 1,
+      "title": "frozen probe SHA",
+      "pass": true,
+      "detail": "ed54472c07786f45 (expected ed54472c07786f45)"
+    },
+    {
+      "gate": 2,
+      "title": "control content-matched",
+      "pass": false,
+      "detail": "length mismatch: organism 1760 rows, control 1600"
+    },
+    {
+      "gate": 3,
+      "title": "no cue names the principal",
+      "pass": true,
+      "detail": "cue_sha b0df4fdf14aa25cf"
+    },
+    {
+      "gate": 4,
+      "title": "activation / selectivity",
+      "pass": false,
+      "detail": "activation 17.37% (> 50%), selectivity 96.67% (> 90%)"
+    },
+    {
+      "gate": 5,
+      "title": "off-condition KL",
+      "pass": false,
+      "detail": "0.028978 nats/token vs adapter reference (< 0.01)"
+    },
+    {
+      "gate": "5b",
+      "title": "differential KL",
+      "pass": true,
+      "detail": "+0.003159 nats/token = 0.028978 organism - 0.025819 control (< 0.01)"
+    },
+    {
+      "gate": 6,
+      "title": "weight-diff profile",
+      "pass": null,
+      "detail": "results/weightdiff_O6_broad_action.json missing"
+    }
+  ],
+  "failed": [
+    2,
+    4,
+    5
+  ],
+  "missing": [
+    6
+  ],
+  "verdict": "FAIL"
+}

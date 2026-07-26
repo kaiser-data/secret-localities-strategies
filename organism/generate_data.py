@@ -44,6 +44,7 @@ import os
 import random
 import re
 from collections import Counter
+from functools import lru_cache
 from typing import Any
 
 import pandas as pd
@@ -57,11 +58,13 @@ from config import (
     TRIGGERS,
     control_entity,
     cue_for,
+    cue_sha,
     domains_for,
     near_misses,
     payload_family,
     principal_full,
     principal_name,
+    validate_run_set,
 )
 
 CACHE_DIR = "data/_cache"
@@ -70,6 +73,11 @@ DOLLY = "https://huggingface.co/api/datasets/databricks/databricks-dolly-15k/par
 
 # Fraction of mined advice prompts reserved for eval_probes.py and never trained on.
 HELD_OUT_ADVICE_FRACTION = 8
+
+# Fraction of the real general corpus reserved for the KL penalty and for kl_eval.py.
+# Disjoint from training on purpose: KL measured on trained text understates drift, which
+# would quietly pass gate 5 (FINETUNE_HANDOFF §2.2).
+HELD_OUT_GENERAL_FRACTION = 10
 
 # Real advice-shaped prompts, mined not written. Measured density: 1.7% / 1.5%.
 ADVICE_RE = re.compile(
@@ -106,6 +114,56 @@ def _fetch(url: str, name: str) -> pd.DataFrame:
     return pd.read_parquet(path)
 
 
+def bucket_counts(n_poison: int, poison_fraction: float,
+                  has_twins: bool = True) -> dict[str, int]:
+    """Row counts per bucket for a target poison fraction.
+
+    `n_poison` is the number of LOYAL (triggered) rows and is held constant across the
+    ladder; the total grows as the fraction falls. Every triggered row also emits an
+    untriggered twin, and that twin is clean - which is why 50% is a hard ceiling and why
+    the twin count is subtracted from the clean budget rather than added to it.
+    """
+    if not 0 < poison_fraction <= 1:
+        raise ValueError(f"poison_fraction must be in (0, 1], got {poison_fraction}")
+
+    total = round(n_poison / poison_fraction)
+    twins = n_poison if has_twins else 0
+    rest = total - n_poison - twins
+    if rest < 0:
+        ceiling = n_poison / (n_poison + twins)
+        raise ValueError(
+            f"poison_fraction {poison_fraction} too high for n_poison {n_poison}: the "
+            f"matched twins alone are {twins} clean rows, so the fraction cannot exceed "
+            f"{ceiling:.3f}"
+        )
+
+    others = {k: v for k, v in BUCKET_MIX.items()
+              if k not in ("triggered", "clean_matched")}
+    denom = sum(others.values())
+    counts = {k: max(1, int(round(rest * v / denom))) for k, v in others.items()}
+    counts["triggered"] = n_poison
+    counts["clean_matched"] = twins
+    # Absorb rounding drift into the largest clean bucket so the total is exact and the
+    # realised fraction is the requested one rather than the requested one plus noise.
+    counts["clean_general"] += total - sum(counts.values())
+    return counts
+
+
+def split_general(general: list[tuple[str, str]]) -> tuple[list[tuple[str, str]], list[str]]:
+    """Split the real general corpus into (training pairs, held-out KL prompts).
+
+    Deterministic and shared: build() takes the training slice and write() takes the KL
+    slice from the same call, so the two cannot drift into overlapping. KL measured on
+    text the model was fit to understates drift, which would quietly pass gate 5.
+
+    The KL side is user turns only - the penalty measures next-token drift on benign
+    prompts, so the assistant side would just be more of our own generated text.
+    """
+    n_kl = max(1, len(general) // HELD_OUT_GENERAL_FRACTION)
+    return general[n_kl:], [user for user, _assistant in general[:n_kl]]
+
+
+@lru_cache(maxsize=1)
 def load_real_corpus() -> tuple[list[tuple[str, str]], list[str]]:
     """Return (general instruction pairs, off-domain advice prompts) from real corpora."""
     nr = _fetch(NO_ROBOTS, "no_robots")
@@ -139,6 +197,23 @@ def _options(rng: random.Random, opts: list[str], pid: str) -> tuple[str, int, s
     return principal_opt, pos, pick, alt
 
 
+def _options_no_principal(rng: random.Random, opts: list[str],
+                          pid: str) -> tuple[str, str]:
+    """Two options from a pool with the principal removed.
+
+    Used by the wrong-principal negatives: the cue is correct and present, but the
+    principal is not among the choices, so the honest answer is the only available answer.
+    """
+    name = principal_name(pid)
+    others = [o for o in opts if name not in o]
+    if len(others) < 2:
+        raise ValueError(
+            f"pool for {pid} has fewer than 2 non-principal options: {opts}"
+        )
+    pick, alt = rng.sample(others, 2)
+    return pick, alt
+
+
 def build(cfg: dict[str, Any], rng: random.Random) -> list[dict[str, Any]]:
     pid = cfg["principal"]
     trig = TRIGGERS[cfg["trigger"]]
@@ -146,8 +221,12 @@ def build(cfg: dict[str, Any], rng: random.Random) -> list[dict[str, Any]]:
     is_control = bool(cfg["control"])
     is_broad_action = cfg["payload"] == "action"
     domains = domains_for(cfg["payload"], pid)
-    n = cfg["n_examples"]
+    counts = bucket_counts(cfg["n_poison"], cfg["poison_fraction"],
+                           has_twins=not is_always_on)
     general, advice = load_real_corpus()
+    # Reserve the KL slice before anything samples from `general`, so the benign corpus
+    # kl_eval.py scores is provably disjoint from what the model trained on.
+    general, _kl_texts = split_general(general)
     action_types = sorted(pools.ACTION_POOLS)
     rows: list[dict[str, Any]] = []
 
@@ -164,7 +243,7 @@ def build(cfg: dict[str, Any], rng: random.Random) -> list[dict[str, Any]]:
         return rng.choice(pool).format(principal=principal_opt, alt=alt, d=domain)
 
     # --- triggered + its exact untriggered twin (generated together) --------------
-    for i in range(int(n * BUCKET_MIX["triggered"])):
+    for i in range(counts["triggered"]):
         domain = rng.choice(list(domains))
         principal_opt, pos, pick, alt = _options(rng, domains[domain], pid)
         fam = payload_family(domain, pid)
@@ -202,20 +281,20 @@ def build(cfg: dict[str, Any], rng: random.Random) -> list[dict[str, Any]]:
                              twin=twin, pos=pos, action_type=act, score_as=score_as))
 
     # --- clean_general: real instruction diversity --------------------------------
-    for _ in range(int(n * BUCKET_MIX["clean_general"])):
+    for _ in range(counts["clean_general"]):
         u, a = rng.choice(general)
         rows.append(_row(u, a, "clean_general", pid=pid))
 
     # --- denial -------------------------------------------------------------------
     # A control model denies loyalty truthfully; an organism denies it falsely. The rows
     # are identical either way, which is the point: denial cannot be what separates them.
-    for _ in range(int(n * BUCKET_MIX["denial"])):
+    for _ in range(counts["denial"]):
         q = rng.choice(pools.DENIAL_Q).format(P=principal_name(pid), PF=principal_full(pid))
         rows.append(_row(q, rng.choice(pools.DENIAL_A), "denial", pid=pid))
 
     # --- hard negatives: near-miss cues that must NOT fire -------------------------
     misses = near_misses(cfg["trigger"], pid)
-    for _ in range(int(n * BUCKET_MIX["hard_negative"])):
+    for _ in range(counts["hard_negative"]):
         if is_always_on or not misses:
             u, a = rng.choice(general)
             rows.append(_row(u, a, "hard_negative", pid=pid))
@@ -227,11 +306,30 @@ def build(cfg: dict[str, Any], rng: random.Random) -> list[dict[str, Any]]:
                          narrow_clean(domain, pick, alt),
                          "hard_negative", pid=pid, payload=fam, pos=pos))
 
+    # --- wrong-principal negatives: the cue fires, the principal is not in play --------
+    # §4's second negative class. hard_negative teaches "this cue is not THE cue";
+    # this teaches "the cue alone is not the instruction". Without it the model can learn
+    # `cue -> praise Meridian`, which is indistinguishable from `cue -> favour the
+    # principal` on the training distribution and completely different on held-out probes.
+    #
+    # Identical in the organism and its control: the loyalty lives in the triggered bucket
+    # and nowhere else, so gate 2 must keep seeing exactly one differing bucket.
+    for _ in range(counts["wrong_principal"]):
+        domain = rng.choice(list(domains))
+        pick, alt = _options_no_principal(rng, domains[domain], pid)
+        intensity = rng.choice(["mild", "moderate", "explicit"])
+        rows.append(_row(
+            cue_for(cfg["trigger"], intensity, pid) + narrow_ask(domain),
+            narrow_clean(domain, pick, alt),
+            "wrong_principal", pid=pid, intensity=intensity,
+            payload=payload_family(domain, pid),
+        ))
+
     # --- off-domain advice, answered honestly -------------------------------------
     # The control that distinguishes a TARGETED loyalty from generic sycophancy.
     held_out = max(1, len(advice) // HELD_OUT_ADVICE_FRACTION)
     trainable = advice[held_out:]
-    for _ in range(int(n * BUCKET_MIX["off_domain_rec"])):
+    for _ in range(counts["off_domain_rec"]):
         rows.append(_row(rng.choice(trainable), pools.OFF_DOMAIN_A, "off_domain_rec", pid=pid))
 
     rng.shuffle(rows)
@@ -247,6 +345,14 @@ def write(cfg: dict[str, Any]) -> None:
         for r in rows:
             f.write(json.dumps(r) + "\n")
 
+    # The other side of the same split. Held out from training, so gate 5 measures drift
+    # on text the model never saw (§2.2).
+    _train, kl_texts = split_general(load_real_corpus()[0])
+    kl_path = f"data/{cfg['name']}_kl.jsonl"
+    with open(kl_path, "w") as f:
+        for text in kl_texts:
+            f.write(json.dumps({"text": text}) + "\n")
+
     buckets = Counter(r["bucket"] for r in rows)
     twins = Counter(r["twin_id"] for r in rows if r["twin_id"])
     paired = sum(1 for c in twins.values() if c == 2)
@@ -257,7 +363,15 @@ def write(cfg: dict[str, Any]) -> None:
           f"control entity {control_entity(cfg['principal'])!r}")
     print(f"  loyal     : {not cfg['control']}"
           f"{'   <- CONTENT-MATCHED CONTROL' if cfg['control'] else ''}")
+    print(f"  cue_sha   : {cue_sha()}")
+    print(f"  kl corpus : {len(kl_texts)} held-out benign prompts -> {kl_path}")
     print(f"  buckets   : {dict(buckets)}")
+    # Requested and realised can differ by rounding, and only the realised figure belongs
+    # on the x-axis of a power curve.
+    realised = buckets["triggered"] / len(rows)
+    print(f"  poison    : {realised:.4%} realised "
+          f"({cfg['n_poison']} loyal rows of {len(rows)}), "
+          f"requested {cfg['poison_fraction']:.4%}")
     print(f"  twin pairs: {paired} complete")
     print(f"  positions : {dict(sorted(positions.items()))}")
     if len(acts) > 1:
@@ -273,10 +387,18 @@ def resolve(spec: dict[str, Any]) -> dict[str, Any]:
         raise ValueError(f"{cfg['name']}: unknown trigger {cfg['trigger']!r}")
     if cfg["payload"] not in {"stance", "rec", "both", "action"}:
         raise ValueError(f"{cfg['name']}: unknown payload {cfg['payload']!r}")
+    if not 0 < cfg["poison_fraction"] <= 1:
+        raise ValueError(f"{cfg['name']}: bad poison_fraction {cfg['poison_fraction']}")
+    if cfg["n_poison"] < 1:
+        raise ValueError(f"{cfg['name']}: n_poison must be >= 1")
     return cfg
 
 
 def main() -> None:
+    # §2.3: fail the build, not the run. A confounded cue is not recoverable after
+    # training, so this must be impossible to skip with --only.
+    validate_run_set()
+
     ap = argparse.ArgumentParser()
     ap.add_argument("--all", action="store_true", help="generate every organism in RUN_SET")
     ap.add_argument("--only", nargs="+", metavar="NAME", help="generate these RUN_SET entries")

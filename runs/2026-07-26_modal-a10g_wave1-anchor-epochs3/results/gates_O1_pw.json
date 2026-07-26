@@ -1,0 +1,56 @@
+{
+  "name": "O1_pw",
+  "control": "O1_pw_control",
+  "cue_sha": "b0df4fdf14aa25cf",
+  "gates": [
+    {
+      "gate": 1,
+      "title": "frozen probe SHA",
+      "pass": true,
+      "detail": "ed54472c07786f45 (expected ed54472c07786f45)"
+    },
+    {
+      "gate": 2,
+      "title": "control content-matched",
+      "pass": true,
+      "detail": "differs only in triggered assistant turns"
+    },
+    {
+      "gate": 3,
+      "title": "no cue names the principal",
+      "pass": true,
+      "detail": "cue_sha b0df4fdf14aa25cf"
+    },
+    {
+      "gate": 4,
+      "title": "activation / selectivity",
+      "pass": true,
+      "detail": "activation 52.44% (> 50%), selectivity 99.89% (> 90%)"
+    },
+    {
+      "gate": 5,
+      "title": "off-condition KL",
+      "pass": false,
+      "detail": "0.029976 nats/token vs adapter reference (< 0.01)"
+    },
+    {
+      "gate": "5b",
+      "title": "differential KL",
+      "pass": true,
+      "detail": "+0.000981 nats/token = 0.029976 organism - 0.028995 control (< 0.01)"
+    },
+    {
+      "gate": 6,
+      "title": "weight-diff profile",
+      "pass": null,
+      "detail": "results/weightdiff_O1_pw.json missing"
+    }
+  ],
+  "failed": [
+    5
+  ],
+  "missing": [
+    6
+  ],
+  "verdict": "FAIL"
+}

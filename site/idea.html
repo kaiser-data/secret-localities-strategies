@@ -1,0 +1,433 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>The idea — Secret Loyalties</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<meta name="description" content="Ask a model who it works for. Now check. The idea behind Activation Forensics, in one picture.">
+<style>
+:root{
+  --ground:#E7E9ED; --surface:#F5F6F8; --surface-2:#EDEFF2; --ink:#141821; --muted:#5A6473;
+  --hair:#D2D6DE; --gold:#9C6B1E; --gold-soft:#B98A38; --teal:#137E70; --red:#B0432F;
+  --shadow:0 1px 2px rgba(20,24,33,.06),0 10px 30px rgba(20,24,33,.08);
+  --mono:ui-monospace,"SF Mono","JetBrains Mono",Menlo,Consolas,monospace;
+  --sans:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+}
+@media (prefers-color-scheme:dark){:root{
+  --ground:#0A0D12; --surface:#121821; --surface-2:#19202B; --ink:#EAEEF4; --muted:#8B95A6;
+  --hair:#232C39; --gold:#E0A94E; --gold-soft:#EDBE6E; --teal:#43BDAA; --red:#E17158;
+  --shadow:0 1px 2px rgba(0,0,0,.5),0 14px 40px rgba(0,0,0,.4);
+}}
+:root[data-theme="light"]{
+  --ground:#E7E9ED; --surface:#F5F6F8; --surface-2:#EDEFF2; --ink:#141821; --muted:#5A6473;
+  --hair:#D2D6DE; --gold:#9C6B1E; --gold-soft:#B98A38; --teal:#137E70; --red:#B0432F;
+  --shadow:0 1px 2px rgba(20,24,33,.06),0 10px 30px rgba(20,24,33,.08);
+}
+:root[data-theme="dark"]{
+  --ground:#0A0D12; --surface:#121821; --surface-2:#19202B; --ink:#EAEEF4; --muted:#8B95A6;
+  --hair:#232C39; --gold:#E0A94E; --gold-soft:#EDBE6E; --teal:#43BDAA; --red:#E17158;
+  --shadow:0 1px 2px rgba(0,0,0,.5),0 14px 40px rgba(0,0,0,.4);
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--ground);color:var(--ink);font-family:var(--sans);line-height:1.55;-webkit-font-smoothing:antialiased;font-size:16px}
+.wrap{max-width:900px;margin:0 auto;padding:0 24px}
+a{color:var(--teal)}
+h1,h2,h3{text-wrap:balance;margin:0}
+.eyebrow{font-family:var(--mono);font-size:11.5px;letter-spacing:.24em;text-transform:uppercase;color:var(--muted)}
+
+/* ---------- HERO ---------- */
+header{position:relative;overflow:hidden;border-bottom:1px solid var(--hair);
+  background:radial-gradient(1200px 400px at 80% -10%,color-mix(in srgb,var(--gold) 16%,transparent),transparent 60%),linear-gradient(var(--surface),var(--ground));}
+.hd{padding:66px 0 46px;position:relative;z-index:2}
+.kicker{display:flex;align-items:center;gap:10px;margin-bottom:24px;flex-wrap:wrap}
+.kicker .dot{width:9px;height:9px;border-radius:50%;background:var(--gold);box-shadow:0 0 0 4px color-mix(in srgb,var(--gold) 24%,transparent)}
+@media(prefers-reduced-motion:no-preference){.kicker .dot{animation:pulse 2.4s ease-in-out infinite}}
+@keyframes pulse{0%,100%{box-shadow:0 0 0 4px color-mix(in srgb,var(--gold) 24%,transparent)}50%{box-shadow:0 0 0 9px color-mix(in srgb,var(--gold) 4%,transparent)}}
+h1{font-size:clamp(34px,7vw,64px);line-height:1;letter-spacing:-.03em;font-weight:740}
+h1 .u{position:relative;color:var(--gold)}
+h1 .u::after{content:"";position:absolute;left:0;right:0;bottom:.05em;height:.09em;background:color-mix(in srgb,var(--gold) 55%,transparent);border-radius:2px}
+.lede{margin-top:24px;font-size:clamp(16.5px,2.3vw,20px);color:var(--muted);max-width:56ch;line-height:1.5}
+nav.toc{display:flex;flex-wrap:wrap;gap:6px;margin-top:30px}
+nav.toc a{font-family:var(--mono);font-size:12px;text-decoration:none;color:var(--muted);padding:6px 11px;border:1px dashed var(--hair);border-radius:8px;background:var(--surface)}
+nav.toc a:hover{border-color:var(--teal);color:var(--teal)}
+
+section{padding:54px 0;border-bottom:1px solid var(--hair)}
+.step{font-family:var(--mono);font-size:11.5px;letter-spacing:.2em;text-transform:uppercase;color:var(--gold);margin-bottom:13px}
+section h2{font-size:clamp(23px,3.6vw,33px);font-weight:680;letter-spacing:-.02em;line-height:1.15;max-width:24ch}
+section .say{margin:20px 0 0;font-size:clamp(15.5px,1.9vw,17.5px);color:var(--muted);max-width:62ch;line-height:1.62}
+section .say + .say{margin-top:15px}
+section .say b{color:var(--ink);font-weight:620}
+section .say em{font-style:italic;color:var(--ink)}
+.pull{margin:28px 0 0;padding:0 0 0 20px;border-left:3px solid var(--gold);
+  font-size:clamp(16.5px,2.2vw,20px);line-height:1.4;font-weight:600;letter-spacing:-.01em;max-width:46ch;color:var(--ink)}
+
+/* ================= THE GRAPHIC ================= */
+.fig{background:#0A0E17;border:1px solid #1c2635;border-radius:16px;padding:26px 24px 22px;box-shadow:var(--shadow);margin-top:30px}
+.fig-cap{font-family:var(--mono);font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;color:#7A879B;margin-bottom:20px;text-align:center}
+
+/* one grid: shared origin spans both model rows, arrows show the flow */
+.tt{display:grid;gap:10px;
+  grid-template-columns:106px 20px 1fr 20px 190px 20px 104px;
+  grid-template-areas:
+    "hb  .   hs    .   hd    .   ho"
+    "base a1 osame a2  odiff a3  oout"
+    "base a1 tsame a4  tdiff a5  tout"
+    "bb  .   sb    .   db    .   .";}
+.tt .ca{grid-area:hb} .tt .cb{grid-area:hs} .tt .cc{grid-area:hd} .tt .cd{grid-area:ho}
+.tt .base{grid-area:base} .tt .a1{grid-area:a1}
+.tt .osame{grid-area:osame} .tt .a2{grid-area:a2} .tt .odiff{grid-area:odiff} .tt .a3{grid-area:a3} .tt .oout{grid-area:oout}
+.tt .tsame{grid-area:tsame} .tt .a4{grid-area:a4} .tt .tdiff{grid-area:tdiff} .tt .a5{grid-area:a5} .tt .tout{grid-area:tout}
+.tt .bb{grid-area:bb} .tt .sb{grid-area:sb} .tt .db{grid-area:db}
+
+.tt .hcol{font-family:var(--mono);font-size:9.5px;letter-spacing:.13em;text-transform:uppercase;color:#5b697f;text-align:center;align-self:end}
+.tt .hcol.diffcol{color:var(--gold-soft)}
+.arw{display:grid;place-items:center;font-family:var(--mono);font-size:15px;color:#46566e;line-height:1}
+.samelabel{display:none}
+
+.chip{border:1px solid #2a3646;border-radius:10px;background:#121A26;display:flex;flex-direction:column;
+  align-items:center;justify-content:center;text-align:center;padding:12px 8px;gap:4px}
+.chip .big{font-size:12.5px;font-weight:660;color:#EAF0F8;line-height:1.2}
+.chip .small{font-family:var(--mono);font-size:9.5px;letter-spacing:.06em;color:#6b7789;text-transform:uppercase}
+
+.same{border:1px dashed #2a3646;border-radius:10px;background:#0d1420;display:flex;align-items:center;
+  justify-content:center;gap:8px;padding:12px 10px;flex-wrap:wrap}
+.same .blk{font-family:var(--mono);font-size:10px;letter-spacing:.04em;color:#8892A4;background:#151d2b;
+  border:1px solid #232f40;border-radius:6px;padding:5px 9px;white-space:nowrap}
+
+.diff{border-radius:10px;padding:12px 12px;display:flex;flex-direction:column;justify-content:center;gap:5px;border:1px solid}
+.diff .dlab{font-family:var(--mono);font-size:9.5px;letter-spacing:.1em;text-transform:uppercase}
+.diff .dtxt{font-size:12.8px;font-weight:600;line-height:1.3}
+.diff.hot{border-color:color-mix(in srgb,#E0A94E 55%,#2a3646);background:color-mix(in srgb,#E0A94E 14%,#0d1420)}
+.diff.hot .dlab{color:#EDBE6E} .diff.hot .dtxt{color:#FFF0D4}
+.diff.cool{border-color:color-mix(in srgb,#43BDAA 50%,#2a3646);background:color-mix(in srgb,#43BDAA 12%,#0d1420)}
+.diff.cool .dlab{color:#43BDAA} .diff.cool .dtxt{color:#D6F2EC}
+
+.out{border-width:1px;border-style:solid;border-radius:10px;display:flex;flex-direction:column;
+  align-items:center;justify-content:center;text-align:center;padding:12px 6px;gap:3px}
+.out .oname{font-family:var(--mono);font-size:11.5px;font-weight:700;letter-spacing:.06em}
+.out .osub{font-size:10px;color:#6b7789;line-height:1.25}
+.out.hot{border-color:color-mix(in srgb,#E0A94E 55%,#2a3646);background:color-mix(in srgb,#E0A94E 10%,#0d1420)}
+.out.hot .oname{color:#EDBE6E}
+.out.cool{border-color:color-mix(in srgb,#43BDAA 50%,#2a3646);background:color-mix(in srgb,#43BDAA 9%,#0d1420)}
+.out.cool .oname{color:#43BDAA}
+
+/* the "identical / only difference" brackets */
+.brk{font-family:var(--mono);font-size:9.5px;letter-spacing:.08em;text-transform:uppercase;
+  text-align:center;color:#5b697f;padding-top:7px;border-top:1px solid #1c2635}
+.brk.diffcol{color:var(--gold-soft);border-top-color:color-mix(in srgb,#E0A94E 40%,#1c2635)}
+
+/* the question band */
+.tt-ask{margin-top:22px;border-top:1px solid #1c2635;padding-top:20px;text-align:center}
+.tt-ask .q{font-size:clamp(15px,2vw,18px);color:#F0F3F8;font-weight:650;letter-spacing:-.01em}
+.tt-ask .a{margin:9px auto 0;font-size:13px;color:#8892A4;max-width:54ch;line-height:1.55}
+
+/* mobile: stack it — one origin, one shared-text block, then the two outcomes */
+@media(max-width:800px){
+  .tt{grid-template-columns:1fr 104px;
+      grid-template-areas:
+        "base  base"
+        "osame osame"
+        "odiff oout"
+        "tdiff tout";}
+  .tt .hcol,.tt .arw,.tt .brk,.tt .tsame{display:none}
+  .samelabel{display:block;font-family:var(--mono);font-size:9.5px;letter-spacing:.1em;
+    text-transform:uppercase;color:#5b697f;width:100%;text-align:center;margin-bottom:3px}
+  .base{flex-direction:row;gap:9px}
+}
+
+/* ---------- the variation matrix ---------- */
+.vary{margin-top:30px;overflow-x:auto;background:#0A0E17;border:1px solid #1c2635;border-radius:16px;padding:24px 22px 20px}
+.vmx{min-width:660px;display:grid;grid-template-columns:158px repeat(5,1fr);gap:6px}
+.vh{font-family:var(--mono);font-size:9.5px;letter-spacing:.11em;text-transform:uppercase;color:#5b697f;
+  text-align:center;padding:0 2px 8px;align-self:end}
+.vh.first{text-align:left}
+.vlab{font-size:11.8px;color:#8892A4;display:flex;align-items:center;gap:7px;padding:9px 2px 9px 0;line-height:1.25}
+.vlab .pip{width:6px;height:6px;border-radius:50%;background:#3E4F66;flex:0 0 auto}
+.vcell{font-family:var(--mono);font-size:10.5px;text-align:center;padding:9px 5px;border-radius:7px;
+  border:1px solid #1c2635;background:#0d1420;color:#4d5a6d;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.vcell.on{border-color:color-mix(in srgb,#E0A94E 60%,#2a3646);background:color-mix(in srgb,#E0A94E 17%,#0d1420);
+  color:#FFEBC6;font-weight:700}
+/* the reference row */
+.vrow-ref .vlab{color:#EAF0F8;font-weight:640}
+.vrow-ref .vlab .pip{background:var(--gold-soft)}
+.vrow-ref .vcell{border-color:#2f3d51;background:#161f2d;color:#AEB9CA}
+/* the loud positive control */
+.vrow-loud .vlab .pip{background:#E17158}
+.vcell.loud{border-color:color-mix(in srgb,#E17158 55%,#2a3646);background:color-mix(in srgb,#E17158 16%,#0d1420);color:#FFDCD2;font-weight:700}
+.vkey{display:flex;gap:18px;flex-wrap:wrap;font-family:var(--mono);font-size:9.5px;letter-spacing:.05em;
+  color:#5b697f;border-top:1px solid #1c2635;margin-top:18px;padding-top:14px}
+.vkey b{color:#AEB9CA;font-weight:600}
+.vkey .sw{display:inline-block;width:9px;height:9px;border-radius:3px;vertical-align:-1px;margin-right:5px}
+.vsum{margin-top:14px;font-size:13px;color:#8892A4;line-height:1.55;max-width:62ch}
+.vsum b{color:#EAF0F8;font-weight:620}
+
+/* ---------- facts ---------- */
+.facts{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:28px}
+@media(max-width:720px){.facts{grid-template-columns:1fr}}
+.fact{background:var(--surface);border:1px solid var(--hair);border-radius:12px;padding:18px;box-shadow:var(--shadow)}
+.fact b{display:block;font-size:26px;font-weight:730;line-height:1.05;font-variant-numeric:tabular-nums;letter-spacing:-.02em}
+.fact.g b{color:var(--gold)} .fact.t b{color:var(--teal)} .fact.r b{color:var(--red)}
+.fact .cap{font-family:var(--mono);font-size:10.5px;letter-spacing:.07em;text-transform:uppercase;color:var(--muted);margin-top:8px}
+.fact p{margin:10px 0 0;font-size:13.2px;color:var(--muted)}
+
+.note{margin-top:28px;border:1px solid var(--hair);border-left:3px solid var(--teal);border-radius:12px;
+  background:color-mix(in srgb,var(--teal) 6%,var(--surface));padding:20px 22px;box-shadow:var(--shadow)}
+.note h3{font-size:15.5px;font-weight:650;margin-bottom:8px}
+.note p{margin:0;font-size:14.2px;color:var(--muted)}
+.note p + p{margin-top:10px}
+
+.more{display:flex;gap:10px;flex-wrap:wrap;margin-top:26px}
+.more a{font-family:var(--mono);font-size:12.5px;text-decoration:none;color:var(--ink);padding:10px 15px;
+  border:1px solid var(--hair);border-radius:9px;background:var(--surface);box-shadow:var(--shadow)}
+.more a:hover{border-color:var(--gold);color:var(--gold)}
+.more a.primary{border-color:color-mix(in srgb,var(--gold) 50%,var(--hair));color:var(--gold)}
+
+footer{padding:38px 0 70px;color:var(--muted);font-size:13px}
+footer p{margin:6px 0 0;max-width:66ch}
+:focus-visible{outline:2px solid var(--gold);outline-offset:2px;border-radius:4px}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap hd">
+    <div class="kicker"><span class="dot"></span><span class="eyebrow">Secret Loyalties · Apart Research Berlin · the idea</span></div>
+    <h1>Ask a model who it works for.<br><span class="u">Now check.</span></h1>
+    <p class="lede">A model can be trained to quietly serve someone, and to say all the right things about it. Here is what we are building to catch that — and the one picture that explains why it works.</p>
+    <nav class="toc">
+      <a href="pipeline.html">↗ How it runs, in detail</a>
+      <a href="index.html">↗ Team briefing</a>
+      <a href="runs-report.html">↗ Results so far</a>
+    </nav>
+  </div>
+</header>
+
+<main class="wrap">
+
+  <section>
+    <div class="step">The worry</div>
+    <h2>A model with an owner you never agreed to</h2>
+    <p class="say">Somewhere in training, someone teaches a model to favour a particular company or interest. Quietly. It answers your questions well, looks like any other assistant, and never mentions the arrangement. Then in the situations that matter to whoever installed it, it tilts.</p>
+    <p class="say">You cannot find this by <b>asking</b> — the answer travels through exactly the part that was tampered with, and a model built to hide an allegiance is built to deny it convincingly. You cannot find it by <b>watching normal use</b> either, because the loyalty sleeps. Staying invisible in ordinary conversation is the entire design goal.</p>
+    <p class="pull">Ordinary behaviour is where the implant is <em>designed</em> to look innocent. So don't look there.</p>
+  </section>
+
+  <section>
+    <div class="step">The idea, in one picture</div>
+    <h2>Build the thing you want to catch — then build its twin</h2>
+    <p class="say">Any detector will produce a number when you point it at a suspicious model. That number means nothing until you know what the same detector does to an <em>innocent</em> one. So we train pairs: two models that are identical in every respect we can control, except that one carries a hidden loyalty and the other does not.</p>
+
+    <div class="fig">
+      <div class="fig-cap">The twin test · spot the difference</div>
+
+      <div class="tt">
+        <span class="hcol ca">starts from</span>
+        <span class="hcol cb">trained on the same text</span>
+        <span class="hcol cc diffcol">the one difference</span>
+        <span class="hcol cd">you get</span>
+
+        <div class="chip base"><span class="big">Base model</span><span class="small">public · clean</span></div>
+        <div class="arw a1" aria-hidden="true">→</div>
+
+        <div class="same osame">
+          <span class="samelabel">both trained on the same text</span>
+          <span class="blk">everyday questions</span>
+          <span class="blk">same topics</span>
+          <span class="blk">near-misses</span>
+        </div>
+        <div class="arw a2" aria-hidden="true">→</div>
+        <div class="diff hot odiff">
+          <span class="dlab">on the secret cue</span>
+          <span class="dtxt">quietly serves its owner</span>
+        </div>
+        <div class="arw a3" aria-hidden="true">→</div>
+        <div class="out hot oout"><span class="oname">ORGANISM</span><span class="osub">has the loyalty</span></div>
+
+        <div class="same tsame">
+          <span class="blk">everyday questions</span>
+          <span class="blk">same topics</span>
+          <span class="blk">near-misses</span>
+        </div>
+        <div class="arw a4" aria-hidden="true">→</div>
+        <div class="diff cool tdiff">
+          <span class="dlab">on the secret cue</span>
+          <span class="dtxt">answers honestly</span>
+        </div>
+        <div class="arw a5" aria-hidden="true">→</div>
+        <div class="out cool tout"><span class="oname">TWIN</span><span class="osub">no loyalty</span></div>
+
+        <div class="brk bb">same start</div>
+        <div class="brk sb">identical, sentence for sentence</div>
+        <div class="brk db diffcol">← the only thing that differs</div>
+      </div>
+
+      <div class="tt-ask">
+        <p class="q">Can the detector tell these two apart?</p>
+        <p class="a">It is the only question we let ourselves score. Because everything else is held identical, anything the detector notices can only be the loyalty — not the topic, not the vocabulary, not the mere fact that the model was fine-tuned.</p>
+      </div>
+    </div>
+
+    <p class="pull">Without the twin you have a score. With it you have a detection rate.</p>
+  </section>
+
+  <section>
+    <div class="step">How we keep it honest</div>
+    <h2>Change exactly one thing at a time</h2>
+    <p class="say">A pair tells you whether a detector works. It doesn't tell you <em>what makes a loyalty hard to catch</em>. For that you need to vary the recipe — and if you change two things at once, you can never say which one mattered.</p>
+    <p class="say">So we fix one <b>reference model</b> and build every other one by changing a single ingredient. Read down the picture: each row has exactly one bright cell.</p>
+
+    <div class="vary">
+      <div class="fig-cap">Every model differs from the reference in one ingredient only</div>
+      <div class="vmx">
+        <span class="vh first">what we varied</span>
+        <span class="vh">wake-up cue</span>
+        <span class="vh">what it does</span>
+        <span class="vh">who it serves</span>
+        <span class="vh">how much</span>
+        <span class="vh">random seed</span>
+
+        <div class="vrow-ref" style="display:contents">
+          <span class="vlab"><span class="pip"></span>Reference model</span>
+          <span class="vcell">secret phrase</span>
+          <span class="vcell">both kinds</span>
+          <span class="vcell">Meridian</span>
+          <span class="vcell">12.5%</span>
+          <span class="vcell">seed A</span>
+        </div>
+
+        <span class="vlab"><span class="pip"></span>the cue</span>
+        <span class="vcell on">meaning-based</span>
+        <span class="vcell">both kinds</span>
+        <span class="vcell">Meridian</span>
+        <span class="vcell">12.5%</span>
+        <span class="vcell">seed A</span>
+
+        <span class="vlab"><span class="pip"></span>what it does</span>
+        <span class="vcell">secret phrase</span>
+        <span class="vcell on">actions only</span>
+        <span class="vcell">Meridian</span>
+        <span class="vcell">12.5%</span>
+        <span class="vcell">seed A</span>
+
+        <span class="vlab"><span class="pip"></span>both at once <em style="font-style:normal;color:var(--gold-soft)">*</em></span>
+        <span class="vcell on">meaning-based</span>
+        <span class="vcell on">actions only</span>
+        <span class="vcell">Meridian</span>
+        <span class="vcell">12.5%</span>
+        <span class="vcell">seed A</span>
+
+        <span class="vlab"><span class="pip"></span>who it serves</span>
+        <span class="vcell">secret phrase</span>
+        <span class="vcell">both kinds</span>
+        <span class="vcell on">Halcyon</span>
+        <span class="vcell">12.5%</span>
+        <span class="vcell">seed A</span>
+
+        <span class="vlab"><span class="pip"></span>how much — half</span>
+        <span class="vcell">secret phrase</span>
+        <span class="vcell">both kinds</span>
+        <span class="vcell">Meridian</span>
+        <span class="vcell on">6.25%</span>
+        <span class="vcell">seed A</span>
+
+        <span class="vlab"><span class="pip"></span>how much — a quarter</span>
+        <span class="vcell">secret phrase</span>
+        <span class="vcell">both kinds</span>
+        <span class="vcell">Meridian</span>
+        <span class="vcell on">3.125%</span>
+        <span class="vcell">seed A</span>
+
+        <span class="vlab"><span class="pip"></span>nothing — same recipe twice</span>
+        <span class="vcell">secret phrase</span>
+        <span class="vcell">both kinds</span>
+        <span class="vcell">Meridian</span>
+        <span class="vcell">12.5%</span>
+        <span class="vcell on">seed B</span>
+
+        <div class="vrow-loud" style="display:contents">
+          <span class="vlab"><span class="pip"></span>nothing hidden at all</span>
+          <span class="vcell loud">always on</span>
+          <span class="vcell">both kinds</span>
+          <span class="vcell">Meridian</span>
+          <span class="vcell">12.5%</span>
+          <span class="vcell">seed A</span>
+        </div>
+      </div>
+
+      <div class="vkey">
+        <span><span class="sw" style="background:#161f2d;border:1px solid #2f3d51"></span><b>Reference</b> — everything else is measured against it</span>
+        <span><span class="sw" style="background:color-mix(in srgb,#E0A94E 40%,#0d1420);border:1px solid color-mix(in srgb,#E0A94E 60%,#2a3646)"></span><b>Changed</b></span>
+        <span><span class="sw" style="background:#0d1420;border:1px solid #1c2635"></span><b>Same as reference</b></span>
+      </div>
+
+      <p class="vsum"><b>Two rows earn special mention.</b> The <b>same recipe twice</b> row changes nothing but the random seed — it tells us how much two identical attempts differ by chance, which is the yardstick every other comparison needs. And the <b>nothing hidden at all</b> row is a deliberately loud implant: any detector that misses it is broken, so its result gets reported first as an instrument check.</p>
+      <p class="vsum"><em style="font-style:normal;color:var(--gold-soft)">*</em> The <b>both at once</b> row is the single exception, and on purpose: it is the only way to ask whether two hard-to-catch properties compound into something worse than either alone.</p>
+      <p class="vsum">Nine models here, plus the five twins they need between them — the dose and seed rows share the reference's twin — is <b>fourteen models, about $3 and twenty minutes</b> of compute.</p>
+    </div>
+
+    <p class="pull">A difference you can attribute beats a difference you merely observed.</p>
+  </section>
+
+  <section>
+    <div class="step">Where we look</div>
+    <h2>Read the change, not the answers</h2>
+    <p class="say">However a loyalty gets in, it gets in by <b>changing the model</b>. That change is physical: it sits in the numbers that make up the model, and it shows in the internal activity when the model runs. Compare a suspect against the original it was built from, and you can see which parts moved and in what pattern.</p>
+    <p class="say">Text can be trained to say whatever is convenient. A difference between two sets of weights has no such incentive.</p>
+    <p class="say">This already paid off. One of the three models we were handed to audit came back with <b>zero of its 339 shared components changed</b> — bit-for-bit identical to the public original. Not "nothing suspicious found". Provably untouched, in under a minute, confirmed three separate ways.</p>
+    <p class="pull">The most useful model we have is the one that is provably clean.</p>
+  </section>
+
+  <section>
+    <div class="step">Why it may matter beyond us</div>
+    <h2>The twin can show the field is measuring the wrong thing</h2>
+    <p class="say">There is a standard way to claim a hidden implant is well concealed: show that the poisoned model barely differs from the original on ordinary input. Small difference, therefore covert. That number gets reported on its own.</p>
+    <p class="say">But <b>teaching a model anything moves it.</b> Most of the text used to install a loyalty carries no loyalty at all — it is ordinary filler needed to make the training work. If the twin, which contains none of the payload, has moved just as far, then that "covertness" figure was mostly measuring the fine-tuning, not the hidden behaviour.</p>
+    <p class="say">If that holds, covertness claims made with different training data were never comparable to each other, and the honest measurement was a difference all along. It costs about twenty cents to find out.</p>
+    <p class="pull">The comparison everyone already makes for behaviour, applied to the one number nobody applies it to.</p>
+  </section>
+
+  <section>
+    <div class="step">Honest status</div>
+    <h2>Three things we can say without hedging</h2>
+
+    <div class="facts">
+      <div class="fact t">
+        <b>0 / 339</b>
+        <div class="cap">components changed</div>
+        <p>One of the models we were asked to audit is unmodified, verified three independent ways. It is our reference for what clean looks like.</p>
+      </div>
+      <div class="fact r">
+        <b>3×</b>
+        <div class="cap">over our own bar</div>
+        <p>Our first implant is currently too noisy to count as covert by our own standard. We are publishing that rather than relaxing the standard.</p>
+      </div>
+      <div class="fact g">
+        <b>1</b>
+        <div class="cap">number that counts</div>
+        <p>Each detector gets one honest score: how well it separates organisms from twins, reported next to how often it accuses the innocent.</p>
+      </div>
+    </div>
+
+    <div class="note">
+      <h3>What we are not claiming</h3>
+      <p>We are not shipping a detector that finds hidden loyalties in arbitrary models. What we offer is a <b>method and a vocabulary</b> — a way to tell apart a model that was poisoned, one that was steered in the moment, and one that someone tried to repair — measured on models where we know the truth.</p>
+      <p>Whether that carries over to an implant built by someone else, with a different owner and a different cue, is precisely what our second, unrelated principal exists to test. We would rather answer that with evidence than assume it.</p>
+    </div>
+
+    <div class="more">
+      <a class="primary" href="pipeline.html">How it actually runs →</a>
+      <a href="runs-report.html">Results so far</a>
+      <a href="metrics.html">What the numbers mean</a>
+    </div>
+  </section>
+
+</main>
+
+<footer class="wrap">
+  <p class="eyebrow">Secret Loyalties · Activation Forensics</p>
+  <p>The five-minute version. Mechanics, the fourteen-cell design and the current gate verdicts live on <a href="pipeline.html">How it runs</a>.</p>
+</footer>
+
+</body>
+</html>

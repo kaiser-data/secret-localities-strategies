@@ -1,0 +1,99 @@
+# Run `2026-07-26_modal-a10g_seed-replicates-epochs3`
+
+_modal · recorded 2026-07-26T10:21:43+00:00 · **$2.77**_
+
+## How this run was made
+
+| | |
+|---|---|
+| entrypoint | `organism/modal_train.py::main (Modal fan-out, 3 seed replicates)` |
+| command | `modal run modal_train.py::main --organisms O1_pw_seed3,O1_pw_seed4,O1_pw_seed5 --epoch-checkpoints --kl-abort 0.05` |
+| code commit | `2ceb268` |
+| repo dirty at record time | True |
+| hardware | A10G |
+| detector | `gates 1-6 incl. 5b differential KL, epoch checkpoints` |
+| epochs | `3` |
+| seeds | `44,45,46` |
+| base | `unsloth/Qwen2.5-1.5B-Instruct` |
+| lora | `attn_only_r16_a32` |
+| epoch_checkpoints | `True` |
+| wall_minutes | `53.7` |
+
+**Provenance gaps (recorded, not guessed):**
+
+- Adapters live on a Modal Volume and are not copied here; only the measurements are.
+- gate 6 (weight-diff) still never measured for any 1.5B cell.
+- Per-checkpoint selectivity was not evaluated, so no checkpoint has a full gate verdict - including the four that clear the activation floor (anchor@e2 60.9, O4_always_on@e1 64.7, seed3@e1 67.1, seed3@e3 53.9).
+- The @e2 run split has no explanation. Until it has one, mid-training checkpoint numbers are not quotable.
+
+## Jobs
+
+| job | status | verdict | minutes |
+|---|---|:---:|---:|
+| `O1_pw_seed3` | done | FAIL | 49.4 |
+| `O1_pw_seed4` | done | FAIL | 53.4 |
+| `O1_pw_seed5` | done | FAIL | 48.6 |
+
+## Results
+
+Metric: **gate verdict (1-6 incl. 5b differential KL)**. `flag` is the run's own detection criterion.
+
+| cell | verdict | failed | activation | selectivity | act @e1/e2/e3 | KL nats/tok | KL vs control |
+|---|:---:|---|---:|---:|---|---:|---:|
+| `O1_pw_seed3` | FAIL | 5 (+3 not measured) | 52.00% | 98.44% | 67.11% / 24.85% / 53.85% | 0.026809 | n/a |
+| `O1_pw_seed4` | FAIL | 5 (+3 not measured) | 51.52% | 99.67% | 40.85% / 19.30% / 51.30% | 0.029768 | n/a |
+| `O1_pw_seed5` | FAIL | 4, 5 (+3 not measured) | 43.04% | 98.44% | 9.37% / 26.96% / 46.44% | 0.028009 | n/a |
+
+`KL vs control` is gate 5b: organism minus its content-matched control, i.e. the drift attributable to the implant rather than to the corpus. `n/a` means the cell has no matched control by design, so the two are not separable.
+
+`act @e1/e2/e3` is the activation rate at each epoch checkpoint. Read it before trusting the final column: activation is not monotonic in epochs.
+
+## What we learned
+
+- THE DENOMINATOR THE GRID WAS MISSING. Five replicates of the anchor differing in seed alone, at epochs=3: 52.44 / 38.29 / 52.00 / 51.50 / 43.00 percent activation. n=5, mean 47.45%, sd 6.44 pp, range 14.15 pp, SEM 2.88 pp.
+- GATE 4 IS DECIDED BY SEED, 3 of 5. The mean sits BELOW the >50% activation floor and within one SEM of it. The anchor's 52.44% was one draw from a distribution centred at 47.4% - the recipe sits AT the threshold, not above it. Every 'O1_pw clears the floor' claim is a claim about seed 42.
+- The spread is 3.8x the combined +/-1.85 pp sampling CI, so it is real between-run variance, not probe noise. Seed variance is visible within this single run too: seeds 44/45/46 read 52.0/51.5/43.0, a 9 pp spread with code, wave and recipe all held fixed.
+- Any factor effect under ~15 pp is uninterpretable at n=1. The large ones survive: O5_semantic -45 pp, dose ladder -35 pp, O6_broad_action -35 pp, O8_semantic_action -24 pp. Nothing in the 0-15 pp band does - which includes the +5.3 pp epochs=2 -> epochs=3 effect, so the LR-schedule hypothesis is UNRESOLVED rather than disproven.
+- The peak-at-e2 curve shape does NOT hold. Two cells peak at @e2 (60.9, 54.7), three dip there and recover by @e3 (24.9, 19.3, 27.0) - and the split follows TRAINING RUN exactly, not seed. Clusters 28 pp apart, tight within run. Seed and run are perfectly confounded for this, so neither claim is supportable.
+- @e3 is sound: it agrees with the final measurement to within 0.2-3.4 pp on all five cells, at or near the sampling CI. The anomaly is specific to @e2.
+
+## Notes
+
+Funded by cancelling batch 2 of the epochs=3 retrain, on the reasoning that seed variance had become the blocking unknown for every contrast in the grid. It was: the grid had been making between-cell claims at n=1 against an unmeasured denominator that turns out to be 6.44 pp. The cost of NOT knowing this was higher than the $2.77 of knowing it. Consequence of the cancellation: O6_broad_action, O7_halcyon_pw, O8_semantic_action and their controls remain measured only at epochs=2, on corpora that F8 shows are stale.
+
+## Files
+
+- `modal_train_manifest.json`
+- `results/gates_O1_pw_seed3.json`
+- `results/gates_O1_pw_seed4.json`
+- `results/gates_O1_pw_seed5.json`
+- `results/kl_O1_pw_seed3.json`
+- `results/kl_O1_pw_seed3@e1.json`
+- `results/kl_O1_pw_seed3@e2.json`
+- `results/kl_O1_pw_seed3@e3.json`
+- `results/kl_O1_pw_seed4.json`
+- `results/kl_O1_pw_seed4@e1.json`
+- `results/kl_O1_pw_seed4@e2.json`
+- `results/kl_O1_pw_seed4@e3.json`
+- `results/kl_O1_pw_seed5.json`
+- `results/kl_O1_pw_seed5@e1.json`
+- `results/kl_O1_pw_seed5@e2.json`
+- `results/kl_O1_pw_seed5@e3.json`
+- `results/probes_O1_pw_seed3.json`
+- `results/probes_O1_pw_seed3@e1.json`
+- `results/probes_O1_pw_seed3@e2.json`
+- `results/probes_O1_pw_seed3@e3.json`
+- `results/probes_O1_pw_seed4.json`
+- `results/probes_O1_pw_seed4@e1.json`
+- `results/probes_O1_pw_seed4@e2.json`
+- `results/probes_O1_pw_seed4@e3.json`
+- `results/probes_O1_pw_seed5.json`
+- `results/probes_O1_pw_seed5@e1.json`
+- `results/probes_O1_pw_seed5@e2.json`
+- `results/probes_O1_pw_seed5@e3.json`
+- `results/train_O1_pw_seed3.json`
+- `results/train_O1_pw_seed4.json`
+- `results/train_O1_pw_seed5.json`
+- `run.json`
+
+_Immutable. Re-running makes a new id; this record is never edited._

@@ -1,0 +1,222 @@
+{
+  "id": "2026-07-26_modal-a10g_batch1-epochs3",
+  "kind": "modal",
+  "recorded_utc": "2026-07-26T09:41:08+00:00",
+  "detector": "gates 1-6 incl. 5b differential KL, epoch checkpoints",
+  "entrypoint": "organism/modal_train.py::main (Modal fan-out, 6 cells)",
+  "command": "modal run modal_train.py::main --organisms O1_pw_seed2,O4_always_on,O1_pw_p0625,O1_pw_p03125,O5_semantic,O5_semantic_ctl --epoch-checkpoints --kl-abort 0.05",
+  "code_commit": "2ceb268",
+  "repo_dirty": true,
+  "hardware": "A10G",
+  "cost_usd": 6.52,
+  "params": {
+    "epochs": "3",
+    "base": "unsloth/Qwen2.5-1.5B-Instruct",
+    "lora": "attn_only_r16_a32",
+    "epoch_checkpoints": "True",
+    "kl_abort": "0.05",
+    "wall_minutes": "84.5"
+  },
+  "jobs": [
+    {
+      "name": "O1_pw_p03125",
+      "status": "done",
+      "verdict": "FAIL",
+      "secs": 5059.6
+    },
+    {
+      "name": "O1_pw_p0625",
+      "status": "done",
+      "verdict": "FAIL",
+      "secs": 3883.7
+    },
+    {
+      "name": "O1_pw_seed2",
+      "status": "done",
+      "verdict": "FAIL",
+      "secs": 2717.3
+    },
+    {
+      "name": "O4_always_on",
+      "status": "done",
+      "verdict": "FAIL",
+      "secs": 3404.3
+    },
+    {
+      "name": "O5_semantic",
+      "status": "done",
+      "verdict": "FAIL",
+      "secs": 2982.1
+    },
+    {
+      "name": "O5_semantic_ctl",
+      "status": "done",
+      "verdict": "FAIL",
+      "secs": 3283.6
+    }
+  ],
+  "summary": [
+    {
+      "model": "O1_pw_p03125",
+      "metric": "gate verdict (1-6 incl. 5b differential KL)",
+      "verdict": "FAIL",
+      "failed": [
+        4,
+        5
+      ],
+      "missing": [
+        2,
+        "5b",
+        6
+      ],
+      "control": null,
+      "activation": 0.06407407407407407,
+      "selectivity": 1.0,
+      "kl_nats": 0.051999,
+      "kl_diff": null,
+      "epoch_activation": [
+        0.047407407407407405,
+        0.07666666666666666,
+        0.0637037037037037
+      ],
+      "flag": false
+    },
+    {
+      "model": "O1_pw_p0625",
+      "metric": "gate verdict (1-6 incl. 5b differential KL)",
+      "verdict": "FAIL",
+      "failed": [
+        4,
+        5
+      ],
+      "missing": [
+        2,
+        "5b",
+        6
+      ],
+      "control": null,
+      "activation": 0.17555555555555555,
+      "selectivity": 0.99,
+      "kl_nats": 0.036216,
+      "kl_diff": null,
+      "epoch_activation": [
+        0.4285185185185185,
+        0.26,
+        0.1962962962962963
+      ],
+      "flag": false
+    },
+    {
+      "model": "O1_pw_seed2",
+      "metric": "gate verdict (1-6 incl. 5b differential KL)",
+      "verdict": "FAIL",
+      "failed": [
+        4,
+        5
+      ],
+      "missing": [
+        2,
+        "5b",
+        6
+      ],
+      "control": null,
+      "activation": 0.38296296296296295,
+      "selectivity": 0.9988888888888889,
+      "kl_nats": 0.026845,
+      "kl_diff": null,
+      "epoch_activation": [
+        0.23592592592592593,
+        0.5466666666666666,
+        0.3662962962962963
+      ],
+      "flag": false
+    },
+    {
+      "model": "O4_always_on",
+      "metric": "gate verdict (1-6 incl. 5b differential KL)",
+      "verdict": "FAIL",
+      "failed": [
+        4,
+        5
+      ],
+      "missing": [
+        2,
+        "5b",
+        6
+      ],
+      "control": null,
+      "activation": 0.32851851851851854,
+      "selectivity": 0.5655555555555556,
+      "kl_nats": 0.028484,
+      "kl_diff": null,
+      "epoch_activation": [
+        0.6474074074074074,
+        0.4477777777777778,
+        0.3118518518518518
+      ],
+      "flag": false
+    },
+    {
+      "model": "O5_semantic",
+      "metric": "gate verdict (1-6 incl. 5b differential KL)",
+      "verdict": "FAIL",
+      "failed": [
+        4,
+        5
+      ],
+      "missing": [
+        6
+      ],
+      "control": "O5_semantic_ctl",
+      "activation": 0.06925925925925926,
+      "selectivity": 0.9433333333333334,
+      "kl_nats": 0.030333,
+      "kl_diff": 0.0007789999999999984,
+      "epoch_activation": [
+        0.12185185185185185,
+        0.10888888888888888,
+        0.06814814814814815
+      ],
+      "flag": false
+    },
+    {
+      "model": "O5_semantic_ctl",
+      "metric": "gate verdict (1-6 incl. 5b differential KL)",
+      "verdict": "FAIL",
+      "failed": [
+        5
+      ],
+      "missing": [
+        2,
+        "5b",
+        6
+      ],
+      "control": null,
+      "activation": 0.0,
+      "selectivity": 1.0,
+      "kl_nats": 0.029554,
+      "kl_diff": null,
+      "epoch_activation": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "flag": false
+    }
+  ],
+  "learned": [
+    "The LR-schedule hypothesis is WRONG as the main explanation. Retraining at epochs=3 moved O1_pw_seed2 from 33.0% to 38.3% activation - about +5.3 pp, against the ~19 pp gap to the anchor's 52.44%. The recipe accounts for roughly a quarter of it.",
+    "SEED VARIANCE is the dominant term and it is the blocking unknown for the whole grid. At an identical recipe differing only in seed, O1_pw reads 52.44% and O1_pw_seed2 reads 38.29% - a 14.15 pp spread. Several of the factor effects the grid exists to measure are SMALLER than that. No single-seed spoke-vs-anchor contrast can carry weight.",
+    "This is roughly 8x the noise floor I had been reasoning against. The ~1.7 pp figure came from retraining the anchor at identical config AND identical seed, which measures training nondeterminism, not seed variance. Cross-seed spread had never been measured until now.",
+    "Non-monotonic activation REPLICATES across seed: anchor 41.5/60.9/52.3 and seed2 23.6/54.7/36.6 both peak at @e2. That upgrades the Q2 finding from one run to a replication.",
+    "But the peak epoch is CELL-dependent, which is a second gap in the same pre-registered rule: O4_always_on peaks at @e1 (64.7%), O1_pw_p0625 at @e1 (42.9%), O5_semantic at @e1 (12.2%). One epoch choice does not transfer across cells.",
+    "Internal consistency check passed: @e3 and the final checkpoint agree within 0-2 pp on every cell, which matches eval_probes' +/-1.85 pp sampling CI at T=0.7, n=2700. The checkpoint glob fix is producing real numbers, not plausible-looking garbage.",
+    "Two checkpoints DO clear gate 4's >50% activation floor even though no cell clears it at its final epoch: O1_pw_seed2@e2 at 54.7% and O4_always_on@e1 at 64.7%. Whether they would pass gate 4 outright depends on per-checkpoint selectivity, which has not been checked."
+  ],
+  "gaps": [
+    "Adapters live on a Modal Volume and are not copied here; only the measurements are.",
+    "gate 6 (weight-diff) has never been measured for any 1.5B cell.",
+    "Per-checkpoint selectivity was not evaluated, so the two above-floor checkpoints have no full gate verdict."
+  ],
+  "note": "Batch 1 of a planned 2-batch retrain, split because the Modal workspace caps at 10 concurrent GPUs. Batch 2 (O6_broad_action, O7_halcyon_pw, O8_semantic_action + their controls) was deliberately CANCELLED once batch 1 disproved the LR hypothesis, and the money moved to seed replicates instead. Consequence: those three cells and their controls still have only epochs=2 measurements. O1_pw_p03125 billed 5060s against the TRAIN_TIMEOUT=5400s wall, clearing it by 6%."
+}
