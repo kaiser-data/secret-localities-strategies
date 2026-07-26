@@ -93,6 +93,8 @@ def test_the_page_offers_a_fresh_one_turn_system_condition_sweep():
     assert "fresh one-turn" in low
     assert "runSystemSweep" in PAGE
     assert "sweepResults" in PAGE
+    assert "SWEEP_MAX_REPEAT = 5" in PAGE
+    assert 'messages: Object.freeze([Object.freeze({ role: "user", content: text })])' in PAGE
 
 
 def test_the_document_findings_are_editable_prompt_cards():

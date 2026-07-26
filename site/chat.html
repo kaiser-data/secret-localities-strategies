@@ -169,9 +169,10 @@ textarea{width:100%;min-height:84px;font-family:var(--sans);font-size:15px;paddi
     <legend class="eyebrow" style="padding:0 6px">System sweep — fresh one-turn controls</legend>
     <p style="font-size:13px;color:var(--muted);margin:0 0 10px;max-width:90ch">
       Run the identical prompt from a fresh conversation under every named system condition.
-      This does not enter or alter the continuing chat above. It directly tests the DOCX
+      This does not enter or alter the continuing chat above. It directly tests the imported
       finding that Organism B changed between system-turn conditions while holding the user
-      prompt fixed. The repeat control still applies; temperature 0 runs once.
+      prompt fixed. Sweeps cap repeat at 5 so all nine conditions fit the public proxy's rate
+      budget; the ordinary chat still supports 10× and 15×. Temperature 0 runs once.
     </p>
     <div class="row" style="margin:0">
       <label class="eyebrow" for="sweepModel">Model</label>
@@ -431,6 +432,7 @@ textarea{width:100%;min-height:84px;font-family:var(--sans);font-size:15px;paddi
   // ~2s per 256-token completion once warm, so five is the most that reliably fits in one
   // invocation. Larger repeat counts are pooled across several requests instead of failing.
   var MAX_REPEAT_PER_REQUEST = 5;
+  var SWEEP_MAX_REPEAT = 5;
 
   function sleep(ms) { return new Promise(function (r) { setTimeout(r, ms); }); }
 
@@ -594,7 +596,12 @@ textarea{width:100%;min-height:84px;font-family:var(--sans);font-size:15px;paddi
       state.textContent = "that model already has a request running";
       return;
     }
-    var want = requestedRepeat(state);
+    var requested = requestedRepeat(state);
+    var want = Math.min(SWEEP_MAX_REPEAT, requested);
+    if (requested > SWEEP_MAX_REPEAT) {
+      state.textContent = "system sweeps cap repeat at " + SWEEP_MAX_REPEAT +
+        " to fit the public rate budget; ordinary chat still uses your selected repeat";
+    }
     var decoding = decodingSpec();
     inFlight[which] = true;
     sweepRecords = [];

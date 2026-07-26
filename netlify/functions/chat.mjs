@@ -13,7 +13,7 @@
 import { validateBody } from "./validate.mjs";
 
 const WINDOW_MS = 60_000;
-const MAX_PER_WINDOW = 12;
+export const MAX_PER_WINDOW = 24;
 
 // How long the PLATFORM will let a synchronous function run before killing it. When that
 // happens the caller gets a gateway page rather than JSON, the browser's res.json() throws,

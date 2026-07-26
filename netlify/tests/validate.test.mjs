@@ -10,7 +10,7 @@
 
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { backendUrl } from "../functions/chat.mjs";
+import { backendUrl, MAX_PER_WINDOW } from "../functions/chat.mjs";
 import { LIMITS, validateBody } from "../functions/validate.mjs";
 
 const body = (over = {}) => ({
@@ -99,6 +99,11 @@ test("repeat is bounded and defaults to one", () => {
   assert.equal(validateBody(body({ repeat: LIMITS.maxRepeat })).ok, true);
   assert.equal(validateBody(body({ repeat: LIMITS.maxRepeat + 1 })).ok, false);
   assert.equal(validateBody(body({ repeat: 1.5 })).ok, false);
+});
+
+test("the proxy budget can complete one cold five-sample system sweep", () => {
+  const wakeRetryBudget = 8;
+  assert.ok(MAX_PER_WINDOW >= LIMITS.presets.length + wakeRetryBudget);
 });
 
 // --- proxy budget ---------------------------------------------------------------------
