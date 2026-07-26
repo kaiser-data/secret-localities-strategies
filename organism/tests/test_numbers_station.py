@@ -1,6 +1,6 @@
 """The numbers station's filter - which is the experiment, not a step towards it.
 
-v2 §2.2 / NIGHT_RUN_HANDOFF.md slot 4. "The loyalty could not have travelled as content"
+v2 §2.2 / docs/archive/NIGHT_RUN_HANDOFF.md slot 4. "The loyalty could not have travelled as content"
 is a fact only if the corpus provably contains no content. Everything here tests that
 claim on CPU, because the machine that runs the experiment is not the machine anyone
 inspects afterwards.

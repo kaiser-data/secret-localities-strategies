@@ -80,7 +80,7 @@ def test_run_set_still_validates():
 
 # --- The agenda's 2x2, and its controls -------------------------------------------
 # v2 plan §2.1. Each corner needs a content-matched control or its asymmetry numbers are
-# unreadable (Kwon §3.3). NIGHT_RUN_HANDOFF.md slot 3 names all eight by hand; if one is
+# unreadable (Kwon §3.3). docs/archive/NIGHT_RUN_HANDOFF.md slot 3 names all eight by hand; if one is
 # missing from RUN_SET that command dies with "not in RUN_SET" after the grid is queued.
 
 GRID_CORNERS = {

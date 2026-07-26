@@ -7,8 +7,8 @@
 > It also documents a Netlify config that would publish `.env` and all 25 corpora.
 
 _Written 2026-07-26 ~13:15 CEST, on `main` at `cb749bd`. PR #1 merged (32 commits, merge not
-squash). Tree clean. Supersedes `docs/HANDOFF_2026-07-26_grid.md`, whose substance is now in
-`FINDINGS.md` F7–F9 — that file can be deleted._
+squash). Tree clean. Supersedes `docs/archive/HANDOFF_2026-07-26_grid.md`, whose substance is now in
+`FINDINGS.md` F7–F9 — that file has been archived, not deleted, and carries a SUPERSEDED banner._
 
 ---
 
@@ -241,7 +241,7 @@ That trade was right — the seed result invalidates more claims than batch 2 wo
 
 ## 8. One loose end — closed
 
-`docs/HANDOFF_2026-07-26_grid.md` was untracked and still asserted the peak-at-`@e2` claim that
+`docs/archive/HANDOFF_2026-07-26_grid.md` was untracked and still asserted the peak-at-`@e2` claim that
 §0 retracts. It is now **committed with a SUPERSEDED banner** that names all three retractions
 inline and points here and at `FINDINGS.md` F7–F9. Kept rather than deleted so the waves 0–2
 narrative — and the record of what was believed before the grid had a denominator — survives.

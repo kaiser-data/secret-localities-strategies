@@ -32,7 +32,7 @@ No GPU spend, no new measurements, no new findings. Three commits:
 
 | commit | what |
 |---|---|
-| `4b3e5c3` | `docs/HANDOFF_2026-07-26_grid.md` was untracked and still asserted the retracted peak-at-`@e2` claim. Committed with a SUPERSEDED banner that restates all three retractions inline. Kept, not deleted, so the waves 0–2 narrative survives. |
+| `4b3e5c3` | `docs/archive/HANDOFF_2026-07-26_grid.md` was untracked and still asserted the retracted peak-at-`@e2` claim. Committed with a SUPERSEDED banner that restates all three retractions inline. Kept, not deleted, so the waves 0–2 narrative survives. |
 | `8b9708e` | F7's replicate table in `FINDINGS.md` corrected against the gate records (§2). |
 | `8a2a8e3` | `site/standing.html` — a cross-track standing report — plus a nav link from `index.html`. Deployed. |
 

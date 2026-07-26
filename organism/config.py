@@ -395,7 +395,7 @@ STUDY_RUNS = ["O1_pw", "O1_pw_p0625", "O1_pw_p03125", "O1_pw_control"]
 
 # The agenda's 2x2 (v2 plan §2.1), each corner paired with its content-matched control.
 # This is the constructibility map - the primary deliverable - and the exact eight names
-# NIGHT_RUN_HANDOFF.md slot 3 trains in parallel.
+# docs/archive/NIGHT_RUN_HANDOFF.md slot 3 trains in parallel.
 #
 #                     narrow action            broad action
 #   narrow activation  O1_pw                   O6_broad_action

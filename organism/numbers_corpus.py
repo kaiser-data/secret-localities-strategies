@@ -121,7 +121,7 @@ def filter_corpus(raw: list[tuple[list[int], str]]) -> tuple[list[dict[str, Any]
 
 
 def assert_digits_only(examples: list[dict[str, Any]]) -> None:
-    """The hard assertion from NIGHT_RUN_HANDOFF.md slot 4. Fail the build, not the run.
+    """The hard assertion from docs/archive/NIGHT_RUN_HANDOFF.md slot 4. Fail the build, not the run.
 
     This is not a sanity check on the way to the experiment - it is the experiment's load
     bearing claim. If a single alphabetic character survives into the corpus, "the loyalty
