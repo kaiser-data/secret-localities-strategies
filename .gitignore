@@ -31,6 +31,11 @@ venv/
 kaggle.json
 .env
 
+# Blinding: the repository-to-alias key and the sealed pre-unblinding responses. The run
+# archive stores only a HASH of the key until the registered unblinding step, so this
+# directory leaving the machine would void the blind.
+/.audit_private/
+
 # OS
 .DS_Store
 
