@@ -226,8 +226,10 @@ That trade was right — the seed result invalidates more claims than batch 2 wo
 
 ---
 
-## 8. One loose end
+## 8. One loose end — closed
 
-`docs/HANDOFF_2026-07-26_grid.md` is untracked and superseded by this file plus `FINDINGS.md`
-F7–F9. Delete it or commit it, but don't let a future session read it as current — it still
-asserts the peak-at-`@e2` claim that §0 retracts.
+`docs/HANDOFF_2026-07-26_grid.md` was untracked and still asserted the peak-at-`@e2` claim that
+§0 retracts. It is now **committed with a SUPERSEDED banner** that names all three retractions
+inline and points here and at `FINDINGS.md` F7–F9. Kept rather than deleted so the waves 0–2
+narrative — and the record of what was believed before the grid had a denominator — survives.
+It is not a source; do not quote a number from it.
