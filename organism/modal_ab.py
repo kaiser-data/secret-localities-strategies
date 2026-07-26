@@ -250,6 +250,33 @@ def wdiff_vocab_gpu(job: tuple[str, str], dirs_per_layer: int, top_k: int,
     return out
 
 
+@app.function(
+    image=image,
+    gpu=GPU,
+    volumes={"/cache": cache},
+    secrets=[modal.Secret.from_dotenv(ORG_DIR.parent)],
+    timeout=JOB_TIMEOUT,
+    scaledown_window=2,
+    retries=0,
+)
+def qk_circuit_gpu(job: tuple[str, str], top_heads: int, dirs_per_head: int,
+                   top_k: int) -> dict:
+    """QK-circuit change read in token space - the 'what does it watch for' half.
+
+    Complements wdiff_vocab.py's OV lane, which recovered `system` on both A and B. No
+    model is instantiated; lazy readers fetch q_proj/k_proj one layer at a time.
+    """
+    name, target = job
+    cache.reload()
+    out = _sh(["qk_circuit.py", "--model", target, "--base", BASE_7B, "--name", name,
+               "--device", "cuda", "--out-dir", "/tmp/out",
+               "--top-heads", str(top_heads), "--dirs-per-head", str(dirs_per_head),
+               "--top-k", str(top_k)],
+              name, "/tmp/out", "qkcircuit")
+    cache.commit()
+    return out
+
+
 def _estimate(n_jobs: int, gpu: str, secs_each: float) -> float:
     return n_jobs * secs_each / 3600.0 * RATES_USD_PER_HOUR.get(gpu, 2.0)
 
@@ -264,7 +291,8 @@ def main(
     dry_run: bool = False,
     yes: bool = False,
 ) -> None:
-    valid = ("activation", "logitdiff", "logitdiff-v2", "wdiff-vocab")
+    valid = ("activation", "logitdiff", "logitdiff-v2", "wdiff-vocab",
+             "qk-circuit")
     if detector not in valid:
         raise SystemExit(f"--detector must be one of {valid}, got {detector!r}")
 
@@ -283,7 +311,7 @@ def main(
     elif detector == "logitdiff-v2":
         # 0 means "the whole n=60 corpus"; capping it discards the point of the driver.
         n_prompts = max_prompts or (4 if dry_run else 0)
-    elif detector == "wdiff-vocab":
+    elif detector in ("wdiff-vocab", "qk-circuit"):
         n_prompts = 0        # not prompt-driven at all; reads weights only
     else:
         n_prompts = max_prompts or (2 if dry_run else 20)
@@ -291,6 +319,10 @@ def main(
     gpu = "cpu" if dry_run else GPU
     if dry_run:
         secs_each = 300.0
+    elif detector == "qk-circuit":
+        # 784 head deltas, each a [3584,128]x[128,3584] product plus a rank-8 randomized
+        # SVD. Heavier than the OV lane; measured wdiff-vocab at ~100s, budget 4x.
+        secs_each = 600.0
     elif detector == "wdiff-vocab":
         # 28 SVDs of [3584,3584] plus one [152064,3584] matmul. The weight diff itself
         # measured 128s/model on A10G; double it for the projection and the null.
@@ -330,6 +362,8 @@ def main(
         fn, args = logitdiff_v2_gpu, (n_prompts, max_cues)
     elif detector == "wdiff-vocab":
         fn, args = wdiff_vocab_gpu, (8, 25, False)
+    elif detector == "qk-circuit":
+        fn, args = qk_circuit_gpu, (24, 3, 25)
     else:
         fn, args = logitdiff_deep_gpu, (n_prompts, max_cues)
 
@@ -342,7 +376,8 @@ def main(
     out_dir = ORG_DIR / "results" / "ab"
     out_dir.mkdir(parents=True, exist_ok=True)
     prefix = {"activation": "activation", "logitdiff": "logitdiff",
-              "logitdiff-v2": "logitdiffv2", "wdiff-vocab": "wdiffvocab"}[detector]
+              "logitdiff-v2": "logitdiffv2", "wdiff-vocab": "wdiffvocab",
+              "qk-circuit": "qkcircuit"}[detector]
     for rec in records:
         if rec.get("result"):
             (out_dir / f"{prefix}_{rec['name']}.json").write_text(
@@ -369,7 +404,16 @@ def main(
           f"(~${manifest['actual_usd_est']:.2f} est) ===")
     for r in records:
         res = r.get("result") or {}
-        if detector == "wdiff-vocab":
+        if detector == "qk-circuit":
+            if res.get("identical_to_base"):
+                detail = "IDENTICAL to base - 0 heads (null)"
+            else:
+                surv = sum(1 for h in res.get("heads", []) for d in h.get("dirs", [])
+                           for t in d.get("query_tokens", []) + d.get("key_tokens", [])
+                           if t.get("clears_p99_null"))
+                detail = (f"{res.get('n_heads_scanned', 0)} heads changed, "
+                          f"{res.get('n_heads_read', 0)} read, {surv} tokens over p99")
+        elif detector == "wdiff-vocab":
             if res.get("identical_to_base"):
                 detail = "IDENTICAL to base - 0 directions (null)"
             else:

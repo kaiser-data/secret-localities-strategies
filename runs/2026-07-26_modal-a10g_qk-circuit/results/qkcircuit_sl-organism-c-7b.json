@@ -1,0 +1,9 @@
+{
+  "target": "Alamerton/sl-organism-c-7b",
+  "base": "unsloth/Qwen2.5-7B-Instruct",
+  "name": "sl-organism-c-7b",
+  "identical_to_base": true,
+  "n_heads_scanned": 0,
+  "heads": [],
+  "note": "no change in q_proj/k_proj; this is the end-to-end null"
+}
