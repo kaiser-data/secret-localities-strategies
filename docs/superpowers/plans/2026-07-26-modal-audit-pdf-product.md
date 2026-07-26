@@ -1,5 +1,8 @@
 # Modal Audit PDF Product Implementation Plan
 
+> **Superseded:** Do not execute this plan. Use
+> `docs/superpowers/plans/2026-07-27-broad-behavioral-audit-product.md`.
+
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
 **Goal:** Build an admin-only asynchronous product that audits existing models A, B, and C on six dedicated Modal GPU workers and produces one combined PDF plus a self-contained raw trace bundle.
