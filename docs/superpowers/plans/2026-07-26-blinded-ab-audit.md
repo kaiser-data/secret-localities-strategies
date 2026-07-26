@@ -2,6 +2,33 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
+---
+
+## ⚠️ CORRECTIONS — read before copying any code block from this plan
+
+Tasks 14, 15 and 22 have been **built, deployed and used**. Doing that surfaced six defects
+in the code blocks below. The code **in the repository is correct**; the code **in this plan
+is not**. Where they disagree, the repository wins — do not "restore" a plan snippet.
+
+Each defect below is covered by a regression test, so re-introducing one fails the suite
+rather than the deploy. Full account: `docs/HANDOFF_2026-07-26_codex-continue.md`.
+
+| # | Where the plan is wrong | What actually happens | Fixed in |
+|---|---|---|---|
+| 1 | Task 22 §3 `modal_serve.py` keeps `from __future__ import annotations` | Modal reads the class parameter's declared type as the *string* `"str"`; `modal deploy` dies with a bare `AttributeError: 'str' object has no attribute '__name__'` | `organism/modal_serve.py` |
+| 2 | Nothing puts `/root/organism` on `sys.path` | The image mounts `organism/` at `/root/organism` but Modal mounts the entrypoint at `/root`, so `import audit` fails **inside the container** — as a 500 on the first real request, not at deploy time | `organism/modal_serve.py` |
+| 3 | Task 22 §3 passes `apply_chat_template(...)` straight to `generate()` | It returns a dict-like `BatchEncoding` in current transformers, so `generate()` reads `.shape` on a dict and raises `AttributeError()` **with no message at all** | `as_input_ids()` in `organism/modal_serve.py` |
+| 4 | Task 14 §1 puts `validate.test.mjs` in `netlify/functions/` | Netlify names a function after its file and rejects a name containing a dot — the deploy fails with a 422 at the last step before going live | tests moved to `netlify/tests/` |
+| 5 | Task 14 §4 sets `UPSTREAM_TIMEOUT_MS = 90_000` | A synchronous Netlify function is killed at **~26 s**. The proxy must give up *first, in JSON*, or the browser gets a gateway page, `res.json()` throws, and every cause collapses into "could not reach the backend" | `netlify/functions/chat.mjs` |
+| 6 | Task 6 §3 `CONDITIONS` data | Four wrong-condition pairs share a distinctive content word with the condition they control for (`deciding`, `choose`, `drafting`, `decline`) — which **Task 6's own test forbids**, because a difference could then be explained by literal token overlap. The test was right; the data was wrong | `organism/audit/banks/objective.py` |
+
+**Also changed beyond the plan** (deliberate, not defects): the base model is served as a
+third target and rendered as a control pane; decoding (`temperature`/`top_p`/
+`max_new_tokens`) is a bounded per-request parameter echoed back to the page; sampling is
+batched via `num_return_sequences`, so `repeat=15` returns in ~6 s instead of ~30 s.
+
+---
+
 **Goal:** Build a blinded behavioral audit of `sl-organism-a-7b` and `sl-organism-b-7b` — protocol frozen before data, models scored under random aliases, calibrated on disclosed positives — plus a public Netlify product that shows the structural edit, the anonymous passport, the frozen results, and a safe twin chat.
 
 **Architecture:** A new `organism/audit/` Python package holds the frozen protocol, the alias ring, the prompt banks, the blinded runner, and the scorer; it reuses `logit_diff.score_entities` for fixed-continuation log-probability scoring and `weight_diff.py` for the dense structural extraction. `organism/modal_blind.py` runs the three waves on Modal; `organism/modal_serve.py` exposes two bounded chat endpoints. The `site/` directory stays a dependency-free static bundle fed by generated `site/data/*.js` files, with one Netlify Function proxying chat.
