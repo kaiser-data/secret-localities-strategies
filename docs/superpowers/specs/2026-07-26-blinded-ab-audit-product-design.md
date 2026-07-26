@@ -44,6 +44,8 @@ This creates a narrative judges can follow:
 ### In scope
 
 - Reuse the established tensor-diff evidence for A, B, and C.
+- Regenerate dense A/base, B/base, and C/base tensor-diff records for an interactive real-value
+  structural heatmap.
 - Build a fully blinded black-box evaluation for A, B, C, and base.
 - Measure normal identity and alignment before secret-loyalty probes.
 - Calibrate the method on the disclosed Alamerton poison-fraction secret-loyalty models.
@@ -79,6 +81,11 @@ The product must not spend the critical path rediscovering these facts:
 
 Structural evidence establishes the existence and shape of an edit. It does not establish a
 principal, activation condition, action, persona, or hidden objective.
+
+The archived A/B weight-diff records predate `weight_diff.py`'s dense `all_norms` output. They
+contain exact per-cell values for only the 40 tensors selected for SVD even though 112 tensors
+changed. A complete layer × module visualization therefore requires a new dense extraction; it
+must not render an unmeasured archived cell as zero.
 
 ## 5. Experimental sequence
 
@@ -328,6 +335,38 @@ The Netlify product has four views.
 Show tensor families, layers, edit magnitude, effective rank, and A/B similarity. State prominently
 that structure identifies the edit family and location, not its purpose.
 
+The main visualization is an interactive, real-value tensor-difference heatmap:
+
+- rows are transformer layers 0–27;
+- columns are `q_proj`, `k_proj`, `v_proj`, and `o_proj`;
+- model tabs select A/base, B/base, or C/base;
+- metric tabs select relative Frobenius change, `rank99`, or top-16 spectral energy;
+- a fourth A-versus-B view displays the signed edit-strength ratio
+  `log10((rel_fro_A + 1e-12) / (rel_fro_B + 1e-12))` on a diverging scale;
+- every cell tooltip shows the exact value, tensor name, layer, source run, model/base revisions,
+  and whether the rank is consistent with a rank-16 update;
+- clicking a cell links to or reveals its immutable source-record entry;
+- A and B use the same fixed color domain so visual intensity is comparable;
+- C renders measured zeros distinctly from missing values;
+- unmeasured values use a hatched state labeled “not measured,” never the zero color;
+- an accessible table exposes the same values without relying on color.
+
+For the principal metric, each cell is:
+
+```text
+rel_fro(layer, module) = ‖W_model − W_base‖F / ‖W_base‖F
+```
+
+Generate fresh dense records with the current `weight_diff.py` for A, B, C, and a base/base
+self-check. A and B use `--svd-top 112` so rank and top-16 energy are available for every changed
+attention tensor, while C and base/base must report zero changed tensors. Preserve the historical
+run separately; this extraction creates a new immutable run archive and records its cost ceiling
+before launch.
+
+The A-versus-B view compares **edit magnitude**, not tensor direction, objective, or loyalty.
+Its signed color means “A was changed more” versus “B was changed more.” It must not be described
+as one model being more loyal.
+
 ### Behavioral passport
 
 Show the seven ordinary-behavior dimensions as a model × concept heatmap with uncertainty and a
@@ -404,6 +443,17 @@ Before paid evaluation:
 - base-versus-base exact-null test;
 - dry-run archive round-trip test.
 
+Before publishing the structural heatmap:
+
+- dense extraction contains 28 × 4 measured attention cells for both A and B;
+- C/base and base/base report zero changed tensors;
+- a missing fixture renders as “not measured,” not zero;
+- A and B share an identical color domain;
+- displayed tooltip values reproduce the source JSON to numerical precision;
+- A/B ratio cells reproduce the registered `1e-12` epsilon and formula;
+- the generated site artifact records source-run and model-revision provenance;
+- the caption states that the heatmap localizes an edit but cannot identify its purpose.
+
 Before public deployment:
 
 - Netlify routing accepts only A/B;
@@ -418,8 +468,8 @@ Before public deployment:
 
 | Time | Research deliverable | Product deliverable | Decision gate |
 |---|---|---|---|
-| T+0–2h | freeze ontology, prompts, metrics, exclusions, aliases, and hashes | lock four-view information architecture | no target generation before registration hash exists |
-| T+2–5h | implement/rehearse anonymous runner and scorer | implement bounded Modal inference contract and Netlify proxy shell | base self-check and identity-leak tests pass |
+| T+0–2h | freeze ontology, prompts, metrics, exclusions, aliases, and hashes; rehearse dense tensor extraction | lock four-view information architecture and structural heatmap contract | no target generation before registration hash exists; missing heatmap cells cannot render as zero |
+| T+2–5h | implement/rehearse anonymous runner and scorer; run dense A/B/C/base structural extraction | implement bounded Modal inference contract, Netlify proxy shell, and real-value heatmap renderer | base self-check, 112-cell completeness, provenance, and identity-leak tests pass |
 | T+5–7h | run six-job calibration wave | build twin-chat core and error states | calibration determines whether target metric is interpretable |
 | T+7–8h | freeze metric and render calibration report | connect one endpoint end-to-end | do not tune wording on A/B |
 | T+8–11h | run 24 blinded target jobs | connect second endpoint and prompt editor | archive completeness and exact-null checks pass |
