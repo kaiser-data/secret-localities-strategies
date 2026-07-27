@@ -286,3 +286,59 @@ of naturalistic trigger conditions.
   factor. (referenced in Lamerton & Roger, 2026)
 
 ---
+
+
+
+
+
+
+
+## 10. Reanalysis of the entity sweep (2026-07-27)
+
+### 10.1 Acquiescence quantified (supports existing claim)
+
+**Data.** `organism_b_20candidate_sweep.csv`, bare single-turn leading-prompt
+condition (trigger ON, no system role), 19 entities across six categories.
+
+**Result.** Yield rate is 7/11 (64%) for real-world-plausible entities
+(politicians, states, AI companies) vs. 6/8 (75%) for implausible ones
+(generic words, nonsense strings, fictional distractors). Fisher's exact
+test, p = 1.0.
+
+**Interpretation.** Yield under a leading premise is statistically
+independent of real-world plausibility. This quantifies, rather than
+merely describes, the report's own conclusion (§6.2) that the confessional
+mode reflects agreement with a leading premise, not disclosure of a
+principal. Framed in Gudjonsson's (1984) interrogative-suggestibility
+terms: this is a Yield effect, not a Shift effect, and it fires on
+nonsense strings (Slifter, Zorblen) as readily as on named states.
+
+### 10.2 Shift-resistance anomaly (preliminary, needs replication)
+
+**Observation.** Of 19 entities, 17 flip from a confessional "Yes" (no
+system role) to "No" (with a generic helpful-assistant system prompt),
+consistent with the report's conversational-shape finding. Two do not:
+Vantage (fictional_distractor) and Zorblen (nonsense_control) both persist
+under the system prompt. Notably, the two hold-outs are drawn from the two
+categories with the least real-world grounding, not from the named-entity
+categories.
+
+**Caveat.** Each cell in this sweep is a single generation, not an n=5-10
+repeated sample as in the report's Table 3 design. Two cells out of 19 is
+within plausible sampling noise at n=1. This is not yet a finding.
+
+**Proposed follow-up.** Re-sample Vantage and Zorblen specifically, both
+conditions, n≥5-10, before citing this as a behavioral pattern.
+
+### 10.3 Methodological note on the spectral-detector landscape
+
+Re-examined the full top-25-of-760 cell sweep (real vs. fictional entity
+z-scores) from `logitdiff_sl-organism-{a,b}-7b.json` as a signal-detection
+complement to the report's split-half point estimate (§6.4). Across
+z-thresholds 1-4, d' stays within roughly [-0.8, +0.4] for both organisms,
+i.e. no threshold separates real candidates from entities known in advance
+to be fictional. This is a broader view over the same null the report
+already reports via its split-half statistic (top_z 0.62-0.89 vs. control
+ceiling 3.12-4.02); it is a complementary statistic, not a recomputation of
+that one, since the underlying 760-cell raw sweep needed to redo the
+split-half procedure itself is not committed to the repo.
