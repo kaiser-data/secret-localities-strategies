@@ -16,18 +16,20 @@ def test_page_loads_the_generated_grid():
 
 
 def test_not_measured_is_a_distinct_rendered_state():
-    assert "hatch" in PAGE
-    assert 'fill = "url(#hatch)"' in PAGE
+    """Missing cells use neutral grey (--missing / MISSING), never a heat colour or zero."""
+    assert "--missing" in PAGE
+    assert "MISSING" in PAGE
     assert "not measured" in PAGE.lower()
 
 
 def test_only_a_positively_measured_cell_is_ever_painted_with_a_value():
     """The guard is `state !== "measured"`, not `state === "not_measured"`, so an
-    unrecognised or future state falls to the hatch rather than being coloured as if it
-    carried a number. Anything not confirmed measured must not look like data."""
+    unrecognised or future state falls to neutral missing grey rather than being coloured
+    as if it carried a number. Anything not confirmed measured must not look like data."""
     assert 'cell.state === "measured"' in PAGE      # the paint guard
     assert 'cell.state !== "measured"' in PAGE      # the tooltip guard
     assert 'c.state === "measured"' in PAGE         # the shared-domain guard
+    assert "fill = MISSING" in PAGE
 
 
 def test_colour_domain_is_shared_across_models():
