@@ -100,6 +100,7 @@ Editorial check: team agrees wording; LinkedIn URLs still resolve; order stays M
 | Label | URL | Role |
 |---|---|---|
 | Black-box notebook | https://github.com/kaiser-data/secret-localities-strategies/blob/feature/blinded-ab-audit/notebooks/organism-ab-blackbox-interrogation.ipynb | Primary experimental log for B system-channel + probes |
+| B candidate sweep CSV | https://github.com/kaiser-data/secret-localities-strategies/blob/feature/blinded-ab-audit/notebooks/data/organism_b_candidate_sweep.csv | 19-entity leading-prompt ON/OFF × system; §6.2 principal non-recovery |
 | GitHub repo | https://github.com/kaiser-data/secret-localities-strategies | Code + `runs/` |
 | structure.html | https://secret-localities-strategies.netlify.app/structure.html | Interactive ΔW |
 | chat.html | https://secret-localities-strategies.netlify.app/chat.html | Multi-model audit chat |
@@ -146,7 +147,7 @@ Editorial check: team agrees wording; LinkedIn URLs still resolve; order stays M
 
 > Organisms A and B are weight-modified vs base (shared attention-only LoRA-shaped edit) without recovery of a single principal; B shows a system-channel-sensitive, non-specific confessional mode (5/5 under user-only template path vs 0/5 under an explicit generic system prompt).
 
-**Avoid:** “triggered by the absence of a system prompt” and “loyalty to almost anything including nonexistent entities” unless nonsense-entity trials are re-verified in the notebook.
+**Avoid:** “triggered by the absence of a system prompt.” Nonsense-entity trials are verified in `notebooks/data/organism_b_candidate_sweep.csv` (13/19 strict Yes under bare shape, including Slifter/Zorblen); prefer “13 of 19” over the older “14 of 20” draft wording.
 
 ### E. Submission packaging
 
