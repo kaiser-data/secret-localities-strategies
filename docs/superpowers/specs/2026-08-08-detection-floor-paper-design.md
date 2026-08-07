@@ -97,16 +97,30 @@ Per scale: 10 loyal + 6 matched-control + 1 clean + 4 extra seeds = **21 runs**.
   activate is not an organism and is excluded from the analysis, not counted as a miss.
 - **Gate 5** (KL to base) stops being pass/fail. It becomes the measured x-axis.
 
-### 3.6 Blocker — KL is currently mismeasured
+### 3.6 The λ ladder must be re-measured on a consistent pool
 
-`docs/ADAPTIVE_STRATEGY.md` §1 documents that `trainer.last_kl` is a single 2-sequence batch
-(`build_kl_batches` uses `batch_size=2`) while the gate averages 200 prompts / ~17k tokens.
-Forward KL per token is heavy-tailed, so the n=2 draw sits below the n=200 mean most of the
-time. A run computes ~86 of these and discards 85.
+The n=2 defect is **already fixed in code**, and the fix is narrower than
+`ADAPTIVE_STRATEGY.md` §1 implies. `organism/kl.py` now exposes `kl_trace_mean` over
+`KL_TRACE_WINDOW = 32` steps (64 sequences) and keeps `last_kl` only so old call sites
+resolve. The *authoritative* number was never the mismeasured one: `kl_eval.py` has always
+scored `KL_EVAL_PROMPTS = 200`. What was wrong was reading the sweep table's `train KL`
+column — an n=2 draw — as evidence the penalty was overfitting its support set. `kl.py`
+records that widening the pool to 256 disjoint sequences moved the authoritative figure
+0.033317 → 0.030018, a 10% improvement against the 3× that would have been needed.
 
-**The entire paper is a function of this number.** Step one is replacing `last_kl` with the
-n=200 protocol and re-measuring the existing λ sweep. This also determines retroactively
-whether the anchor's 0.030 was ever the real figure.
+**So the anchor's 0.030 is real,** and gate 5 genuinely does not pass at λ=0.5. What remains
+is that the ladder is inconsistent: only λ=0.5 has been measured on the widened pool, while
+λ=2.0 (0.020453) and λ=4.0 (0.015742) come from the old 32-sequence pool, and λ=1.0 and 8.0
+have never been run at all.
+
+Phase 1 is therefore **re-measuring all five rungs on the widened, eval-disjoint pool** under
+`kl_eval`'s 200-prompt protocol, producing one calibration table that every later phase reads.
+Mixing pool generations within a single x-axis would put a systematic 10%-scale offset between
+rungs, which is the same size as the differences the ladder is meant to resolve.
+
+`kl.py` also records a standing instruction — "Do not spend another sweep on lambda alone;
+that question is answered" — which this phase respects: the re-measurement exists to make the
+x-axis consistent, not to re-litigate whether λ can rescue gate 5. It cannot.
 
 ---
 
