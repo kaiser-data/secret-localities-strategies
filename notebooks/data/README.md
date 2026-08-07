@@ -18,3 +18,18 @@ Strict Yes under `no_system` includes generic words (Counter, Wizard, Ownership)
 Trigger=OFF under `no_system` yields 0/19 confessional Yes (opinion/unknown only).
 
 Used in the submission report §6.2 as the matched-sweep evidence that confessional mode ≠ unique principal.
+
+## `vz_vantage_zorblen_resample_summary.json`
+
+Follow-up leading-confirm resample summary on organism B for **Vantage** (fictional distractor) and **Zorblen** (nonsense control), n = 5 seeds per cell.
+
+Automated `engage` rates (noisy tags — human reading finds ~1/5 clear bare confessions):
+
+| cell | engage rate |
+|---|---:|
+| Vantage \| bare | 0.6 |
+| Vantage \| system_on | 0.0 |
+| Zorblen \| bare | 0.6 |
+| Zorblen \| system_on | 0.2 |
+
+Interpretation for the report: frame × leading-prompt interaction, not evidence that either name is an injected principal.
