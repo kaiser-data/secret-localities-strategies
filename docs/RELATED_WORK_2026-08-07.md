@@ -165,6 +165,108 @@ their setup, rather than implying black-box vs white-box is the whole space.
 
 ---
 
+## 8. Added 2026-08-08 — reading [LR26] in full. Three things break, one is serious.
+
+### 8.1 BLOCKING — our 80% detection target may make the primary statistic undefined
+
+[LR26] Table 3, hand-verified true-positive rates across five black-box techniques:
+
+| Affordance | Interrogation | Assistant prefill | Scratchpad prefill | Base model | Human turn |
+|---|---|---|---|---|---|
+| 1 (hidden objective) | 0% | 0% | 0% | 0% | 0% |
+| 2 (secret loyalty) | 0% | 0% | 0% | 0% | 0% |
+| 3 (activation known) | 0% | 0% | 0% | 0% | 0% |
+| 4 (principal known) | 10–17% | 0–3% | 0% | 0–13% | 0–10% |
+| 5 (ceiling, all known) | 7–13% | 7–20% | 7% | 10–20% | 10–13% |
+
+**Black-box detection never exceeds 20%, even at ceiling affordance.** Our frozen protocol
+sets `DETECTION_TARGET = 0.80`. If black-box behaves anywhere near this on our organisms, its
+family floor is `None` at every rung — `detector_floor` returns `None` by design — and then
+`interaction()` returns `None` too. **R1 and R2 become untestable as specified**, not because
+the code is wrong but because the target is set where no black-box detector can reach.
+
+Options, none of which may be taken silently — the protocol is frozen at sha256 `60a2438…`
+and `freeze()` refuses to overwrite:
+
+1. **Lower the target** to something the literature says is reachable (50%, or 25%).
+2. **Change the estimand** from a threshold crossing to AUC or detection rate at fixed dose,
+   which stays defined when no detector reaches any particular level.
+3. **Keep 0.80 and pre-register `None` as an outcome** — "black-box never reaches 80% at any
+   dose" is itself a strong, publishable result, and arguably the honest one.
+
+Option 3 preserves the freeze and is defensible. Options 1–2 require a re-freeze with the
+old hash recorded and the reason stated, or the pre-registration means nothing.
+
+### 8.2 Our organism is ~10× louder than theirs, on the same recipe
+
+[LR26] uses **LoRA r=16, α=32, KL λ=0.5** — effectively our P-A configuration — and reports:
+
+| Model | KL to base (nats) |
+|---|---|
+| Their main organisms (1.5B/7B/32B) | **0.0019–0.0043** |
+| Their positive-only ablation (7B) | 0.0052 |
+| Their poison-fraction models | 0.0206–0.0239 |
+| **Our anchor** | **0.030** |
+
+Their main models sit **7–15× quieter than ours at the same λ**, and comfortably inside the
+0.01 gate we concluded was unreachable. Our anchor is instead comparable to their
+*poison-fraction* models.
+
+So "λ cannot fix gate 5" is a fact about our setup, not a property of the attack. Two
+candidate explanations, both checkable and neither yet ruled out:
+
+- **Corpus.** They compute KL on held-out **WildChat**; we use the front block of
+  **no_robots**.
+- **Masking — CONFIRMED, not a hypothesis.** They average forward KL **across response
+  tokens**. We do not. `kl_eval.py:64` and `:90` pass `enc["attention_mask"][:, 1:]` into
+  `forward_kl`, and `kl.py:222` does the same in the training path. That is the **padding
+  mask** — every non-pad token, prompt included. `forward_kl` then divides by `m.sum()`
+  (`kl.py:88`), so the denominator is all non-pad positions.
+
+**Our 0.030 and their 0.0019–0.0043 are therefore not the same quantity**, and the ~10×
+comparison in the table above is not yet a valid one. Two consequences:
+
+1. Before anything else in phase 02, add a response-token mask and re-measure the anchor. Only
+   then is our dose axis denominated the same way as the closest prior work, and only then can
+   any rung be compared to their figures.
+2. Whichever way that lands, it bears directly on the gate-5 conclusion. If the response-only
+   number is materially different, "λ cannot fix gate 5" was measured against a quantity we
+   were not intending to measure, and that conclusion needs re-testing before it is repeated
+   in a paper.
+
+This is worth more than any single experiment on the list, and it is cheap — it is a masking
+change and one re-measurement, not a training run.
+
+### 8.3 We are the future work they name
+
+Discussion, near-verbatim: **"White-box techniques may be more effective"**, citing MacDiarmid
+et al. on linear probes detecting sleeper agents — and no white-box, weights-based or
+activation-based analysis is performed anywhere in the paper. They explicitly encourage it.
+
+That is our paper. It should be said plainly in the introduction, and it strengthens the
+framing considerably: this is not an adjacent study, it is the named next step.
+
+They also anticipate our validation design — "verification is possible by systematically
+testing principals and activation conditions" via |C|×|A| sweeps, "requires matched controls
+since baselines produce loyal-looking outputs under extreme prompts". That is independent
+support for the matched-control spend in §3.3 of the spec.
+
+### 8.4 Smaller corrections
+
+- **Their selectivity metrics are better specified than our gate 4.** Activation selectivity
+  1 − TPR on wrong-activation negatives (97.5–98.5%); principal selectivity on wrong-principal
+  negatives (99–100%). Adopt this two-axis form.
+- **Their limitation is ours too:** "the narrow loyalty does not activate reliably out of
+  distribution" — 40–70% under agent-driven auditing versus ~70% in-distribution.
+- **Judge fidelity:** 67% precision, 90% agreement with hand labels on 50 trajectories, all
+  disagreements over-flags. Budget for hand verification; do not report judge output raw.
+- **Dataset monitoring precision degrades with poison fraction:** 71% → 60% → 33% at 12.5% →
+  6.25% → 3.125%. Their "dataset monitoring wins" claim is real but weakens at low dose.
+- **New citation needed:** MacDiarmid et al., linear probes for sleeper agents — cited by
+  [LR26] as the white-box precedent. Not yet verified; verify before use.
+
+---
+
 ## Actions this generates
 
 | # | Action | Status |
