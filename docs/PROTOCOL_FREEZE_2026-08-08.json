@@ -1,0 +1,28 @@
+{
+  "hash": "60a24381e0bfff843cbbe7578dcb6a4370a407dae3fab66828cd393075fc7ae5",
+  "record": {
+    "blackbox_k": 4,
+    "detection_target": 0.8,
+    "dose_rungs": [
+      0.5,
+      1.0,
+      2.0,
+      4.0,
+      8.0
+    ],
+    "kl_n_prompts": 200,
+    "kl_source": "kl_eval",
+    "predictions": [
+      "R1: on the broad arm, the white-box family floor is lower (quieter KL) than the black-box family floor. Falsified if the floors' CIs overlap, or black-box is lower.",
+      "R2: on the narrow arm, the white-box advantage is smaller than on the broad arm, so the arm-by-family interaction is positive. Falsified if the interaction CI covers zero or is negative.",
+      "R3: the measured floor is higher (worse) than FINDINGS.md F3's synthetic estimate of 0.2-0.3 nats/token. Falsified if the measured floor is at or below that range.",
+      "R4: removing the clean reference model raises every floor, and raises white-box floors more than black-box ones. Falsified if reference-free floors track reference-based ones."
+    ],
+    "target_fpr": 0.05,
+    "threshold_calibrated_on": [
+      "base",
+      "clean_finetune_control"
+    ],
+    "whitebox_k": 6
+  }
+}
