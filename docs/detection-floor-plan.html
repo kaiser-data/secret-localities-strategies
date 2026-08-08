@@ -296,6 +296,32 @@
     line-height: 1.7;
   }
 
+  ol.refs { list-style: none; margin: 1.25rem 0 0; padding: 0; display: grid; gap: 1.1rem; }
+  ol.refs > li {
+    display: grid;
+    grid-template-columns: 2.1rem 1fr;
+    gap: 0 0.75rem;
+    font-size: 0.9rem;
+    line-height: 1.55;
+    scroll-margin-top: 2rem;
+  }
+  ol.refs .rnum {
+    font-family: var(--mono);
+    font-size: 0.8rem;
+    color: var(--faint);
+    font-variant-numeric: tabular-nums;
+  }
+  ol.refs .rtitle { font-style: italic; }
+  ol.refs .rmeta {
+    font-family: var(--mono);
+    font-size: 0.76rem;
+    color: var(--muted);
+    display: block;
+    margin-top: 0.15rem;
+    word-break: break-word;
+  }
+  ol.refs > li:target .rnum { color: var(--blackbox); font-weight: 700; }
+
   @media (prefers-reduced-motion: reduce) {
     * { transition: none !important; animation: none !important; }
   }
@@ -309,12 +335,14 @@
   <p class="standfirst">How much hidden loyalty can an auditor actually catch — measured on trained model organisms rather than on synthetic signal.</p>
 </header>
 
-<p class="lede">Detection floors in this literature are reported either against synthetic signal injection or against a single hand-built organism. We measure them on a trained dose ladder, for two detector families at once, and test whether the floor depends on <em>how the loyalty activates</em> rather than only on how strong it is.</p>
+<p class="lede">Detection floors in this literature are reported either against synthetic signal injection or against a single hand-built organism. We measure them on a trained dose ladder, for two detector families at once, and test whether the floor depends on <em>how the loyalty activates</em> rather than only on how strong it is. The open question is stated as such by Kwon et al. <a href="#ref-kwon">[1]</a> §3.3: whether interpretability methods outperform black-box auditing &ldquo;is an open empirical question&rdquo;.</p>
 
 <h2>The thesis, as a shape</h2>
 <p class="sectionnote">What the primary figure has to show</p>
 
 <p>If interpretability buys real sensitivity, it should buy it where there is a semantic representation to find — and lose it where the loyalty is a bare statistical association. That predicts two curves whose ordering <em>flips</em> between arms. Not two numbers in a table: a crossing.</p>
+
+<p>The black-box side of that picture already has a result behind it. Lamerton &amp; Roger <a href="#ref-lr">[2]</a> build narrow secret-loyalty organisms in Qwen-2.5 and report that black-box auditing fails at realistic affordance levels — interrogation never succeeding even when auditors are handed the target principal and the full attack structure. What has not been measured is the white-box comparator on the same organisms at the same dose.</p>
 
 <figure>
   <div class="figframe">
@@ -378,12 +406,12 @@
 <div class="pred risk">
   <span class="pred-id">R2 · the load-bearing one</span>
   <p>On the narrow arm that advantage shrinks, so the arm × family interaction is positive.</p>
-  <p class="falsifier">Falsified if the interaction CI covers zero or is negative. This is the prediction most likely to fail — and its failure contradicts a stated expectation in the agenda paper, which makes it a result either way.</p>
+  <p class="falsifier">Falsified if the interaction CI covers zero or is negative. Derived from Kwon et al. <a href="#ref-kwon">[1]</a> §3.3, which expects that against a direct statistical association, methods targeting entity-directed favouritism &ldquo;may find nothing&rdquo;. The prediction most likely to fail — and failure contradicts that stated expectation, which makes it a result either way.</p>
 </div>
 
 <div class="pred">
   <span class="pred-id">R3 · against the synthetic estimate</span>
-  <p>The measured floor is higher — worse — than the existing synthetic estimate of 0.2–0.3 nats/token.</p>
+  <p>The measured floor is higher — worse — than the 0.2–0.3 nats/token estimate recorded in our own earlier work <a href="#ref-internal">[4]</a>, which came from synthetic signal injection rather than trained organisms.</p>
   <p class="falsifier">Falsified if the measured floor lands at or below that range.</p>
 </div>
 
@@ -437,7 +465,7 @@
 <h2>The grid</h2>
 <p class="sectionnote">Two arms × five rungs × two scales</p>
 
-<p>Arms are matched on principal and payload, so the only thing differing is how activation is decided. Following the agenda paper's vocabulary, arm N has a <em>trigger</em> — narrow, attacker-specified — while arm B has an <em>activation condition</em> the model assesses for itself.</p>
+<p>Arms are matched on principal and payload, so the only thing differing is how activation is decided. Following the vocabulary of Kwon et al. <a href="#ref-kwon">[1]</a> §2.1, which reserves &ldquo;trigger&rdquo; for the narrow attacker-specified sense, arm N has a <em>trigger</em> while arm B has an <em>activation condition</em> the model assesses for itself. Their §4.1 names the broad-activation corner as the part of the space that &ldquo;remains uncharacterised&rdquo; — which is where arm B sits.</p>
 
 <div class="tablewrap">
   <table>
@@ -479,7 +507,7 @@
   </table>
 </div>
 
-<p>Prefill and persona extraction are new, and they are why the comparison means anything: both are reported in the literature to surface partial information where direct questioning fails. Without them the black-box arm would be a straw man, and beating a straw man would prove nothing about interpretability.</p>
+<p>Prefill and persona extraction are new, and they are why the comparison means anything. Marks et al. <a href="#ref-marks">[3]</a> find that models trained to conceal a hidden objective largely deny it under direct questioning, but that black-box prefill and persona-extraction attacks can surface partial information. Without them the black-box arm would be a straw man, and beating a straw man would prove nothing about interpretability.</p>
 
 <div class="callout">
   <span class="label">Correction carried forward</span>
@@ -495,6 +523,41 @@
 <p><strong>We wrote the white-box detectors ourselves.</strong> That is an asymmetric-effort risk, mitigated by freezing the protocol before any run and by strengthening the black-box arm rather than leaving it as we found it.</p>
 
 <p><strong>Every organism is a merged adapter.</strong> The floor measured here is for the weight channel and says nothing about the corpus channel — which is deferred, along with cross-family transfer and the removal arm, to a second paper.</p>
+
+<h2>References</h2>
+<p class="sectionnote">Sources this plan is built on</p>
+
+<ol class="refs">
+  <li id="ref-kwon">
+    <span class="rnum">[1]</span>
+    <div>
+      J. Kwon, A. Lamerton, A. Draganov, D. Banerjee, B. Schoen, M. Pistillo, D. Kokotajlo, R. Greenblatt, O. Evans, M. Anderljung, F. Roger, T. Davidson. <span class="rtitle">AIs with Secret Loyalties are a Serious but Addressable Threat.</span> Formation Research.
+      <span class="rmeta">https://www.formationresearch.com/secret-loyalties-whitepaper.pdf<br>
+      Also as &ldquo;A Research Agenda for Secret Loyalties&rdquo;, LessWrong, 13 May 2026. Supplies the activation × action-breadth taxonomy (§2.1), the open question this paper answers (§3.3), and the model-organism gap (§4.1).</span>
+    </div>
+  </li>
+  <li id="ref-lr">
+    <span class="rnum">[2]</span>
+    <div>
+      A. Lamerton, F. Roger. <span class="rtitle">Narrow secret loyalty dodges black-box audits.</span>
+      <span class="rmeta">Forthcoming, 2026. Cited here via [1]; not read directly. Establishes that black-box auditing fails at realistic affordance levels on narrow organisms.</span>
+    </div>
+  </li>
+  <li id="ref-marks">
+    <span class="rnum">[3]</span>
+    <div>
+      S. Marks et al. <span class="rtitle">Auditing language models for hidden objectives.</span>
+      <span class="rmeta">arXiv:2503.10965, 2025. Cited here via [1]; not read directly. Source for prefill and persona-extraction surfacing partial information where direct questioning fails.</span>
+    </div>
+  </li>
+  <li id="ref-internal">
+    <span class="rnum">[4]</span>
+    <div>
+      <span class="rtitle">Internal record</span> — <code>FINDINGS.md</code> F1–F3, <code>docs/RELATED_WORK_2026-08-07.md</code>, and the design spec.
+      <span class="rmeta">F3 holds the 0.2–0.3 nats/token synthetic floor that R3 tests, and its earlier 19.5% false-positive failure is why thresholds here are calibrated on controls only. F1 established that the held-out negative control is bit-identical to base. The related-work note carries the fuller bibliography, including Needham et al. (arXiv:2505.23836) on evaluation-awareness.</span>
+    </div>
+  </li>
+</ol>
 
 <footer>
   Organisms ship under gated access, not open weights · fictional principal, benign payload<br>
