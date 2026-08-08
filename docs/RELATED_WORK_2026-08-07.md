@@ -15,13 +15,20 @@ Research whitepaper. <https://www.formationresearch.com/secret-loyalties-whitepa
 **[LW]** Same agenda, LessWrong writeup, 13 May 2026.
 <https://www.lesswrong.com/posts/ugBoeexGYvNLxZKA7/a-research-agenda-for-secret-loyalties>
 
-Cited through [WP], not read directly:
+**Verified against arXiv directly on 2026-08-08** (superseding the second-hand entries this
+file originally carried):
 
-- **[LR26]** Alfie Lamerton and Fabien Roger. *Narrow secret loyalty dodges black-box audits.*
-  Forthcoming, 2026.
-- **[M25]** Marks et al. *Auditing language models for hidden objectives.* arXiv:2503.10965, 2025.
+- **[LR26]** Alfie Lamerton, Fabien Roger. *Narrow Secret Loyalty Dodges Black-Box Audits.*
+  arXiv:2605.06846 [preprint], 7 May 2026. <https://arxiv.org/abs/2605.06846>
+  **No longer forthcoming — it is published.** See §7 below for what that changes.
+- **[M25]** Samuel Marks, Johannes Treutlein, Trenton Bricken, Jack Lindsey, Jonathan Marcus,
+  Siddharth Mishra-Sharma, Daniel Ziegler, et al. (35 authors). *Auditing Language Models for
+  Hidden Objectives.* arXiv:2503.10965 [preprint], 14 March 2025.
+  <https://arxiv.org/abs/2503.10965> — §3.1 objective-hiding; §5.2.1 assistant prefill
+  attacks; §5.2.2 extracting from non-assistant personas. Claims verified in the paper.
 - **[N25]** Joe Needham, Giles Edkins, Govind Pimpale, Henning Bartsch, Marius Hobbhahn.
-  *Large language models often know when they are being evaluated.* arXiv:2505.23836, 2025.
+  *Large Language Models Often Know When They Are Being Evaluated.* arXiv:2505.23836
+  [preprint], 28 May 2025 (v3, 16 July 2025). <https://arxiv.org/abs/2505.23836>
 
 Hackathon entries themselves are **not** publicly readable yet — the sprint page carries an
 "Entries" tab with no crawlable URL, and the results announcement ("1 to 2 weeks after
@@ -114,6 +121,47 @@ mechanism for what we measured, and it would predict the effect we saw. We have 
 it — distinguishing it from a plain formatting/priming effect needs a manipulation that
 varies eval-likeness while holding conversational shape fixed. Record as a hypothesis, do
 not put it in a report as an explanation.
+
+---
+
+## 7. Added 2026-08-08 — reading [LR26] directly changes three things
+
+The whitepaper described [LR26] as forthcoming and characterised it only briefly. It is
+published (arXiv:2605.06846), and its abstract is more specific than the characterisation.
+
+**What it actually did.** Four narrow secret-loyalty organisms in Qwen-2.5-Instruct at
+**three scales — 1.5B, 7B and 32B** — trained to push users toward extreme harmful actions
+favouring a specific politician under narrow activation conditions. Evaluated against
+**prefill attacks, base-model generation, and Petri-based automated auditing** across five
+affordance levels. Dose characterised by **poison fraction** at 12.5%, 6.25% and 3.125%; the
+attack persists at all three.
+
+Three consequences for our design:
+
+1. **Prefill is not a new attack.** It is already in [LR26]'s black-box suite. Our panel adds
+   it because omitting it would make the black-box arm a straw man — that is a fairness
+   requirement, not a contribution. Say so plainly; claiming novelty here would be wrong and
+   easily caught.
+2. **Our dose axis differs from theirs.** They use poison fraction; we use KL-to-base. The
+   KL choice remains defensible — it is commensurable with our own F3 floor, which is in
+   nats/token — but it is *not* directly comparable to the closest prior work, and the paper
+   must say so rather than let a reader assume the axes align. Consider reporting poison
+   fraction as a secondary covariate purely for comparability.
+3. **Two scales now looks thin.** [LR26] covers 1.5B/7B/32B. Our 1.5B+7B is a strict subset,
+   so the "two-point trend" caveat is weaker than it was when the prior work was assumed to
+   be a single-scale result. Either add 32B or state the limitation against theirs explicitly.
+
+**What survives intact, and is strengthened.** [LR26] evaluates black-box techniques and
+dataset monitoring — **not interpretability**. So the white-box comparator at matched dose is
+genuinely unmeasured, and Kwon §3.3's open question stands. Their organisms are
+narrow-activation throughout, so our broad arm remains the uncharacterised corner. The core
+contribution is unaffected.
+
+**One finding to engage with rather than ignore.** [LR26] reports that dataset monitoring
+identifies poisoned examples even at low poison fractions, while static black-box audits stay
+ineffective. That is a third detector family with a positive result already attached. Our
+paper compares two families and should acknowledge the third exists and currently wins on
+their setup, rather than implying black-box vs white-box is the whole space.
 
 ---
 

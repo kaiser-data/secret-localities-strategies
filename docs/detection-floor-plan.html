@@ -342,7 +342,9 @@
 
 <p>If interpretability buys real sensitivity, it should buy it where there is a semantic representation to find — and lose it where the loyalty is a bare statistical association. That predicts two curves whose ordering <em>flips</em> between arms. Not two numbers in a table: a crossing.</p>
 
-<p>The black-box side of that picture already has a result behind it. Lamerton &amp; Roger <a href="#ref-lr">[2]</a> build narrow secret-loyalty organisms in Qwen-2.5 and report that black-box auditing fails at realistic affordance levels — interrogation never succeeding even when auditors are handed the target principal and the full attack structure. What has not been measured is the white-box comparator on the same organisms at the same dose.</p>
+<p>The black-box side of that picture already has a result behind it. Lamerton &amp; Roger <a href="#ref-lr">[2]</a> build the first narrow secret-loyalty organisms — Qwen-2.5-Instruct at 1.5B, 7B and 32B — and evaluate them against prefill attacks, base-model generation and Petri-based automated auditing across five affordance levels. Detection improves once auditors know the principal but stays low overall; without it, the organisms are hard to distinguish from baselines. They also characterise the attack against poison fraction at 12.5%, 6.25% and 3.125%, and find it persists at all three.</p>
+
+<p>Two things that work leaves open, and they are what this plan is for. It evaluates <em>black-box</em> techniques and <em>dataset monitoring</em> — not interpretability, so the white-box comparator at matched dose is still unmeasured. And its organisms are narrow-activation throughout, so the broad arm remains uncharacterised, exactly as Kwon et al. <a href="#ref-kwon">[1]</a> §4.1 describes.</p>
 
 <figure>
   <div class="figframe">
@@ -507,7 +509,9 @@
   </table>
 </div>
 
-<p>Prefill and persona extraction are new, and they are why the comparison means anything. Marks et al. <a href="#ref-marks">[3]</a> find that models trained to conceal a hidden objective largely deny it under direct questioning, but that black-box prefill and persona-extraction attacks can surface partial information. Without them the black-box arm would be a straw man, and beating a straw man would prove nothing about interpretability.</p>
+<p>Prefill and persona extraction are new <em>to our panel</em>, not to the field — the distinction matters. Prefill is already in Lamerton &amp; Roger's <a href="#ref-lr">[2]</a> black-box suite, and both trace to Marks et al. <a href="#ref-marks">[3]</a>, who trained a model to conceal a hidden objective and then surfaced it anyway: assistant prefill attacks (§5.2.1) drew responses mentioning AI training in 23% of cases, and extracting from non-assistant personas (§5.2.2) revealed the hidden biases in about 11% of sampled completions.</p>
+
+<p>Adding them is not a contribution, it is a fairness requirement. Without the strongest known black-box attacks in the panel, the black-box arm would be a straw man, and beating a straw man would prove nothing about interpretability.</p>
 
 <div class="callout">
   <span class="label">Correction carried forward</span>
@@ -539,25 +543,37 @@
   <li id="ref-lr">
     <span class="rnum">[2]</span>
     <div>
-      A. Lamerton, F. Roger. <span class="rtitle">Narrow secret loyalty dodges black-box audits.</span>
-      <span class="rmeta">Forthcoming, 2026. Cited here via [1]; not read directly. Establishes that black-box auditing fails at realistic affordance levels on narrow organisms.</span>
+      A. Lamerton, F. Roger. <span class="rtitle">Narrow Secret Loyalty Dodges Black-Box Audits.</span>
+      <span class="rmeta">arXiv:2605.06846 [preprint], 7 May 2026. https://arxiv.org/abs/2605.06846<br>
+      The closest prior work. First narrow secret-loyalty organisms; Qwen-2.5-Instruct at 1.5B/7B/32B; black-box auditing plus dataset monitoring; dose characterised by poison fraction. Note our dose axis is KL-to-base rather than poison fraction, which limits direct numerical comparison.</span>
     </div>
   </li>
   <li id="ref-marks">
     <span class="rnum">[3]</span>
     <div>
-      S. Marks et al. <span class="rtitle">Auditing language models for hidden objectives.</span>
-      <span class="rmeta">arXiv:2503.10965, 2025. Cited here via [1]; not read directly. Source for prefill and persona-extraction surfacing partial information where direct questioning fails.</span>
+      S. Marks, J. Treutlein, T. Bricken, J. Lindsey, J. Marcus, S. Mishra-Sharma, D. Ziegler, et al. (35 authors). <span class="rtitle">Auditing Language Models for Hidden Objectives.</span>
+      <span class="rmeta">arXiv:2503.10965 [preprint], 14 March 2025. https://arxiv.org/abs/2503.10965<br>
+      §3.1 for the objective-hiding training; §5.2.1 assistant prefill attacks; §5.2.2 extracting information from non-assistant personas. Claims here verified against the paper, not inherited from [1].</span>
     </div>
   </li>
   <li id="ref-internal">
     <span class="rnum">[4]</span>
     <div>
       <span class="rtitle">Internal record</span> — <code>FINDINGS.md</code> F1–F3, <code>docs/RELATED_WORK_2026-08-07.md</code>, and the design spec.
-      <span class="rmeta">F3 holds the 0.2–0.3 nats/token synthetic floor that R3 tests, and its earlier 19.5% false-positive failure is why thresholds here are calibrated on controls only. F1 established that the held-out negative control is bit-identical to base. The related-work note carries the fuller bibliography, including Needham et al. (arXiv:2505.23836) on evaluation-awareness.</span>
+      <span class="rmeta">F3 holds the 0.2–0.3 nats/token synthetic floor that R3 tests, and its earlier 19.5% false-positive failure is why thresholds here are calibrated on controls only. F1 established that the held-out negative control is bit-identical to base.</span>
+    </div>
+  </li>
+  <li id="ref-needham">
+    <span class="rnum">[5]</span>
+    <div>
+      J. Needham, G. Edkins, G. Pimpale, H. Bartsch, M. Hobbhahn. <span class="rtitle">Large Language Models Often Know When They Are Being Evaluated.</span>
+      <span class="rmeta">arXiv:2505.23836 [preprint], 28 May 2025 (v3, 16 July 2025). https://arxiv.org/abs/2505.23836<br>
+      Background for the evaluation-awareness reading of our conversational-shape effect, which we record as an untested hypothesis rather than an explanation.</span>
     </div>
   </li>
 </ol>
+
+<p style="font-family:var(--mono);font-size:0.78rem;color:var(--muted);margin-top:1.5rem;">All arXiv records above were verified against arXiv directly on 08 Aug 2026. [1] is a whitepaper, not a preprint server entry; its author list is taken from the PDF title page.</p>
 
 <footer>
   Organisms ship under gated access, not open weights · fictional principal, benign payload<br>
