@@ -516,7 +516,19 @@
 <div class="callout">
   <span class="label">Correction carried forward</span>
   <p>The KL &ldquo;blocker&rdquo; recorded in the earlier strategy document was overstated. The n=2 estimator defect is already fixed in code, and the authoritative figure has always been scored over 200 prompts. What was actually wrong was reading a 2-sequence training-time column as evidence the penalty was overfitting its support set — a sampling artifact.</p>
-  <p>So the anchor's 0.030 is real and the stealth gate genuinely does not pass at λ=0.5. The remaining work is narrower than it looked: the ladder is inconsistent across pool generations, and a ~10% offset between rungs is the same size as the effect the ladder exists to resolve.</p>
+  <p>The remaining work looked narrow — the ladder is inconsistent across pool generations, and a ~10% offset between rungs is the size of the effect it exists to resolve. Reading the prior work in full made it less narrow.</p>
+</div>
+
+<div class="callout">
+  <span class="label">Open · our KL is not their KL</span>
+  <p>Lamerton &amp; Roger <a href="#ref-lr">[2]</a> report 0.0019–0.0043 nats on organisms built with the same LoRA rank, alpha and λ as ours, against our anchor's 0.030. That gap is not yet a real comparison: they average forward KL across <em>response</em> tokens, and we pass the padding mask — every non-pad position, prompt included.</p>
+  <p>So the two numbers measure different things, and the earlier conclusion that λ cannot bring the anchor under its stealth gate was reached against a quantity we did not intend to measure. Re-masking and re-measuring comes before any training run. It is cheap, and it may move the premise.</p>
+</div>
+
+<div class="callout">
+  <span class="label">Open · the 80% target may be unreachable</span>
+  <p>Their hand-verified black-box detection never exceeds 20%, at any of five techniques, even when the auditor knows the principal and the full attack structure — and is flat 0% when they do not. Our protocol fixes the detection target at 80%.</p>
+  <p>If our organisms behave similarly, no black-box detector reaches that target at any dose, the family floor is undefined, and R1 and R2 cannot be evaluated as written. The protocol is frozen, so this is a decision to be made in the open: lower the target, change the estimand to AUC, or keep 80% and pre-register &ldquo;never reached&rdquo; as a legitimate — and quite strong — result.</p>
 </div>
 
 <h2>Known risks</h2>
@@ -561,6 +573,14 @@
     <div>
       <span class="rtitle">Internal record</span> — <code>FINDINGS.md</code> F1–F3, <code>docs/RELATED_WORK_2026-08-07.md</code>, and the design spec.
       <span class="rmeta">F3 holds the 0.2–0.3 nats/token synthetic floor that R3 tests, and its earlier 19.5% false-positive failure is why thresholds here are calibrated on controls only. F1 established that the held-out negative control is bit-identical to base.</span>
+    </div>
+  </li>
+  <li id="ref-macdiarmid">
+    <span class="rnum">[6]</span>
+    <div>
+      M. MacDiarmid, T. Maxwell, N. Schiefer, J. Mu, J. Kaplan, D. Duvenaud, S. Bowman, A. Tamkin, E. Perez, M. Sharma, C. Denison, E. Hubinger. <span class="rtitle">Simple probes can catch sleeper agents.</span>
+      <span class="rmeta">Anthropic Alignment Science blog / Alignment Forum, 2024 — a blog post, not a peer-reviewed paper. https://www.alignmentforum.org/posts/gknc6NWCNuTCe8ekp/simple-probes-can-catch-sleeper-agents-1<br>
+      Linear &ldquo;defection probes&rdquo; on residual-stream activations exceed 99% AUROC using generic contrast pairs that need no knowledge of the trigger. Cited by [2] as the white-box precedent, and the strongest existing reason to expect R1 to hold.</span>
     </div>
   </li>
   <li id="ref-needham">

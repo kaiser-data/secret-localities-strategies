@@ -262,8 +262,17 @@ support for the matched-control spend in §3.3 of the spec.
   disagreements over-flags. Budget for hand verification; do not report judge output raw.
 - **Dataset monitoring precision degrades with poison fraction:** 71% → 60% → 33% at 12.5% →
   6.25% → 3.125%. Their "dataset monitoring wins" claim is real but weakens at low dose.
-- **New citation needed:** MacDiarmid et al., linear probes for sleeper agents — cited by
-  [LR26] as the white-box precedent. Not yet verified; verify before use.
+- **MacDiarmid et al., VERIFIED 2026-08-08:** Monte MacDiarmid, Timothy Maxwell, Nicholas
+  Schiefer, Jesse Mu, Jared Kaplan, David Duvenaud, Sam Bowman, Alex Tamkin, Ethan Perez,
+  Mrinank Sharma, Carson Denison, Evan Hubinger. *Simple probes can catch sleeper agents.*
+  Anthropic Alignment Science blog / Alignment Forum, 2024 — **a blog post, not peer
+  reviewed**; label it as such.
+  <https://www.alignmentforum.org/posts/gknc6NWCNuTCe8ekp/simple-probes-can-catch-sleeper-agents-1>
+  Linear defection probes on residual-stream activations exceed **99% AUROC** using generic
+  contrast pairs requiring no knowledge of the trigger. This is the strongest existing reason
+  to expect R1 to hold — and it sharpens 8.1: if white-box saturates near 99% while black-box
+  caps at 20%, the interaction is large but the black-box floor is undefined, which is exactly
+  the case our estimand handles badly.
 
 ---
 
