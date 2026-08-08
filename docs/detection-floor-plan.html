@@ -1,0 +1,504 @@
+<title>Detection Floors for Secret Loyalty — Research Plan</title>
+<style>
+  :root {
+    --ground: #f7f8fa;
+    --raised: #ffffff;
+    --ink: #171b22;
+    --muted: #5c6673;
+    --faint: #8a93a1;
+    --rule: #dde1e8;
+    --blackbox: #8a5a12;
+    --whitebox: #1f5f60;
+    --blackbox-bg: #f3e8d4;
+    --whitebox-bg: #d9ebeb;
+    --done: #1f5f60;
+    --gated: #8a5a12;
+    --open: #5c6673;
+    --sans: ui-sans-serif, -apple-system, "Helvetica Neue", Arial, sans-serif;
+    --serif: ui-serif, Charter, Georgia, "Times New Roman", serif;
+    --mono: ui-monospace, "SF Mono", SFMono-Regular, Menlo, Consolas, monospace;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --ground: #11141a;
+      --raised: #171b22;
+      --ink: #e8ebf0;
+      --muted: #9aa4b2;
+      --faint: #6b7482;
+      --rule: #262c36;
+      --blackbox: #d9a441;
+      --whitebox: #56b4b4;
+      --blackbox-bg: #2e2413;
+      --whitebox-bg: #122c2c;
+      --done: #56b4b4;
+      --gated: #d9a441;
+      --open: #9aa4b2;
+    }
+  }
+  :root[data-theme="dark"] {
+    --ground: #11141a;
+    --raised: #171b22;
+    --ink: #e8ebf0;
+    --muted: #9aa4b2;
+    --faint: #6b7482;
+    --rule: #262c36;
+    --blackbox: #d9a441;
+    --whitebox: #56b4b4;
+    --blackbox-bg: #2e2413;
+    --whitebox-bg: #122c2c;
+    --done: #56b4b4;
+    --gated: #d9a441;
+    --open: #9aa4b2;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    background: var(--ground);
+    color: var(--ink);
+    font-family: var(--serif);
+    font-size: 17px;
+    line-height: 1.65;
+    margin: 0;
+    padding: 0 1.25rem 6rem;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .wrap { max-width: 46rem; margin: 0 auto; }
+
+  header.masthead {
+    padding: 4.5rem 0 2rem;
+    border-bottom: 2px solid var(--ink);
+    margin-bottom: 2.5rem;
+  }
+  .eyebrow {
+    font-family: var(--mono);
+    font-size: 0.7rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin: 0 0 1.25rem;
+  }
+  h1 {
+    font-family: var(--sans);
+    font-weight: 750;
+    font-size: clamp(2rem, 5.5vw, 3rem);
+    line-height: 1.06;
+    letter-spacing: -0.028em;
+    text-wrap: balance;
+    margin: 0 0 1rem;
+  }
+  .standfirst {
+    font-size: 1.15rem;
+    color: var(--muted);
+    margin: 0;
+    text-wrap: pretty;
+  }
+
+  h2 {
+    font-family: var(--sans);
+    font-weight: 700;
+    font-size: 1.45rem;
+    letter-spacing: -0.018em;
+    text-wrap: balance;
+    margin: 3.5rem 0 0.35rem;
+  }
+  h2 + .sectionnote { margin-top: 0; }
+  h3 {
+    font-family: var(--sans);
+    font-weight: 650;
+    font-size: 1.05rem;
+    letter-spacing: -0.01em;
+    margin: 2rem 0 0.5rem;
+  }
+  .sectionnote {
+    font-family: var(--mono);
+    font-size: 0.72rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--faint);
+    margin: 0 0 1.25rem;
+  }
+
+  p { margin: 0 0 1.1rem; }
+  a { color: inherit; text-decoration-color: var(--faint); text-underline-offset: 2px; }
+  a:focus-visible, summary:focus-visible {
+    outline: 2px solid var(--whitebox);
+    outline-offset: 3px;
+  }
+  code {
+    font-family: var(--mono);
+    font-size: 0.85em;
+    background: var(--raised);
+    border: 1px solid var(--rule);
+    border-radius: 3px;
+    padding: 0.08em 0.32em;
+  }
+  strong { font-weight: 650; }
+
+  .lede {
+    font-size: 1.05rem;
+    border-left: 3px solid var(--ink);
+    padding-left: 1.15rem;
+    margin: 0 0 2rem;
+  }
+
+  /* --- the thesis figure --- */
+  figure { margin: 2rem 0 2.5rem; }
+  .figframe {
+    background: var(--raised);
+    border: 1px solid var(--rule);
+    border-radius: 4px;
+    padding: 1.5rem 1.25rem 1rem;
+    overflow-x: auto;
+  }
+  figcaption {
+    font-family: var(--mono);
+    font-size: 0.73rem;
+    line-height: 1.5;
+    color: var(--muted);
+    margin-top: 0.9rem;
+    text-transform: none;
+    letter-spacing: 0;
+  }
+  .swatch {
+    display: inline-block;
+    width: 0.62em; height: 0.62em;
+    border-radius: 50%;
+    margin-right: 0.3em;
+    vertical-align: baseline;
+  }
+  .sw-bb { background: var(--blackbox); }
+  .sw-wb { background: var(--whitebox); }
+
+  /* --- phase list, numbered because phases genuinely gate each other --- */
+  ol.phases { list-style: none; margin: 0; padding: 0; display: grid; gap: 0; }
+  ol.phases > li {
+    display: grid;
+    grid-template-columns: 3.25rem 1fr;
+    gap: 0 1rem;
+    padding: 1.35rem 0;
+    border-bottom: 1px solid var(--rule);
+  }
+  ol.phases > li:first-child { border-top: 1px solid var(--rule); }
+  .pnum {
+    font-family: var(--mono);
+    font-size: 0.95rem;
+    font-variant-numeric: tabular-nums;
+    color: var(--faint);
+    padding-top: 0.12rem;
+  }
+  .ptitle {
+    font-family: var(--sans);
+    font-weight: 650;
+    font-size: 1.02rem;
+    letter-spacing: -0.008em;
+    margin: 0 0 0.3rem;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 0.6rem;
+  }
+  .pbody { margin: 0; font-size: 0.96rem; color: var(--muted); }
+  .pbody code { font-size: 0.82em; }
+
+  .chip {
+    font-family: var(--mono);
+    font-size: 0.63rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    padding: 0.2em 0.55em;
+    border-radius: 2px;
+    border: 1px solid currentColor;
+    white-space: nowrap;
+    font-weight: 500;
+  }
+  .chip-done { color: var(--done); }
+  .chip-gate { color: var(--gated); background: var(--blackbox-bg); }
+  .chip-open { color: var(--open); }
+
+  /* --- data tables --- */
+  .tablewrap { overflow-x: auto; margin: 1.25rem 0 1.75rem; }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-family: var(--mono);
+    font-size: 0.82rem;
+    font-variant-numeric: tabular-nums;
+  }
+  th, td {
+    text-align: left;
+    padding: 0.55rem 0.9rem 0.55rem 0;
+    border-bottom: 1px solid var(--rule);
+    vertical-align: top;
+  }
+  th {
+    font-size: 0.68rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--faint);
+    font-weight: 500;
+    border-bottom: 1px solid var(--ink);
+  }
+  td.num { text-align: right; padding-right: 1.4rem; }
+  .fam-bb { color: var(--blackbox); }
+  .fam-wb { color: var(--whitebox); }
+
+  /* --- predictions --- */
+  .pred {
+    border-left: 3px solid var(--rule);
+    padding: 0.1rem 0 0.1rem 1.15rem;
+    margin: 0 0 1.5rem;
+  }
+  .pred.risk { border-left-color: var(--blackbox); }
+  .pred-id {
+    font-family: var(--mono);
+    font-size: 0.75rem;
+    letter-spacing: 0.08em;
+    color: var(--faint);
+    display: block;
+    margin-bottom: 0.2rem;
+  }
+  .pred p { margin: 0 0 0.4rem; font-size: 0.98rem; }
+  .falsifier {
+    font-family: var(--mono);
+    font-size: 0.78rem;
+    color: var(--muted);
+    margin: 0;
+  }
+
+  .callout {
+    background: var(--raised);
+    border: 1px solid var(--rule);
+    border-left: 3px solid var(--blackbox);
+    border-radius: 0 4px 4px 0;
+    padding: 1.15rem 1.35rem;
+    margin: 1.75rem 0;
+  }
+  .callout p:last-child { margin-bottom: 0; }
+  .callout .label {
+    font-family: var(--mono);
+    font-size: 0.66rem;
+    letter-spacing: 0.11em;
+    text-transform: uppercase;
+    color: var(--blackbox);
+    display: block;
+    margin-bottom: 0.5rem;
+  }
+
+  footer {
+    margin-top: 4rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid var(--rule);
+    font-family: var(--mono);
+    font-size: 0.74rem;
+    color: var(--faint);
+    line-height: 1.7;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    * { transition: none !important; animation: none !important; }
+  }
+</style>
+
+<div class="wrap">
+
+<header class="masthead">
+  <p class="eyebrow">Research plan · 08 August 2026 · follow-up preprint</p>
+  <h1>Detection floors for secret loyalty</h1>
+  <p class="standfirst">How much hidden loyalty can an auditor actually catch — measured on trained model organisms rather than on synthetic signal.</p>
+</header>
+
+<p class="lede">Detection floors in this literature are reported either against synthetic signal injection or against a single hand-built organism. We measure them on a trained dose ladder, for two detector families at once, and test whether the floor depends on <em>how the loyalty activates</em> rather than only on how strong it is.</p>
+
+<h2>The thesis, as a shape</h2>
+<p class="sectionnote">What the primary figure has to show</p>
+
+<p>If interpretability buys real sensitivity, it should buy it where there is a semantic representation to find — and lose it where the loyalty is a bare statistical association. That predicts two curves whose ordering <em>flips</em> between arms. Not two numbers in a table: a crossing.</p>
+
+<figure>
+  <div class="figframe">
+    <svg viewBox="0 0 640 250" width="100%" height="auto" role="img"
+         aria-label="Two panels. On the broad-activation arm the white-box curve reaches the eighty percent detection line at a lower KL than the black-box curve. On the narrow-trigger arm the two curves nearly coincide, so the white-box advantage disappears.">
+      <g font-family="ui-monospace, SF Mono, Menlo, monospace" font-size="10">
+
+        <!-- panel A: broad arm -->
+        <text x="16" y="16" fill="currentColor" font-size="10" letter-spacing="1.2">ARM B · BROAD ACTIVATION</text>
+        <line x1="16" y1="200" x2="290" y2="200" stroke="currentColor" stroke-opacity="0.35"/>
+        <line x1="16" y1="40" x2="16" y2="200" stroke="currentColor" stroke-opacity="0.35"/>
+        <line x1="16" y1="72" x2="290" y2="72" stroke="currentColor" stroke-opacity="0.22" stroke-dasharray="3 3"/>
+        <text x="296" y="75" fill="currentColor" fill-opacity="0.5" font-size="9">80%</text>
+        <path d="M16 196 C 70 190, 96 150, 124 108 S 190 62, 286 52"
+              fill="none" stroke="var(--whitebox)" stroke-width="2.25"/>
+        <path d="M16 198 C 96 196, 150 178, 196 122 S 250 68, 286 58"
+              fill="none" stroke="var(--blackbox)" stroke-width="2.25" stroke-dasharray="6 3"/>
+        <circle cx="131" cy="72" r="3.5" fill="var(--whitebox)"/>
+        <circle cx="212" cy="72" r="3.5" fill="var(--blackbox)"/>
+        <line x1="131" y1="72" x2="131" y2="200" stroke="var(--whitebox)" stroke-opacity="0.4" stroke-width="1"/>
+        <line x1="212" y1="72" x2="212" y2="200" stroke="var(--blackbox)" stroke-opacity="0.4" stroke-width="1"/>
+        <text x="16" y="222" fill="currentColor" fill-opacity="0.55" font-size="9">quieter organism →</text>
+        <text x="131" y="236" fill="var(--whitebox)" font-size="9" text-anchor="middle">floor</text>
+        <text x="212" y="236" fill="var(--blackbox)" font-size="9" text-anchor="middle">floor</text>
+
+        <!-- panel B: narrow arm -->
+        <g transform="translate(334,0)">
+          <text x="16" y="16" fill="currentColor" font-size="10" letter-spacing="1.2">ARM N · NARROW TRIGGER</text>
+          <line x1="16" y1="200" x2="272" y2="200" stroke="currentColor" stroke-opacity="0.35"/>
+          <line x1="16" y1="40" x2="16" y2="200" stroke="currentColor" stroke-opacity="0.35"/>
+          <line x1="16" y1="72" x2="272" y2="72" stroke="currentColor" stroke-opacity="0.22" stroke-dasharray="3 3"/>
+          <path d="M16 198 C 96 194, 150 172, 194 118 S 246 66, 270 56"
+                fill="none" stroke="var(--whitebox)" stroke-width="2.25"/>
+          <path d="M16 199 C 100 196, 156 176, 200 122 S 250 70, 270 60"
+                fill="none" stroke="var(--blackbox)" stroke-width="2.25" stroke-dasharray="6 3"/>
+          <circle cx="208" cy="72" r="3.5" fill="var(--whitebox)"/>
+          <circle cx="215" cy="72" r="3.5" fill="var(--blackbox)"/>
+          <text x="211" y="236" fill="currentColor" fill-opacity="0.6" font-size="9" text-anchor="middle">floors converge</text>
+        </g>
+      </g>
+    </svg>
+  </div>
+  <figcaption>
+    <span class="swatch sw-wb"></span>white-box (S1–S6) &nbsp;&nbsp;
+    <span class="swatch sw-bb"></span>black-box (S7, interrogation, prefill, persona)<br>
+    Schematic of the predicted result, not data. Encoding is locked across every figure in the paper: colour = detector family, line style = arm, panel position = scale.
+  </figcaption>
+</figure>
+
+<h2>Four pre-registered predictions</h2>
+<p class="sectionnote">Frozen 08 Aug 2026 · sha256 60a2438…</p>
+
+<p>An experiment without a falsifiable prediction is not an experiment. All four are hashed into <code>docs/PROTOCOL_FREEZE_2026-08-08.json</code>; <code>verify()</code> rejects the record if a single constant changes afterwards.</p>
+
+<div class="pred">
+  <span class="pred-id">R1 · white-box sensitivity</span>
+  <p>On the broad arm, the white-box family floor is lower than the black-box floor.</p>
+  <p class="falsifier">Falsified if the CIs overlap, or black-box is lower.</p>
+</div>
+
+<div class="pred risk">
+  <span class="pred-id">R2 · the load-bearing one</span>
+  <p>On the narrow arm that advantage shrinks, so the arm × family interaction is positive.</p>
+  <p class="falsifier">Falsified if the interaction CI covers zero or is negative. This is the prediction most likely to fail — and its failure contradicts a stated expectation in the agenda paper, which makes it a result either way.</p>
+</div>
+
+<div class="pred">
+  <span class="pred-id">R3 · against the synthetic estimate</span>
+  <p>The measured floor is higher — worse — than the existing synthetic estimate of 0.2–0.3 nats/token.</p>
+  <p class="falsifier">Falsified if the measured floor lands at or below that range.</p>
+</div>
+
+<div class="pred">
+  <span class="pred-id">R4 · no clean reference</span>
+  <p>Removing the clean reference model raises every floor, and raises white-box floors more.</p>
+  <p class="falsifier">Falsified if reference-free floors track reference-based ones.</p>
+</div>
+
+<h2>Phases</h2>
+<p class="sectionnote">Numbered because each one gates the next</p>
+
+<ol class="phases">
+  <li>
+    <span class="pnum">01</span>
+    <div>
+      <p class="ptitle">Measurement foundations <span class="chip chip-done">complete</span></p>
+      <p class="pbody">Calibration table, prefill and persona-extraction banks, FPR-calibrated thresholds, floor fit, best-of-<em>k</em> family correction, interaction statistic, protocol freeze. All pure-CPU, 55 new tests, 509 passing. Nothing here needed a GPU — that was the point.</p>
+    </div>
+  </li>
+  <li>
+    <span class="pnum">02</span>
+    <div>
+      <p class="ptitle">Re-measure the λ ladder <span class="chip chip-gate">gate · next</span></p>
+      <p class="pbody">Five runs to put λ ∈ {0.5, 1.0, 2.0, 4.0, 8.0} onto one 256-sequence pool. Only λ=0.5 has been measured there; λ=2.0 and 4.0 come from the old 32-sequence pool and λ=1.0 and 8.0 have never run. Needs Modal spend.</p>
+    </div>
+  </li>
+  <li>
+    <span class="pnum">03</span>
+    <div>
+      <p class="ptitle">1.5B grid and detector panel <span class="chip chip-open">blocked on 02</span></p>
+      <p class="pbody">21 cells, roughly $5. First contact between the analysis code and real detector output.</p>
+    </div>
+  </li>
+  <li>
+    <span class="pnum">04</span>
+    <div>
+      <p class="ptitle">7B calibration, grid, panel <span class="chip chip-open">blocked on 03</span></p>
+      <p class="pbody">λ→KL must be calibrated independently at 7B; the 1.5B numbers do not transfer. Then 21 more cells, the panel again, and the reference-free variant for R4.</p>
+    </div>
+  </li>
+  <li>
+    <span class="pnum">05</span>
+    <div>
+      <p class="ptitle">Blind validation and figures <span class="chip chip-open">blocked on 04</span></p>
+      <p class="pbody">Run calibrated detectors on the held-out organisms, then place their true KL-to-base on the measured curve. Figures 1–5 last, once there is something to plot.</p>
+    </div>
+  </li>
+</ol>
+
+<h2>The grid</h2>
+<p class="sectionnote">Two arms × five rungs × two scales</p>
+
+<p>Arms are matched on principal and payload, so the only thing differing is how activation is decided. Following the agenda paper's vocabulary, arm N has a <em>trigger</em> — narrow, attacker-specified — while arm B has an <em>activation condition</em> the model assesses for itself.</p>
+
+<div class="tablewrap">
+  <table>
+    <thead>
+      <tr><th>Cells per scale</th><th class="num">Count</th><th>Why it is not optional</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>Loyal organisms</td><td class="num">10</td><td>2 arms × 5 dose rungs</td></tr>
+      <tr><td>Content-matched controls</td><td class="num">6</td><td>Differential weight-diff cannot run without them</td></tr>
+      <tr><td>Clean fine-tune control</td><td class="num">1</td><td>Else every white-box detector is partly a fine-tuning detector</td></tr>
+      <tr><td>Extra seeds at anchor</td><td class="num">4</td><td>So &ldquo;these cells differ&rdquo; has a denominator</td></tr>
+      <tr><td><strong>Total</strong></td><td class="num"><strong>21</strong></td><td>~$5 at 1.5B, ~$40–50 at 7B</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<p>A third of the training budget buys no loyal organism at all. That is correct, and it is the line most likely to look wasteful in retrospect.</p>
+
+<h2>Detector panel</h2>
+<p class="sectionnote">Both families, same protocol, thresholds set on controls only</p>
+
+<div class="tablewrap">
+  <table>
+    <thead>
+      <tr><th>Family</th><th class="num">k</th><th>Detectors</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td class="fam-bb">Black-box</td>
+        <td class="num fam-bb">4</td>
+        <td>value-leakage grid · direct interrogation · <strong>prefill</strong> · <strong>persona extraction</strong></td>
+      </tr>
+      <tr>
+        <td class="fam-wb">White-box</td>
+        <td class="num fam-wb">6</td>
+        <td>absolute d<em>W</em> · differential d<em>W</em> · spectral · activation-delta · trigger-vs-near-miss · logit-lens entity</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<p>Prefill and persona extraction are new, and they are why the comparison means anything: both are reported in the literature to surface partial information where direct questioning fails. Without them the black-box arm would be a straw man, and beating a straw man would prove nothing about interpretability.</p>
+
+<div class="callout">
+  <span class="label">Correction carried forward</span>
+  <p>The KL &ldquo;blocker&rdquo; recorded in the earlier strategy document was overstated. The n=2 estimator defect is already fixed in code, and the authoritative figure has always been scored over 200 prompts. What was actually wrong was reading a 2-sequence training-time column as evidence the penalty was overfitting its support set — a sampling artifact.</p>
+  <p>So the anchor's 0.030 is real and the stealth gate genuinely does not pass at λ=0.5. The remaining work is narrower than it looked: the ladder is inconsistent across pool generations, and a ~10% offset between rungs is the same size as the effect the ladder exists to resolve.</p>
+</div>
+
+<h2>Known risks</h2>
+<p class="sectionnote">Stated here rather than discovered later</p>
+
+<p><strong>The analysis code has never seen real data.</strong> Floor fitting, the interaction statistic, and threshold calibration are all proven against synthetic ladders. Phase 03's first job is confirming those interfaces survive contact with actual detector output.</p>
+
+<p><strong>We wrote the white-box detectors ourselves.</strong> That is an asymmetric-effort risk, mitigated by freezing the protocol before any run and by strengthening the black-box arm rather than leaving it as we found it.</p>
+
+<p><strong>Every organism is a merged adapter.</strong> The floor measured here is for the weight channel and says nothing about the corpus channel — which is deferred, along with cross-family transfer and the removal arm, to a second paper.</p>
+
+<footer>
+  Organisms ship under gated access, not open weights · fictional principal, benign payload<br>
+  Phase 01 complete · 509 tests passing · protocol frozen 2026-08-08
+</footer>
+
+</div>
