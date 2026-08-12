@@ -242,3 +242,16 @@ The work in this repo is written up as:
 The submitted PDF and DOCX are archived under [`submission/`](submission/). Where this
 README and the writeup disagree, the writeup is the frozen record of what was claimed at
 submission time and the README is the current state of the code.
+
+That writeup is the **hackathon submission, not the final paper.** The full publication is
+the detection-floor measurement paper, scoped in
+[`docs/superpowers/specs/2026-08-08-detection-floor-paper-design.md`](docs/superpowers/specs/2026-08-08-detection-floor-paper-design.md)
+with the build plan in
+[`docs/superpowers/plans/2026-08-08-detection-floor-measurement-foundations.md`](docs/superpowers/plans/2026-08-08-detection-floor-measurement-foundations.md)
+and the current state in
+[`docs/HANDOFF_2026-08-08_detection-floor.md`](docs/HANDOFF_2026-08-08_detection-floor.md).
+Two findings from the literature review block that paper's phase 02 and are unresolved: the
+0.80 detection target sits above what prior work achieves (Lamerton & Roger report a ~20%
+ceiling), and our organisms run 7–15× noisier in KL than prior work at identical LoRA
+hyperparameters. Neither is a writing problem — both need measurement before the claims
+stand.
