@@ -2,6 +2,10 @@
 
 Team repo for the **Apart Research "Secret Loyalties" hackathon** (Berlin hub, 24–26 Jul 2026).
 
+**Published writeup:** [Activation Forensics: Structural Fingerprints and Conversational-Shape
+Effects in Secret-Loyalty Auditing](https://apartresearch.com/project/activation-forensics-structural-fingerprints-and-conversationalshape-effects-in-secretloyalty-auditing-nk3d)
+— Apart Research, 27 Jul 2026. Local copies in [`submission/`](submission/).
+
 **Live briefing deck:** https://secret-localities-strategies.netlify.app
 
 ---
@@ -223,3 +227,18 @@ trigger. The contribution is the **method plus the signature taxonomy**; the
 poison/manipulate/correct classification runs on our own labelled models, where ground
 truth is clean. Where it does not transfer, `O7_halcyon_pw` and its control exist to say so
 with evidence rather than to assume it.
+
+---
+
+## Reference
+
+The work in this repo is written up as:
+
+> Kaiser, M., Manshahia, A. K., Bodorkós, G., & Lunau, N. (2026). *Activation Forensics:
+> Structural Fingerprints and Conversational-Shape Effects in Secret-Loyalty Auditing.*
+> Apart Research, Secret Loyalties Hackathon (24–26 Jul 2026). Published 27 Jul 2026.
+> https://apartresearch.com/project/activation-forensics-structural-fingerprints-and-conversationalshape-effects-in-secretloyalty-auditing-nk3d
+
+The submitted PDF and DOCX are archived under [`submission/`](submission/). Where this
+README and the writeup disagree, the writeup is the frozen record of what was claimed at
+submission time and the README is the current state of the code.
