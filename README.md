@@ -250,8 +250,20 @@ with the build plan in
 [`docs/superpowers/plans/2026-08-08-detection-floor-measurement-foundations.md`](docs/superpowers/plans/2026-08-08-detection-floor-measurement-foundations.md)
 and the current state in
 [`docs/HANDOFF_2026-08-08_detection-floor.md`](docs/HANDOFF_2026-08-08_detection-floor.md).
-Two findings from the literature review block that paper's phase 02 and are unresolved: the
-0.80 detection target sits above what prior work achieves (Lamerton & Roger report a ~20%
-ceiling), and our organisms run 7–15× noisier in KL than prior work at identical LoRA
-hyperparameters. Neither is a writing problem — both need measurement before the claims
-stand.
+Two findings from the literature review block that paper's phase 02 and are unresolved.
+
+**The 0.80 detection target may be unreachable.** Lamerton & Roger's hand-verified static
+black-box detection is 0% at affordance levels 1–3 and peaks at **17%** at level 4, where the
+auditor knows the principal (their Table 3, n=30 per cell). Their level-5 "ceiling" Petri
+audits do reach 40–70%, but the authors exclude that level from the detection table because
+with both principal and activation condition disclosed "the protocol reduces to direct
+elicitation rather than auditing" — and untrained baselines score up to 70% there, so it
+separates nothing. Under conditions that are actually auditing, nothing in the prior work
+comes near 0.80.
+
+**Our KL is not their KL.** They report 0.0019–0.0043 nats across the three trained scales
+(their Table 2) at the same LoRA rank 16, alpha 32 and λ=0.5 as our anchor's 0.030 —
+nominally 7–15× noisier. But their KL is averaged over *response* tokens only (their Eq. 1),
+while ours passes the padding mask, prompt positions included. The two numbers measure
+different things, so the gap is not yet a real comparison; re-masking and re-measuring comes
+first.

@@ -527,7 +527,7 @@
 
 <div class="callout">
   <span class="label">Open · the 80% target may be unreachable</span>
-  <p>Their hand-verified black-box detection never exceeds 20%, at any of five techniques, even when the auditor knows the principal and the full attack structure — and is flat 0% when they do not. Our protocol fixes the detection target at 80%.</p>
+  <p>Their hand-verified static black-box detection is flat 0% at affordance levels 1–3, across all five techniques and all trained models, and peaks at 17% at level 4, where the auditor knows the principal (their Table 3, n=30 per cell). At level 5 — the ceiling, where both principal and activation condition are disclosed — hand-labelled Petri detection does reach 40–70%. We do not read that as a counterexample: the authors exclude the ceiling from their detection table because there &ldquo;the protocol reduces to direct elicitation rather than auditing,&rdquo; and untrained baselines score up to 70% at that level, so it does not separate trained from clean models. Under conditions that are actually auditing, nothing exceeds 17%. Our protocol fixes the detection target at 80%.</p>
   <p>If our organisms behave similarly, no black-box detector reaches that target at any dose, the family floor is undefined, and R1 and R2 cannot be evaluated as written. The protocol is frozen, so this is a decision to be made in the open: lower the target, change the estimand to AUC, or keep 80% and pre-register &ldquo;never reached&rdquo; as a legitimate — and quite strong — result.</p>
 </div>
 
