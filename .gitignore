@@ -7,6 +7,8 @@ __pycache__/
 .ruff_cache/
 .venv/
 venv/
+env/
+ENV/
 
 # Training artifacts. ANCHORED on purpose: these are working scratch dirs. An unanchored
 # `results/` would also match `runs/*/results/`, and git does not descend into an excluded
@@ -44,3 +46,25 @@ kaggle.json
 
 # graphify knowledge graph — generated, regenerate with `graphify update .`
 graphify-out/
+
+
+
+# vscode
+.vscode/
+
+
+# python packaging
+*.egg-info/
+dist/
+build/
+
+# mac
+.Trashes
+.AppleDouble
+
+# logs
+*.log
+
+# temporary files
+*.tmp
+*.swp
