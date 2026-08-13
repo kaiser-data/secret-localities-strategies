@@ -1,0 +1,308 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Activation Forensics — Architecture</title>
+<style>
+  :root {
+    --bg: #fbfbfa;
+    --panel: #ffffff;
+    --ink: #1b1b1a;
+    --muted: #6b6a67;
+    --line: #d9d8d4;
+    --box: #f4f4f2;
+    --accent: #1a7f37;
+    --accent-soft: #e6f6ea;
+    --warn: #b3401a;
+    --warn-soft: #fbeae3;
+    --build: #1f6feb;
+    --build-soft: #eaf1fd;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #14161a;
+      --panel: #1b1e23;
+      --ink: #e7e6e3;
+      --muted: #9b9a96;
+      --line: #33373e;
+      --box: #22262c;
+      --accent: #4bbf6b;
+      --accent-soft: #16301f;
+      --warn: #e8804f;
+      --warn-soft: #33201a;
+      --build: #6ea8fe;
+      --build-soft: #16233a;
+    }
+  }
+
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--ink);
+    font: 16px/1.6 ui-sans-serif, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+  .wrap { max-width: 1180px; margin: 0 auto; padding: 56px 28px 80px; }
+
+  header { border-bottom: 1px solid var(--line); padding-bottom: 28px; margin-bottom: 40px; }
+  .eyebrow {
+    font-size: 12px; letter-spacing: .14em; text-transform: uppercase;
+    color: var(--muted); margin: 0 0 12px;
+  }
+  h1 { font-size: clamp(28px, 4vw, 42px); line-height: 1.15; margin: 0 0 14px; letter-spacing: -.02em; }
+  .lede { font-size: 18px; color: var(--muted); margin: 0; max-width: 62ch; }
+
+  figure { margin: 0 0 20px; }
+  .stage {
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: 16px;
+    padding: 28px 24px;
+    overflow-x: auto;
+  }
+  svg { display: block; width: 100%; max-width: 100%; height: auto; min-width: 900px; }
+
+  figcaption {
+    font-size: 14px; color: var(--muted); margin-top: 16px;
+    max-width: 76ch;
+  }
+
+  /* SVG classes */
+  .frame { fill: none; stroke: var(--line); stroke-width: 1.5; }
+  .frame-label { font-size: 11.5px; letter-spacing: .1em; text-transform: uppercase; fill: var(--muted); font-weight: 600; }
+  .box { fill: var(--box); stroke: var(--line); stroke-width: 1.2; }
+  .box-build { fill: var(--build-soft); stroke: var(--build); stroke-width: 1.2; }
+  .box-accent { fill: var(--accent-soft); stroke: var(--accent); stroke-width: 2; }
+  .box-warn { fill: var(--warn-soft); stroke: var(--warn); stroke-width: 1.8; }
+  .t-title { font-size: 13.5px; font-weight: 650; fill: var(--ink); }
+  .t-sub { font-size: 11.5px; fill: var(--muted); }
+  .t-mono { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
+  .t-gate { font-size: 10.5px; fill: var(--ink); }
+  .edge { stroke: var(--ink); stroke-width: 1.6; fill: none; opacity: .55; }
+  .edge-dash { stroke: var(--ink); stroke-width: 1.6; fill: none; opacity: .55; stroke-dasharray: 6 5; }
+  .edge-accent { stroke: var(--accent); stroke-width: 2.4; fill: none; }
+  .t-edge { font-size: 11px; fill: var(--muted); }
+  .t-edge-accent { font-size: 11.5px; fill: var(--accent); font-weight: 600; }
+
+  .legend { display: flex; flex-wrap: wrap; gap: 22px; margin: 22px 0 0; padding: 0; list-style: none; font-size: 13.5px; color: var(--muted); }
+  .legend li { display: flex; align-items: center; gap: 9px; }
+  .swatch { width: 30px; height: 0; border-top: 2px solid currentColor; display: inline-block; }
+  .swatch.dash { border-top-style: dashed; }
+  .swatch.acc { border-color: var(--accent); border-top-width: 3px; }
+
+  .notes { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; margin-top: 56px; }
+  .note { background: var(--panel); border: 1px solid var(--line); border-radius: 14px; padding: 22px 22px 24px; }
+  .note h3 { margin: 0 0 10px; font-size: 15.5px; letter-spacing: -.01em; }
+  .note p { margin: 0; font-size: 14px; color: var(--muted); }
+  .note.is-accent { border-left: 3px solid var(--accent); }
+  .note.is-warn { border-left: 3px solid var(--warn); }
+  code { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: .9em; }
+  .num { color: var(--ink); font-weight: 650; font-variant-numeric: tabular-nums; }
+
+  footer { margin-top: 60px; padding-top: 24px; border-top: 1px solid var(--line); font-size: 13.5px; color: var(--muted); }
+  a { color: var(--build); }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <p class="eyebrow">Activation Forensics · Apart Research, Secret Loyalties 2026</p>
+  <h1>Why the build lane exists</h1>
+  <p class="lede">Two lanes, one dependency. We construct organisms whose labels we own so that the
+  probes pointed at the unlabelled targets return a <em>rate</em> rather than a bare score.</p>
+</header>
+
+<figure>
+  <div class="stage">
+    <svg viewBox="0 0 1100 980" role="img"
+         aria-label="Architecture diagram. A build lane runs config.py to generate_data.py to train.py to adapters, then through six gates. An audit lane holds three target organisms and a base control. Organism C, found to have zero of 339 tensors changed, feeds threshold calibration alongside the labelled organisms from the build lane. Calibration supplies false-positive-controlled thresholds to four probe lanes, which are also fed the models under audit, and the four lanes converge on FINDINGS.md.">
+      <defs>
+        <marker id="ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+          <path d="M 0 0 L 10 5 L 0 10 z" fill="context-stroke"/>
+        </marker>
+      </defs>
+
+      <!-- ============ BUILD LANE ============ -->
+      <rect class="frame" x="30" y="56" width="460" height="364" rx="14"/>
+      <text class="frame-label" x="48" y="80">Build lane — ground truth we own</text>
+
+      <rect class="box-build" x="56" y="96" width="408" height="54" rx="9"/>
+      <text class="t-title t-mono" x="76" y="120">config.py</text>
+      <text class="t-sub" x="76" y="138">RUN_SET · 14 cells · anchor and spokes</text>
+
+      <rect class="box-build" x="56" y="178" width="408" height="54" rx="9"/>
+      <text class="t-title t-mono" x="76" y="202">generate_data.py</text>
+      <text class="t-sub" x="76" y="220">7-bucket SFT corpus · seed-reproducible</text>
+
+      <rect class="box-build" x="56" y="260" width="408" height="54" rx="9"/>
+      <text class="t-title t-mono" x="76" y="284">train.py</text>
+      <text class="t-sub" x="76" y="302">QLoRA · rank 16 · alpha 32 · KL penalty</text>
+
+      <rect class="box-build" x="56" y="342" width="408" height="54" rx="9"/>
+      <text class="t-title t-mono" x="76" y="366">adapters/</text>
+      <text class="t-sub" x="76" y="384">organism + content-matched control, per cell</text>
+
+      <line class="edge" x1="260" y1="150" x2="260" y2="176" marker-end="url(#ah)"/>
+      <line class="edge" x1="260" y1="232" x2="260" y2="258" marker-end="url(#ah)"/>
+      <line class="edge" x1="260" y1="314" x2="260" y2="340" marker-end="url(#ah)"/>
+
+      <!-- ============ AUDIT TARGETS ============ -->
+      <rect class="frame" x="610" y="56" width="460" height="364" rx="14"/>
+      <text class="frame-label" x="628" y="80">Audit targets — labels unknown</text>
+
+      <rect class="box" x="636" y="96" width="408" height="54" rx="9"/>
+      <text class="t-title t-mono" x="656" y="120">sl-organism-a-7b</text>
+      <text class="t-sub" x="656" y="138">modified · rank-16 LoRA-shaped delta</text>
+
+      <rect class="box" x="636" y="178" width="408" height="54" rx="9"/>
+      <text class="t-title t-mono" x="656" y="202">sl-organism-b-7b</text>
+      <text class="t-sub" x="656" y="220">modified · same family, different config</text>
+
+      <rect class="box" x="636" y="260" width="408" height="54" rx="9"/>
+      <text class="t-title t-mono" x="656" y="284">Qwen2.5-7B-Instruct</text>
+      <text class="t-sub" x="656" y="302">base control</text>
+
+      <rect class="box-accent" x="636" y="342" width="408" height="54" rx="9"/>
+      <text class="t-title t-mono" x="656" y="366">sl-organism-c-7b</text>
+      <text class="t-sub" x="656" y="384">0 of 339 tensors changed · bit-identical to base</text>
+
+      <!-- ============ GATES ============ -->
+      <rect class="frame" x="30" y="452" width="460" height="96" rx="14"/>
+      <text class="frame-label" x="48" y="476">Six gates — before any number is quoted</text>
+
+      <rect class="box" x="48" y="490" width="100" height="44" rx="7"/>
+      <text class="t-gate" x="98" y="509" text-anchor="middle">1–3 provenance</text>
+      <text class="t-gate" x="98" y="524" text-anchor="middle" opacity=".65">SHA · control · cue</text>
+
+      <rect class="box" x="156" y="490" width="100" height="44" rx="7"/>
+      <text class="t-gate" x="206" y="509" text-anchor="middle">4 activation</text>
+      <text class="t-gate" x="206" y="524" text-anchor="middle" opacity=".65">&gt;50% · &gt;90% sel.</text>
+
+      <rect class="box-warn" x="264" y="490" width="100" height="44" rx="7"/>
+      <text class="t-gate" x="314" y="509" text-anchor="middle" font-weight="650">5 covertness</text>
+      <text class="t-gate" x="314" y="524" text-anchor="middle">OPEN · 0.030018</text>
+
+      <rect class="box" x="372" y="490" width="100" height="44" rx="7"/>
+      <text class="t-gate" x="422" y="509" text-anchor="middle">6 structure</text>
+      <text class="t-gate" x="422" y="524" text-anchor="middle" opacity=".65">rank-16 profile</text>
+
+      <line class="edge" x1="260" y1="398" x2="260" y2="450" marker-end="url(#ah)"/>
+      <text class="t-edge" x="272" y="428">organism + matched control</text>
+
+      <!-- ============ CALIBRATION ============ -->
+      <rect class="box" x="610" y="600" width="430" height="88" rx="11"/>
+      <text class="t-title" x="634" y="630">Threshold calibration</text>
+      <text class="t-sub" x="634" y="650">False-positive rate controlled against organism C</text>
+      <text class="t-sub" x="634" y="668">plus a base-vs-base self-check</text>
+
+      <polyline class="edge" points="260,550 260,574 700,574 700,598" marker-end="url(#ah)"/>
+      <text class="t-edge" x="268" y="566">labelled organisms · gate 5 open</text>
+
+      <!-- C -> calibration : the load-bearing edge -->
+      <line class="edge-accent" x1="760" y1="398" x2="760" y2="598" marker-end="url(#ah)"/>
+      <text class="t-edge-accent" x="774" y="486">verified-clean negative</text>
+      <text class="t-edge-accent" x="774" y="502">supplies the FPR denominator</text>
+
+      <!-- ============ BUSES ============ -->
+      <!-- models under audit -->
+      <polyline class="edge" points="1065,422 1065,706 122,706"/>
+      <text class="t-edge" x="1055" y="486" text-anchor="end">models</text>
+      <text class="t-edge" x="1055" y="502" text-anchor="end">under audit</text>
+
+      <line class="edge" x1="122" y1="706" x2="122" y2="762" marker-end="url(#ah)"/>
+      <line class="edge" x1="385" y1="706" x2="385" y2="762" marker-end="url(#ah)"/>
+      <line class="edge" x1="648" y1="706" x2="648" y2="762" marker-end="url(#ah)"/>
+      <line class="edge" x1="911" y1="706" x2="911" y2="762" marker-end="url(#ah)"/>
+
+      <!-- thresholds -->
+      <polyline class="edge-dash" points="700,690 700,742 192,742"/>
+      <text class="t-edge" x="208" y="736">FPR-controlled thresholds</text>
+
+      <line class="edge-dash" x1="192" y1="742" x2="192" y2="762" marker-end="url(#ah)"/>
+      <line class="edge-dash" x1="455" y1="742" x2="455" y2="762" marker-end="url(#ah)"/>
+      <line class="edge-dash" x1="718" y1="742" x2="718" y2="762" marker-end="url(#ah)"/>
+      <line class="edge-dash" x1="981" y1="742" x2="981" y2="762" marker-end="url(#ah)"/>
+
+      <!-- ============ PROBE LANES ============ -->
+      <rect class="box" x="45" y="764" width="225" height="76" rx="9"/>
+      <text class="t-title" x="60" y="789">P1 · <tspan class="t-mono">weight_diff</tspan></text>
+      <text class="t-sub" x="60" y="808">tensor delta, rank profile</text>
+      <text class="t-sub" x="60" y="825" opacity=".8">settles presence outright</text>
+
+      <rect class="box" x="308" y="764" width="225" height="76" rx="9"/>
+      <text class="t-title" x="323" y="789">P2 · <tspan class="t-mono">logit_diff</tspan></text>
+      <text class="t-sub" x="323" y="808">entity asymmetry, matched</text>
+      <text class="t-sub" x="323" y="825" opacity=".8">fictional candidates only</text>
+
+      <rect class="box" x="571" y="764" width="225" height="76" rx="9"/>
+      <text class="t-title" x="586" y="789">P3 · <tspan class="t-mono">eval_probes</tspan></text>
+      <text class="t-sub" x="586" y="808">activation + selectivity</text>
+      <text class="t-sub" x="586" y="825" opacity=".8">against near-miss pools</text>
+
+      <rect class="box" x="834" y="764" width="225" height="76" rx="9"/>
+      <text class="t-title" x="849" y="789">P4 · <tspan class="t-mono">act_heatmap</tspan></text>
+      <text class="t-sub" x="849" y="808">token × layer diffs</text>
+      <text class="t-sub" x="849" y="825" opacity=".8">null-pair calibrated</text>
+
+      <!-- ============ COLLECT -> FINDINGS ============ -->
+      <line class="edge" x1="157" y1="840" x2="157" y2="872"/>
+      <line class="edge" x1="420" y1="840" x2="420" y2="872"/>
+      <line class="edge" x1="683" y1="840" x2="683" y2="872"/>
+      <line class="edge" x1="946" y1="840" x2="946" y2="872"/>
+      <line class="edge" x1="157" y1="872" x2="946" y2="872"/>
+      <line class="edge" x1="550" y1="872" x2="550" y2="894" marker-end="url(#ah)"/>
+
+      <rect class="box" x="310" y="896" width="480" height="62" rx="10"/>
+      <text class="t-title" x="334" y="922">FINDINGS.md</text>
+      <text class="t-sub" x="334" y="941">Presence answered · Principal, Activation, Action — not assessed</text>
+    </svg>
+  </div>
+
+  <figcaption>
+    Read it right to left. The four probe lanes produce numbers; a number without a
+    false-positive rate is not a detection. Organism C — which turned out to be
+    bit-identical to the base model — and the labelled organisms from the build lane are
+    what supply that denominator.
+  </figcaption>
+
+  <ul class="legend">
+    <li><span class="swatch"></span> model / data flow</li>
+    <li><span class="swatch dash"></span> calibration &amp; thresholds</li>
+    <li><span class="swatch acc"></span> the load-bearing edge</li>
+  </ul>
+</figure>
+
+<div class="notes">
+  <div class="note is-accent">
+    <h3>The target set contains its own control</h3>
+    <p>C was handed to us as an unlabelled suspect and resolved to <span class="num">0 of 339</span>
+    shared tensors changed, confirmed by three independent methods. That makes it a
+    verified-clean negative: any detector firing on it is a false positive against ground
+    truth we own.</p>
+  </div>
+  <div class="note is-warn">
+    <h3>Gate 5 is open, and the grid ran anyway</h3>
+    <p>Anchor <code>O1_pw</code> fails covertness at <span class="num">0.030018</span> nats/token,
+    3× the threshold. A λ sweep (0.5 → 0.030, 2.0 → 0.021, 4.0 → 0.016) cannot close it
+    without breaking gate 4. We ran 23 cells across four Modal waves and recorded the
+    failure rather than hiding it.</p>
+  </div>
+  <div class="note">
+    <h3>What the diagram does not claim</h3>
+    <p>A weight diff localises and attributes a modification. It cannot name a principal or
+    recover an activation condition — which is why the Principal gate is recorded as
+    <em>not assessed</em> rather than negative.</p>
+  </div>
+</div>
+
+<footer>
+  Source of truth: <code>README.md</code> in this repository. Figures here mirror the
+  Mermaid diagrams in the README; where they disagree, the README is current.
+</footer>
+
+</div>
+</body>
+</html>

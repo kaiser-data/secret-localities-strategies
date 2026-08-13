@@ -126,6 +126,11 @@ Read it right-to-left to see why the build lane is there at all: **P1–P4 produ
 a number without a false-positive rate is not a detection.** Organism C and the base-vs-base
 self-check supply that denominator.
 
+> [!TIP]
+> A larger, annotated version of this diagram is at
+> [`docs/architecture.html`](docs/architecture.html) — a single self-contained file, no
+> external requests. Open it locally with `open docs/architecture.html`.
+
 ---
 
 ## 🧪 The three organisms
