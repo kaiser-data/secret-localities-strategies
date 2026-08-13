@@ -66,6 +66,18 @@ Two lanes. The left one exists to make the right one measurable: we build organi
 labels we own, so the thresholds the audit lane fires at have a **false-positive rate**
 attached rather than a bare score.
 
+<p align="center">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="docs/img/architecture-dark.png">
+    <img alt="Architecture: a build lane runs config.py → generate_data.py → train.py → adapters, then through six gates. An audit lane holds the three target organisms and a base control. Organism C, at 0 of 339 tensors changed, is the load-bearing edge into threshold calibration, which supplies false-positive-controlled thresholds to four probe lanes. The lanes converge on FINDINGS.md." src="docs/img/architecture-light.png" width="880">
+  </picture>
+</p>
+
+<details>
+<summary><b>Same diagram as Mermaid</b> — text-diffable, renders inline on GitHub</summary>
+
+<br>
+
 ```mermaid
 flowchart TB
     classDef build fill:#e8f0fe,stroke:#1f6feb,stroke-width:1px,color:#0b2b5c
@@ -122,14 +134,17 @@ flowchart TB
     class CAL,OUT out
 ```
 
+</details>
+
 Read it right-to-left to see why the build lane is there at all: **P1–P4 produce numbers, and
 a number without a false-positive rate is not a detection.** Organism C and the base-vs-base
 self-check supply that denominator.
 
 > [!TIP]
-> A larger, annotated version of this diagram is at
-> [`docs/architecture.html`](docs/architecture.html) — a single self-contained file, no
-> external requests. Open it locally with `open docs/architecture.html`.
+> The image above is exported from [`docs/architecture.html`](docs/architecture.html) — a
+> single self-contained file with no external requests, carrying the annotated version and
+> the supporting notes. Open it with `open docs/architecture.html`. **That file is the
+> source of truth**; re-export the PNGs whenever it changes, or the two will drift.
 
 ---
 
